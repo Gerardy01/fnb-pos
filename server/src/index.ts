@@ -1,5 +1,8 @@
-import express, { Express, Request, Response } from "express";
+import express, { Express } from "express";
 import dotenv from "dotenv";
+
+// api routes
+import api from "./routes";
 
 dotenv.config();
 
@@ -7,11 +10,12 @@ dotenv.config();
 const app : Express = express();
 const port = process.env.PORT || 8000;
 
+// Middleware
+app.use(express.json());
 
-app.get("/", (req: Request, res: Response) => {
-    res.send("Express + TypeScript Server");
-});
+app.use("/api", api);
 
+app.use("*", (req, res) => res.status(404).send("NO API ROUTES"));
 
 
 // run
