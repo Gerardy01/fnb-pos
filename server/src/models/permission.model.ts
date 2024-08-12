@@ -23,6 +23,7 @@ Permission.init({
     description: {
         type: DataTypes.STRING,
         allowNull: true,
+        defaultValue: '',
     }
 }, {
     sequelize,

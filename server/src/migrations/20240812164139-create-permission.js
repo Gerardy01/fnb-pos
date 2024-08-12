@@ -21,6 +21,7 @@ module.exports = {
       description: {
         type: Sequelize.STRING,
         allowNull: true,
+        defaultValue: "",
       },
     });
   },
