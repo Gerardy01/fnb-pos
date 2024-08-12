@@ -42,7 +42,7 @@ Role.init({
     sequelize,
     modelName: 'Role',
     tableName: 'role',
-    timestamps: true,
+    timestamps: false,
 });
 
 export default Role;
