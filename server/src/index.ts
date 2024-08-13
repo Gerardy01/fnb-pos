@@ -15,7 +15,6 @@ app.use(express.json());
 
 
 app.use("/api", api);
-
 app.use("*", (req, res) => res.status(404).send("NO API ROUTES"));
 
 

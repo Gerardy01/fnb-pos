@@ -21,6 +21,7 @@ class Account extends Model {
 Account.init({
     account_id: {
         type: DataTypes.UUIDV4,
+        defaultValue: DataTypes.UUIDV4,
         unique: true,
         primaryKey: true,
         allowNull: false,
@@ -54,8 +55,9 @@ Account.init({
 }, {
     sequelize,
     modelName: 'Account',
-    tableName: 'account',
+    tableName: 'accounts',
     timestamps: true,
+    underscored: true,
 });
 
 export default Account

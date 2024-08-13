@@ -14,7 +14,8 @@ class Organization extends Model {
 
 Organization.init({
     organization_id: {
-        type: DataTypes.UUIDV4,
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
         unique: true,
         primaryKey: true,
         allowNull: false,
@@ -40,8 +41,9 @@ Organization.init({
 }, {
     sequelize,
     modelName: 'Organization',
-    tableName: 'organization',
+    tableName: 'organizations',
     timestamps: true,
+    underscored: true,
 });
 
 export default Organization;
