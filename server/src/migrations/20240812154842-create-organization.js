@@ -10,6 +10,10 @@ module.exports = {
         allowNull: false,
         primaryKey: true,
       },
+      organization_name: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
       organization_logo: {
         type: Sequelize.STRING,
         allowNull: true,

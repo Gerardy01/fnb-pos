@@ -29,6 +29,10 @@ module.exports = {
         allowNull: false,
         defaultValue: false,
       },
+      user_agent: {
+        type: Sequelize.STRING,
+        allowNull: false
+      },
       identifier: {
         type: Sequelize.STRING,
         allowNull: false,

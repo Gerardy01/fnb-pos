@@ -9,6 +9,7 @@ class RefreshToken extends Model {
     public account_id! : string;
     public token_expiry_date! : Date;
     public is_revoked! : boolean;
+    public user_agent! : string;
     public identifier! : string;
     public readonly created_at! : Date;
 }
@@ -33,6 +34,10 @@ RefreshToken.init({
     token_expiry_date: {
         type: DataTypes.DATE,
         allowNull: false
+    },
+    user_agent: {
+        type: DataTypes.STRING,
+        allowNull: false,
     },
     is_revoked: {
         type: DataTypes.BOOLEAN,
