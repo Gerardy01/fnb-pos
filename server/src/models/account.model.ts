@@ -37,7 +37,7 @@ Account.init({
     },
     email: {
         type: DataTypes.STRING(50),
-        allowNull: false,
+        allowNull: true,
     },
     password: {
         type: DataTypes.STRING,

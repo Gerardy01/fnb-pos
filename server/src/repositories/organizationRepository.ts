@@ -1,8 +1,12 @@
-
 import Organization from "../models/organization.model";
 
-// interface
-import { IOrganizationRepository } from "../interfaces/repositoryInterface";
+// types and interfaces
+export interface IOrganizationRepository {
+    findOneOrganization(id: string): Promise<Organization | null>
+    findAllOrganization(): Promise<Organization[]>;
+    createOrganization(data : Partial<Organization>): Promise<Organization>;
+}
+
 
 
 export class OrganizationRepository implements IOrganizationRepository {
@@ -19,4 +23,4 @@ export class OrganizationRepository implements IOrganizationRepository {
     createOrganization(data: Partial<Organization>): Promise<Organization> {
         return Organization.create(data);
     }
-} 
+}
