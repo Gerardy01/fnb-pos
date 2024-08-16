@@ -10,6 +10,6 @@ export const CreateOrganizationWithAccountSchema = z.object({
     endValidDatetime : z.number().min(1),
     username : z.string().min(1).max(20),
     name : z.string().min(1),
-    email : z.string().min(1).max(50).nullable(),
+    email : z.string().max(50).nullable(),
     password : z.string().min(1),
 });
