@@ -1,16 +1,22 @@
 import { Request, Response } from 'express';
+import sequelize from "../config/database";
 
 // services
 import { organizationService } from '../services';
 
 // exceptions
 import { NotEpoch } from '../utility/exceptions';
+import { Transaction  } from 'sequelize';
 
 
 class OrganizationController {
     async createOrganization(req : Request, res : Response) {
+        const transaction : Transaction = await sequelize.transaction();
+        
         try {
-            const newOrganization = await organizationService.createOrganization(req.body);
+            const newOrganization = await organizationService.createOrganization(req.body, transaction);
+
+            transaction.commit();
 
             return res.status(201).json({
                 "status" : "success",
@@ -20,6 +26,8 @@ class OrganizationController {
             });
 
         } catch(e) {
+
+            transaction.rollback();
 
             if (e instanceof NotEpoch) {
                 return res.status(403).json({

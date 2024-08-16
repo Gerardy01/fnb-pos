@@ -1,27 +1,46 @@
 import { ICreateOrganizationData } from "../interfaces/IOrganization";
 import { IOrganizationRepository } from "../repositories/organizationRepository";
 
-// types and interfaces
-import { OrganizationDataReturn } from "../interfaces/IOrganization";
+// utils
+import { CounterContextEnum } from "../utility/enums";
+import { generateOrganizationNumber } from "../utility/utils";
 
 // exceptions
 import { NotEpoch } from "../utility/exceptions";
 
-export default class OrganizationService {
+// types and interfaces
+import { Transaction } from "sequelize";
+import { OrganizationDataReturn } from "../interfaces/IOrganization"; 
+import { ICounterService } from "./counterService";
+import { CounterDataReturn } from "../interfaces/ICounter";
+export interface IOrganizationService {
+    createOrganization(data : ICreateOrganizationData, transaction? : Transaction) : Promise<OrganizationDataReturn | boolean>
+}
+
+
+
+export class OrganizationService implements IOrganizationService {
     constructor(
         private organizationRepository: IOrganizationRepository,
+        private counterService : ICounterService,
     ) {}
 
-    async createOrganization(data : ICreateOrganizationData) : Promise<OrganizationDataReturn> {
-        
+    async createOrganization(data : ICreateOrganizationData, transaction? : Transaction) : Promise<OrganizationDataReturn | boolean> {
+
         const endValidDatetimeConverted : Date = new Date(data.endValidDatetime);
+
+        const organizationNoCount : CounterDataReturn = await this.counterService.updateOrCreateCounter(
+            CounterContextEnum.ORGANIZATION_NO,
+            transaction
+        );
+        const organizationNo : string = generateOrganizationNumber(data.organizationName, organizationNoCount.count);
 
         const newOrganization = await this.organizationRepository.createOrganization({
             organization_name: data.organizationName,
             organization_logo: undefined,
-            organization_no: "system",
+            organization_no: organizationNo,
             end_valid_datetime: endValidDatetimeConverted
-        });
+        }, transaction);
 
         return {
             organizationId : newOrganization.organization_id,
