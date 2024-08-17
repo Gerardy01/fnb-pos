@@ -5,16 +5,13 @@ import { IOrganizationRepository } from "../repositories/organizationRepository"
 import { CounterContextEnum } from "../utility/enums";
 import { generateOrganizationNumber } from "../utility/utils";
 
-// exceptions
-import { NotEpoch } from "../utility/exceptions";
-
 // types and interfaces
 import { Transaction } from "sequelize";
 import { OrganizationDataReturn } from "../interfaces/IOrganization"; 
 import { ICounterService } from "./counterService";
 import { CounterDataReturn } from "../interfaces/ICounter";
 export interface IOrganizationService {
-    createOrganization(data : ICreateOrganizationData, transaction? : Transaction) : Promise<OrganizationDataReturn | boolean>
+    createOrganization(data : ICreateOrganizationData, transaction? : Transaction) : Promise<OrganizationDataReturn>
 }
 
 
@@ -25,7 +22,7 @@ export class OrganizationService implements IOrganizationService {
         private counterService : ICounterService,
     ) {}
 
-    async createOrganization(data : ICreateOrganizationData, transaction? : Transaction) : Promise<OrganizationDataReturn | boolean> {
+    async createOrganization(data : ICreateOrganizationData, transaction? : Transaction) : Promise<OrganizationDataReturn> {
 
         const endValidDatetimeConverted : Date = new Date(data.endValidDatetime);
 

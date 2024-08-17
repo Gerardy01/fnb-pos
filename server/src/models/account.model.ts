@@ -3,6 +3,7 @@ import sequelize from "../config/database";
 
 // models
 import Organization from "./organization.model";
+import Role from "./role.model";
 
 
 class Account extends Model {
@@ -52,6 +53,20 @@ Account.init({
         },
         onDelete: 'CASCADE'
     },
+    role_id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+            model: Role,
+            key: 'role_id',
+        },
+        onDelete: 'CASCADE'
+    },
+    archived: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+    }
 }, {
     sequelize,
     modelName: 'Account',

@@ -6,7 +6,6 @@ export interface ICreateAccountData {
     name : string;
     email : string;
     password : string;
-    organizationId : string;
     roleId : number;
 }
 
@@ -18,7 +17,14 @@ export interface ICreateAccountForManagementData {
     organizationId : string;
 }
 
-export interface IAccountDataReturn {
+export interface ICreateSuperAdminData {
+    username : string;
+    name : string;
+    email : string;
+    password : string;
+}
+
+export type AccountDataReturn = {
     accountId : string;
     username : string;
     name : string;

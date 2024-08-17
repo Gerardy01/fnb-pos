@@ -1,14 +1,10 @@
 import Role from "../models/role.model"
-import { Op } from "sequelize";
-
-// utils
-import { DefaultRoleEnum } from "../utility/enums";
 
 // types and interfaces
 export interface IRoleRepository {
     findOneRole(id : number) : Promise<Role | null>
     findRoleByname(name : string) : Promise<Role | null>
-    roleExistQuery(id : number, organizationId : string) : Promise<Role | null>
+    findDefaultRoleByName(name : string) : Promise<Role | null>
 }
 
 
@@ -21,6 +17,7 @@ export class RoleRepository implements IRoleRepository {
             }
         });
     }
+    
     findRoleByname(name: string): Promise<Role | null> {
         return Role.findOne({
             where: {
@@ -28,21 +25,12 @@ export class RoleRepository implements IRoleRepository {
             }
         });
     }
-    roleExistQuery(id: number, organizationId: string): Promise<Role | null> {
+
+    findDefaultRoleByName(name: string): Promise<Role | null> {
         return Role.findOne({
             where: {
-                role_id : id,
-                [Op.not]: {
-                    [Op.or]: [
-                        { role_name : DefaultRoleEnum.SUPER_ADMIN },
-                        {
-                            [Op.and] : [
-                                { organization_id :{ [Op.not]: null } },
-                                { organization_id : organizationId }
-                            ]
-                        }
-                    ]
-                }
+                role_name : name,
+                is_default : true
             }
         });
     }

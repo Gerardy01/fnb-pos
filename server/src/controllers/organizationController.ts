@@ -2,10 +2,12 @@ import { Request, Response } from 'express';
 import sequelize from "../config/database";
 
 // services
-import { organizationService } from '../services';
+import { organizationService, organizationAccountService } from '../services';
 
 // exceptions
-import { NotEpoch } from '../utility/exceptions';
+import { ExistData, DataNotFound, WrongFormat } from '../utility/exceptions';
+
+// types and interfaces
 import { Transaction  } from 'sequelize';
 
 
@@ -29,14 +31,6 @@ class OrganizationController {
 
             transaction.rollback();
 
-            if (e instanceof NotEpoch) {
-                return res.status(403).json({
-                    "status" : "failed",
-                    "message" : "make sure epoch value is valid",
-                    "userMessage" : "",
-                });
-            }
-
             return res.status(500).json({
                 "status" : "failed",
                 "message" : "server error",
@@ -47,10 +41,54 @@ class OrganizationController {
     }
 
     async createOrganizationWithAccount(req : Request, res : Response) {
+        const transaction : Transaction = await sequelize.transaction();
+
         try {
-            res.send("success")
+
+            const newOrganization = await organizationAccountService.createOrganizationWithAccount(req.body, transaction);
+
+            transaction.commit();
+
+            return res.status(201).json({
+                "status" : "success",
+                "message" : "organization created",
+                "userMessage" : "",
+                "data" : newOrganization,
+            });
+
         } catch(e) {
-            res.send("something wrong")
+            transaction.rollback();
+
+            if (e instanceof ExistData) {
+                return res.status(409).json({
+                    "status" : "failed",
+                    "message" : e.message,
+                    "userMessage" : e.message,
+                });
+            }
+
+            if (e instanceof DataNotFound) {
+                return res.status(404).json({
+                    "status" : "failed",
+                    "message" : e.message,
+                    "userMessage" : e.message,
+                });
+            }
+
+            if (e instanceof WrongFormat) {
+                return res.status(403).json({
+                    "status" : "failed",
+                    "message" : e.message,
+                    "userMessage" : e.message,
+                });
+            }
+
+            return res.status(500).json({
+                "status" : "failed",
+                "message" : "server error",
+                "userMessage" : "Something wrong. Try again later.",
+                "errors" : e
+            });
         }
     }
 }

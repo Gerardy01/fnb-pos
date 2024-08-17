@@ -1,13 +1,6 @@
 
 
 
-export class NotEpoch extends Error {
-    constructor(message : string) {
-		super(message);
-		this.name = "NoEpochError";
-    }
-}
-
 export class ExistData extends Error {
 	constructor(message : string) {
 		super(message);
@@ -19,5 +12,12 @@ export class DataNotFound extends Error {
 	constructor(message : string) {
 		super(message);
 		this.name = "DataNotFoundError";
+	}
+}
+
+export class WrongFormat extends Error {
+	constructor(message : string) {
+		super(message);
+		this.name = "WrongFormatError";
 	}
 }
