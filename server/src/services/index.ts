@@ -3,6 +3,7 @@ import { OrganizationService } from "./organizationService";
 import { CounterService } from "./counterService";
 import { OrganizationAccountSerivice } from "./organizationAccountService";
 import { AccountService } from "./accountService";
+import { AuthService } from "./authService";
 
 // repository
 import { OrganizationRepository } from "../repositories/organizationRepository";
@@ -28,6 +29,7 @@ const counterService = new CounterService(counterRepository);
 // main service
 export const organizationService = new OrganizationService(organizationRepository, counterService);
 export const accountService = new AccountService(accountRepository, roleRepository, bcryptHashProvider);
+export const authService = new AuthService();
 
 
 // combined service
