@@ -12,7 +12,7 @@ import { Transaction  } from 'sequelize';
 
 
 class OrganizationController {
-    async createOrganization(req : Request, res : Response) {
+    static async createOrganization(req : Request, res : Response) {
         const transaction : Transaction = await sequelize.transaction();
         
         try {
@@ -40,7 +40,7 @@ class OrganizationController {
         }
     }
 
-    async createOrganizationWithAccount(req : Request, res : Response) {
+    static async createOrganizationWithAccount(req : Request, res : Response) {
         const transaction : Transaction = await sequelize.transaction();
 
         try {
@@ -93,4 +93,4 @@ class OrganizationController {
     }
 }
 
-export default new OrganizationController();
+export default OrganizationController;

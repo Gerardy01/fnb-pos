@@ -12,7 +12,6 @@ import { AccountDataReturn, ICreateAccountData, ICreateAccountForManagementData 
 import { IAccountRepository } from "../repositories/accountRepository";
 import { IRoleRepository } from "../repositories/roleRepository";
 import { IHashProvider } from "../providers/hashProvider";
-import { IOrganizationRepository } from "../repositories/organizationRepository";
 export interface IAccountService {
     createAccount(data : ICreateAccountData, organizationId : string, transaction? : Transaction) : Promise<AccountDataReturn>
     createAccountForManagement(data : ICreateAccountForManagementData, transaction? : Transaction, forSuperAdmin? : boolean) : Promise<AccountDataReturn>
@@ -92,7 +91,6 @@ export class AccountService implements IAccountService {
         // check if username format is valid
         const usernameValid = validateUsername(data.username);
         if (!usernameValid.valid) {
-            console.log(usernameValid)
             throw new WrongFormat(usernameValid.message);
         }
 

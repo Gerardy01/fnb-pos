@@ -21,3 +21,10 @@ export class WrongFormat extends Error {
 		this.name = "WrongFormatError";
 	}
 }
+
+export class DuplicateValue extends Error {
+	constructor(message : string) {
+		super(message);
+		this.name = "DuplicateValueError";
+	}
+}

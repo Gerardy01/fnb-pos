@@ -7,7 +7,7 @@ import { accountService, organizationAccountService } from '../services';
 import { ExistData, DataNotFound, WrongFormat } from '../utility/exceptions';
 
 class AccountController {
-    async createAccounts(req : Request, res : Response) {
+    static async createAccounts(req : Request, res : Response) {
         try {
             const newAccount = await accountService.createAccount(req.body, 'f9952f8b-414e-4ce4-9a6e-b8ddf99e2351');
             
@@ -53,7 +53,7 @@ class AccountController {
         }
     }
 
-    async createSuperadminAccount(req : Request, res : Response) {
+    static async createSuperadminAccount(req : Request, res : Response) {
         try {
             const newAccount = await organizationAccountService.createSuperAdmin(req.body)
 
@@ -101,4 +101,4 @@ class AccountController {
 }
 
 
-export default new AccountController();
+export default AccountController;
