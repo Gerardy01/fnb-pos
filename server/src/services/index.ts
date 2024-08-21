@@ -16,6 +16,7 @@ import { RolePermissionsRepository } from "../repositories/rolePermissionsReposi
 
 // providers
 import { BcryptHashProvider } from "../providers/hashProvider";
+import { JsonWebTokenJwtProvider } from "../providers/jwtProvider";
 
 
 const organizationRepository = new OrganizationRepository();
@@ -26,6 +27,7 @@ const permissionRepository = new PermissionRepository();
 const rolePermissionRepository = new RolePermissionsRepository();
 
 const bcryptHashProvider = new BcryptHashProvider();
+const jsonWebTokenJwtProvider = new JsonWebTokenJwtProvider();
 
 // unexposed service
 const counterService = new CounterService(counterRepository);
@@ -34,7 +36,7 @@ const counterService = new CounterService(counterRepository);
 // main service
 export const organizationService = new OrganizationService(organizationRepository, counterService);
 export const accountService = new AccountService(accountRepository, roleRepository, bcryptHashProvider);
-export const authService = new AuthService();
+export const authService = new AuthService(accountRepository, bcryptHashProvider, jsonWebTokenJwtProvider);
 export const roleService = new RoleService(roleRepository, permissionRepository, rolePermissionRepository);
 
 

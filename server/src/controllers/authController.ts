@@ -3,15 +3,35 @@ import { Request, Response } from 'express';
 // services
 import { authService } from '../services';
 
+// exceptions
+import { DataNotFound } from '../utility/exceptions';
+
 
 class AuthController {
-    async login(req : Request, res : Response) {
+    static async login(req : Request, res : Response) {
+        const tokenData = await authService.login(req.body);
         try {
 
-            const token = authService.login(req.body);
             
-            res.send("success")
+            return res.status(200).json({
+                "status" : "success",
+                "message" : "login success",
+                "userMessage" : "",
+                "data" : {
+                    "accessToken" : tokenData.accessToken
+                },
+            });
+
         } catch(e) {
+
+            if (e instanceof DataNotFound) {
+                return res.status(401).json({
+                    "status" : "failed",
+                    "message" : e.message,
+                    "userMessage" : e.message,
+                });
+            }
+
             return res.status(500).json({
                 "status" : "failed",
                 "message" : "server error",
@@ -21,7 +41,7 @@ class AuthController {
         }
     }
 
-    async logout(req : Request, res : Response) {
+    static async logout(req : Request, res : Response) {
         try {
 
         } catch(e) {
@@ -34,7 +54,7 @@ class AuthController {
         }
     }
 
-    async requestAccessToken(req : Request, res : Response) {
+    static async requestAccessToken(req : Request, res : Response) {
         try {
 
         } catch(e) {
@@ -48,4 +68,4 @@ class AuthController {
     }
 }
 
-export default new AuthController();
+export default AuthController;
