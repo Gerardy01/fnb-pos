@@ -14,7 +14,7 @@ export interface IAccessTokenBody {
 }
 
 export interface IRefreshTokenBody {
-    tokenIdentifier : string;
+    accountId : string;
 }
 
 export type LoginReturnData = {

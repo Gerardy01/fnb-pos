@@ -1,18 +1,33 @@
 import { Request, Response } from 'express';
+import sequelize from "../config/database";
 
 // services
 import { authService } from '../services';
 
 // exceptions
-import { DataNotFound } from '../utility/exceptions';
+import { DataNotFound, NotValid } from '../utility/exceptions';
+
+// types and interfaces
+import { Transaction  } from 'sequelize';
 
 
 class AuthController {
     static async login(req : Request, res : Response) {
-        const tokenData = await authService.login(req.body);
-        try {
+        const transaction : Transaction = await sequelize.transaction();
 
-            
+        try {
+            const userAgent = req.get('User-Agent') || "";
+
+            const tokenData = await authService.login(req.body, userAgent, transaction);
+
+            res.cookie('refreshToken', tokenData.refreshToken , {
+                httpOnly: true,
+                secure: true,
+                maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days in milliseconds (following token expiry time)
+            });
+
+            transaction.commit();
+
             return res.status(200).json({
                 "status" : "success",
                 "message" : "login success",
@@ -23,6 +38,8 @@ class AuthController {
             });
 
         } catch(e) {
+
+            transaction.rollback();
 
             if (e instanceof DataNotFound) {
                 return res.status(401).json({
@@ -57,7 +74,30 @@ class AuthController {
     static async requestAccessToken(req : Request, res : Response) {
         try {
 
+            const userAgent = req.get('User-Agent') || "";
+
+            const refreshToken = req.cookies.refreshToken;
+            const newAccessToken = await authService.generateAccessToken(refreshToken, userAgent);
+
+            return res.status(200).json({
+                "status" : "success",
+                "message" : "new access token generated",
+                "userMessage" : "",
+                "data" : {
+                    "accessToken" : newAccessToken
+                },
+            });
+
         } catch(e) {
+
+            if (e instanceof NotValid) {
+                return res.status(401).json({
+                    "status" : "failed",
+                    "message" : e.message,
+                    "userMessage" : e.message,
+                });
+            }
+
             return res.status(500).json({
                 "status" : "failed",
                 "message" : "server error",

@@ -1,4 +1,5 @@
 import express, { Express } from "express";
+import cookieParser from 'cookie-parser';
 import dotenv from "dotenv";
 
 // api routes
@@ -12,6 +13,7 @@ const port = process.env.PORT || 8000;
 
 // Middleware
 app.use(express.json());
+app.use(cookieParser());
 
 
 app.use("/api", api);

@@ -28,3 +28,10 @@ export class DuplicateValue extends Error {
 		this.name = "DuplicateValueError";
 	}
 }
+
+export class NotValid extends Error {
+	constructor(message : string) {
+		super(message);
+		this.name = "NotValidError";
+	}
+}
