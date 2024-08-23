@@ -6,6 +6,10 @@ export interface ILoginData {
     password : string;
 }
 
+export interface ISuperAdminLoginData extends ILoginData {
+    organizationId : string;
+}
+
 export interface IAccessTokenBody {
     username : string;
     organizationId : string;

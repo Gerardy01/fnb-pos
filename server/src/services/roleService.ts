@@ -33,6 +33,7 @@ export class RoleService implements IRoleService {
             throw new DuplicateValue("Make sure not to input two same permission");
         }
 
+        // check if role already exist
         const role = await this.roleRepository.findRoleByNameAndOrganization(data.roleName, organizationId);
         const defaultRole = await this.roleRepository.findDefaultRoleByName(data.roleName);
         if (role || (defaultRole && defaultRole.role_name !== DefaultRoleEnum.SUPER_ADMIN)) {
@@ -54,6 +55,7 @@ export class RoleService implements IRoleService {
             throw new DataNotFound(`Permission with id ${missingPermissionIds.join(', ')} does not exist`)
         }
 
+        // create role
         const newRole = await this.roleRepository.createRole({
             role_name: data.roleName,
             organization_id: organizationId

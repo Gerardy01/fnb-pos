@@ -41,7 +41,7 @@ const counterService = new CounterService(counterRepository);
 // main service
 export const organizationService = new OrganizationService(organizationRepository, counterService);
 export const accountService = new AccountService(accountRepository, roleRepository, bcryptHashProvider);
-export const authService = new AuthService(accountRepository, rolePermissionRepository, refreshTokenRepository, bcryptHashProvider, jsonWebTokenJwtProvider, envData);
+export const authService = new AuthService(accountRepository, rolePermissionRepository, refreshTokenRepository, organizationRepository, bcryptHashProvider, jsonWebTokenJwtProvider, envData);
 export const roleService = new RoleService(roleRepository, permissionRepository, rolePermissionRepository);
 
 

@@ -2,8 +2,11 @@
 // exceptions
 import { DataNotFound, NotValid } from "../utility/exceptions";
 
+// utils
+import { PermissionEnum } from "../utility/enums";
+
 // types and interfaces
-import { ILoginData, LoginReturnData } from "../interfaces/IAuth"
+import { ILoginData, ISuperAdminLoginData, LoginReturnData } from "../interfaces/IAuth"
 import { IAccountRepository } from "../repositories/accountRepository";
 import { IHashProvider } from "../providers/hashProvider";
 import { IJwtProvider } from "../providers/jwtProvider";
@@ -12,10 +15,12 @@ import { IRolePermissionsRepository } from "../repositories/rolePermissionsRepos
 import { IRolePermissionData } from "../interfaces/IRole";
 import { IRefreshTokenRepository } from "../repositories/refreshTokenRepository";
 import { Transaction } from "sequelize";
+import { IOrganizationRepository } from "../repositories/organizationRepository";
 export interface IAuthService {
     login(data : ILoginData, userAgent : string, transaction : Transaction) : Promise<LoginReturnData>;
-    generateAccessToken(refreshToken : string, userAgent : string) : Promise<string>
-    logout(refreshToken : string) : Promise<void>
+    superAdminLogin(data : ISuperAdminLoginData, userAgent : string, transaction? : Transaction) : Promise<LoginReturnData>;
+    generateAccessToken(refreshToken : string, userAgent : string) : Promise<string>;
+    logout(refreshToken : string) : Promise<void>;
 }
 
 
@@ -26,6 +31,7 @@ export class AuthService implements IAuthService {
         private accountRepository : IAccountRepository,
         private rolePermissionRepository : IRolePermissionsRepository,
         private refreshTokenRepository : IRefreshTokenRepository,
+        private organizationRepository : IOrganizationRepository,
         private hashProvider : IHashProvider,
         private jwtProvider : IJwtProvider,
         private envData : IEnvData,
@@ -62,6 +68,71 @@ export class AuthService implements IAuthService {
         const accessToken = await this.jwtProvider.generateAccessToken({
             username: account.username,
             organizationId: account.organization_id,
+            accountId: account.account_id,
+            permissions: permissionDataTransformed
+        }, this.envData.accessTokenSignature, "10m");
+
+        // create refresh token
+        const refreshToken = await this.jwtProvider.generateRefreshToken({
+            accountId: account.account_id
+        }, this.envData.refreshTokenSignature, "30d");
+
+        // record access token
+        const decoded = await this.jwtProvider.validateToken(refreshToken, this.envData.refreshTokenSignature);
+        if (!decoded) throw new Error("decode token error");
+        const refreshExpDate = new Date(decoded.exp * 1000)
+        await this.refreshTokenRepository.recordRefreshToken({
+            account_id: account.account_id,
+            token_expiry_date: refreshExpDate,
+            user_agent : userAgent,
+            identifier : refreshToken
+        }, transaction);
+
+        return {
+            accessToken: accessToken,
+            refreshToken: refreshToken
+        }
+    }
+
+    async superAdminLogin(data: ISuperAdminLoginData, userAgent : string, transaction?: Transaction): Promise<LoginReturnData> {
+        
+        // find account
+        const account = await this.accountRepository.findAccountByEmailOrUsername(data.identifier);
+
+        if (!account) {
+            throw new DataNotFound("Account not found. Make sure you input correct credentials");
+        }
+
+        // check password
+        const isMatch = await this.hashProvider.compareHash(data.password, account.password);
+        if (!isMatch) throw new DataNotFound("Account not found. Make sure you input correct credentials");
+        
+        // check and revoke sesion if > 3 session detected
+        await this.checkAndRevokeSession(account.account_id, 3, transaction);
+
+        // check if organization exist
+        const organization = await this.organizationRepository.findOneOrganization(data.organizationId);
+        if (!organization) throw new DataNotFound("Organization not found")
+
+        // get permission data
+        const permissions = await this.rolePermissionRepository.findPermissionByRole(account.role_id);
+        const permissionDataTransformed : IRolePermissionData[] = [];
+        permissions.forEach(item => {
+            permissionDataTransformed.push({
+                permissionId : item.permission_id,
+                read : item.read,
+                write : item.write
+            });
+        });
+        
+        // check if account is super admin (have super permission)
+        const superPermission = permissions.find(item => item.permission_id === PermissionEnum.SUPER_PERMISSION);
+        if (!superPermission) throw new DataNotFound("Account not found. Make sure you input correct credentials");
+
+        // create access token
+        const accessToken = await this.jwtProvider.generateAccessToken({
+            username: account.username,
+            organizationId: data.organizationId,
             accountId: account.account_id,
             permissions: permissionDataTransformed
         }, this.envData.accessTokenSignature, "10m");

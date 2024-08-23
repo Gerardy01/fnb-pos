@@ -4,15 +4,16 @@ import { Router } from 'express';
 import { validateRequest } from '../../utility/middleware';
 
 // schema
-import { LoginSchema } from '../../schema/authSchema';
+import { LoginSchema, SuperAdminLoginSchema } from '../../schema/authSchema';
 
 // controller
 import AuthController from '../../controllers/authController';
 
 const authRoutes = Router();
 
-authRoutes.post("/login", validateRequest(LoginSchema), AuthController.login);
-authRoutes.post("/logout", AuthController.logout)
 authRoutes.get("/token", AuthController.requestAccessToken)
+authRoutes.post("/login", validateRequest(LoginSchema), AuthController.login);
+authRoutes.post("/login/super-admin", validateRequest(SuperAdminLoginSchema), AuthController.superAdminLogin);
+authRoutes.post("/logout", AuthController.logout)
 
 export default authRoutes;

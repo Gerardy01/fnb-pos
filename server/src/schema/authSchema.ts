@@ -5,3 +5,9 @@ export const LoginSchema = z.object({
     password : z.string().min(1)
 });
 
+export const SuperAdminLoginSchema = z.object({
+    identifier : z.string().min(1),
+    password : z.string().min(1),
+    organizationId : z.string().min(1)
+});
+

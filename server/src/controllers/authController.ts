@@ -58,6 +58,52 @@ class AuthController {
         }
     }
 
+    static async superAdminLogin(req : Request, res : Response) {
+        const transaction : Transaction = await sequelize.transaction();
+
+        try {
+            const userAgent = req.get('User-Agent') || "";
+
+            const tokenData = await authService.superAdminLogin(req.body, userAgent, transaction);
+
+            res.cookie('refreshToken', tokenData.refreshToken , {
+                httpOnly: true,
+                secure: true,
+                maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days in milliseconds (following token expiry time)
+            });
+
+            transaction.commit();
+
+            return res.status(200).json({
+                "status" : "success",
+                "message" : "login success",
+                "userMessage" : "",
+                "data" : {
+                    "accessToken" : tokenData.accessToken
+                },
+            });
+
+        } catch(e) {
+
+            transaction.rollback();
+
+            if (e instanceof DataNotFound) {
+                return res.status(401).json({
+                    "status" : "failed",
+                    "message" : e.message,
+                    "userMessage" : e.message,
+                });
+            }
+
+            return res.status(500).json({
+                "status" : "failed",
+                "message" : "server error",
+                "userMessage" : "Something wrong. Try again later.",
+                "errors" : e
+            });
+        }
+    }
+
     static async logout(req : Request, res : Response) {
         try {
             const refreshToken = req.cookies.refreshToken || "";
