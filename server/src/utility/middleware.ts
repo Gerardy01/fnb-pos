@@ -32,3 +32,7 @@ export function validateRequest(Schema : any) {
         next();
     }
 }
+
+export function authenticate(req : Request, res : Response) {
+    
+}

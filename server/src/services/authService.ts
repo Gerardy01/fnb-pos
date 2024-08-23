@@ -16,6 +16,8 @@ import { IRolePermissionData } from "../interfaces/IRole";
 import { IRefreshTokenRepository } from "../repositories/refreshTokenRepository";
 import { Transaction } from "sequelize";
 import { IOrganizationRepository } from "../repositories/organizationRepository";
+import { IAdminOrganizationRepository } from "../repositories/adminOrganizationRepository";
+import { IAdminOrganizationService } from "./adminOrganizationService";
 export interface IAuthService {
     login(data : ILoginData, userAgent : string, transaction : Transaction) : Promise<LoginReturnData>;
     superAdminLogin(data : ISuperAdminLoginData, userAgent : string, transaction? : Transaction) : Promise<LoginReturnData>;
@@ -32,6 +34,8 @@ export class AuthService implements IAuthService {
         private rolePermissionRepository : IRolePermissionsRepository,
         private refreshTokenRepository : IRefreshTokenRepository,
         private organizationRepository : IOrganizationRepository,
+        private adminOrganizationRepository : IAdminOrganizationRepository,
+        private adminOrganizationService : IAdminOrganizationService,
         private hashProvider : IHashProvider,
         private jwtProvider : IJwtProvider,
         private envData : IEnvData,
@@ -111,7 +115,7 @@ export class AuthService implements IAuthService {
         await this.checkAndRevokeSession(account.account_id, 3, transaction);
 
         // check if organization exist
-        const organization = await this.organizationRepository.findOneOrganization(data.organizationId);
+        const organization = await this.organizationRepository.findOrganizationByNo(data.organizationNo);
         if (!organization) throw new DataNotFound("Organization not found")
 
         // get permission data
@@ -124,7 +128,7 @@ export class AuthService implements IAuthService {
                 write : item.write
             });
         });
-        
+
         // check if account is super admin (have super permission)
         const superPermission = permissions.find(item => item.permission_id === PermissionEnum.SUPER_PERMISSION);
         if (!superPermission) throw new DataNotFound("Account not found. Make sure you input correct credentials");
@@ -132,7 +136,7 @@ export class AuthService implements IAuthService {
         // create access token
         const accessToken = await this.jwtProvider.generateAccessToken({
             username: account.username,
-            organizationId: data.organizationId,
+            organizationId: organization.organization_id,
             accountId: account.account_id,
             permissions: permissionDataTransformed
         }, this.envData.accessTokenSignature, "10m");
@@ -152,6 +156,9 @@ export class AuthService implements IAuthService {
             user_agent : userAgent,
             identifier : refreshToken
         }, transaction);
+
+        // update user organization
+        await this.adminOrganizationService.updateOrCreateAdminOrganization(account.account_id, organization.organization_id)
 
         return {
             accessToken: accessToken,
@@ -194,9 +201,19 @@ export class AuthService implements IAuthService {
             });
         });
 
+        let organizationId = account.organization_id;
+
+        // check if user superadmin
+        const superPermission = permissions.find(item => item.permission_id === PermissionEnum.SUPER_PERMISSION);
+        if (superPermission) {
+            const adminOrganization = await this.adminOrganizationRepository.findByAccountId(account.account_id);
+            if (!adminOrganization) throw new Error("something wrong on getting admin organization");
+            organizationId = adminOrganization.organization_id;
+        }
+
         const accessToken = await this.jwtProvider.generateAccessToken({
             username: account.username,
-            organizationId: account.organization_id,
+            organizationId: organizationId,
             accountId: account.account_id,
             permissions: permissionDataTransformed
         }, this.envData.accessTokenSignature, "10m");

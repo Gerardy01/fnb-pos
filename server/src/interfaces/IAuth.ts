@@ -7,7 +7,7 @@ export interface ILoginData {
 }
 
 export interface ISuperAdminLoginData extends ILoginData {
-    organizationId : string;
+    organizationNo : string;
 }
 
 export interface IAccessTokenBody {

@@ -8,6 +8,6 @@ export const LoginSchema = z.object({
 export const SuperAdminLoginSchema = z.object({
     identifier : z.string().min(1),
     password : z.string().min(1),
-    organizationId : z.string().min(1)
+    organizationNo : z.string().min(1)
 });
 
