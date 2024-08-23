@@ -60,8 +60,22 @@ class AuthController {
 
     static async logout(req : Request, res : Response) {
         try {
+            const refreshToken = req.cookies.refreshToken || "";
+            authService.logout(refreshToken);
+
+            res.clearCookie('refreshToken', {
+                httpOnly: true,
+                secure: true,
+            });
+
+            return res.status(200).json({
+                "status" : "success",
+                "message" : "logout success",
+                "userMessage" : "Logout success",
+            });
 
         } catch(e) {
+
             return res.status(500).json({
                 "status" : "failed",
                 "message" : "server error",
@@ -76,7 +90,7 @@ class AuthController {
 
             const userAgent = req.get('User-Agent') || "";
 
-            const refreshToken = req.cookies.refreshToken;
+            const refreshToken = req.cookies.refreshToken || "";
             const newAccessToken = await authService.generateAccessToken(refreshToken, userAgent);
 
             return res.status(200).json({

@@ -4,6 +4,7 @@ import RefreshToken from "../models/refreshToken.model"
 // types and interfaces
 import { Transaction } from "sequelize"
 export interface IRefreshTokenRepository {
+    findByIdentifier(identifier : string) : Promise<RefreshToken | null>
     findByAccount(accountId : string) : Promise<RefreshToken[]>
     recordRefreshToken(data : Partial<RefreshToken>, transaction? : Transaction) : Promise<RefreshToken>
     
@@ -12,6 +13,14 @@ export interface IRefreshTokenRepository {
 
 
 export class RefreshTokenRepository implements IRefreshTokenRepository {
+    findByIdentifier(identifier: string): Promise<RefreshToken | null> {
+        return RefreshToken.findOne({
+            where: {
+                identifier : identifier
+            },
+        });
+    }
+
     findByAccount(accountId: string): Promise<RefreshToken[]> {
         return RefreshToken.findAll({
             where: {

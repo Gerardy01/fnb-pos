@@ -15,6 +15,7 @@ import { Transaction } from "sequelize";
 export interface IAuthService {
     login(data : ILoginData, userAgent : string, transaction : Transaction) : Promise<LoginReturnData>;
     generateAccessToken(refreshToken : string, userAgent : string) : Promise<string>
+    logout(refreshToken : string) : Promise<void>
 }
 
 
@@ -98,7 +99,7 @@ export class AuthService implements IAuthService {
         if (session.length === 0) throw new NotValid("Refresh token is not valid");
 
         // check if token exist inside db
-        const refreshTokenSession = session.find(data => data.identifier === refreshToken);
+        const refreshTokenSession = session.find(data => data.identifier === refreshToken && !data.is_revoked);
         if (!refreshTokenSession) throw new NotValid("Refresh token is not valid");
         
         // match user agent (make sure token remain in the same device)
@@ -130,6 +131,15 @@ export class AuthService implements IAuthService {
         }, this.envData.accessTokenSignature, "10m");
 
         return accessToken;
+    }
+
+    async logout(refreshToken: string): Promise<void> {
+        
+        const session = await this.refreshTokenRepository.findByIdentifier(refreshToken);
+        if (!session) return;
+
+        session.is_revoked = true;
+        session.save();
     }
 
     private async checkAndRevokeSession(accountId : string, cap : number = 3, transaction? : Transaction) : Promise<void> {
