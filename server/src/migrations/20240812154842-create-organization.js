@@ -3,12 +3,16 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable('organization', {
+    await queryInterface.createTable('organizations', {
       organization_id: {
         type: Sequelize.UUID,
         defaultValue: Sequelize.UUIDV4,
         allowNull: false,
         primaryKey: true,
+      },
+      organization_name: {
+        type: Sequelize.STRING,
+        allowNull: false,
       },
       organization_logo: {
         type: Sequelize.STRING,
@@ -42,6 +46,6 @@ module.exports = {
   },
 
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable('organization');
+    await queryInterface.dropTable('organizations');
   },
 };

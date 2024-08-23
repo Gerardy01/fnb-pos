@@ -1,0 +1,91 @@
+
+// exceptions
+import { ExistData, DataNotFound, DuplicateValue } from "../utility/exceptions";
+
+// utils
+import { DefaultRoleEnum, PermissionEnum } from "../utility/enums";
+
+// types and interfaces
+import { Transaction } from "sequelize";
+import { ICreateRoleData, RoleWithPermissionReturnData, IRolePermissionData } from "../interfaces/IRole";
+import { IRoleRepository } from "../repositories/roleRepository";
+import { IPermissionRepository } from "../repositories/permissionRepository";
+import { IRolePermissionsRepository } from "../repositories/rolePermissionsRepository";
+import RolePermissions from "../models/rolePermission.model";
+export interface IRoleService {
+    createRole(data : ICreateRoleData, organizationId : string, transaction? : Transaction) : Promise<RoleWithPermissionReturnData>
+}
+
+export class RoleService implements IRoleService {
+    constructor(
+        private roleRepository : IRoleRepository,
+        private permissionRepository : IPermissionRepository,
+        private rolePermissionRepository : IRolePermissionsRepository,
+    ) {}
+
+    async createRole(data: ICreateRoleData, organizationId: string, transaction? : Transaction): Promise<RoleWithPermissionReturnData> {
+        
+        const permissionIds = data.permissions.map(data => data.permissionId);
+
+        // check if there is duplicate permission input
+        const uniquePermissionIds = new Set(permissionIds);
+        if (uniquePermissionIds.size !== permissionIds.length) {
+            throw new DuplicateValue("Make sure not to input two same permission");
+        }
+
+        // check if role already exist
+        const role = await this.roleRepository.findRoleByNameAndOrganization(data.roleName, organizationId);
+        const defaultRole = await this.roleRepository.findDefaultRoleByName(data.roleName);
+        if (role || (defaultRole && defaultRole.role_name !== DefaultRoleEnum.SUPER_ADMIN)) {
+            throw new ExistData(`Role ${data.roleName} already exist`);
+        }
+
+        // check if no super admin permission included in body
+        const superPermissionInRequest = data.permissions.find(data => data.permissionId === PermissionEnum.SUPER_PERMISSION);
+        if (superPermissionInRequest) {
+            throw new DataNotFound(`Permission with id ${superPermissionInRequest.permissionId} does not exist`)
+        }
+
+        // check if all permission exist
+        const permissions = await this.permissionRepository.findByIds(permissionIds);
+
+        const foundPermissionIds = permissions.map(permission => permission.permission_id);
+        if (foundPermissionIds.length !== permissionIds.length) {
+            const missingPermissionIds = permissionIds.filter(id => !foundPermissionIds.includes(id));
+            throw new DataNotFound(`Permission with id ${missingPermissionIds.join(', ')} does not exist`)
+        }
+
+        // create role
+        const newRole = await this.roleRepository.createRole({
+            role_name: data.roleName,
+            organization_id: organizationId
+        }, transaction);
+
+        const rolePermissionData : Partial<RolePermissions>[] = [];
+        data.permissions.forEach(item => {
+            rolePermissionData.push({
+                role_id : newRole.role_id,
+                permission_id : item.permissionId,
+                read : item.read,
+                write : item.write,
+            });
+        });
+
+        const newRolePermission = await this.rolePermissionRepository.bulkCreateRolePermissions(rolePermissionData, transaction);
+        
+        const createdPermissionList : IRolePermissionData[] = [];
+        newRolePermission.forEach(item => {
+            createdPermissionList.push({
+                permissionId: item.permission_id,
+                read : item.read,
+                write : item.write
+            });
+        });
+
+        return {
+            roleId : newRole.role_id,
+            roleName : newRole.role_name,
+            permissions : createdPermissionList
+        }
+    }
+}

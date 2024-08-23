@@ -4,6 +4,7 @@ import sequelize from "../config/database";
 
 class Organization extends Model {
     public organization_id! : string;
+    public organization_name! : string;
     public organization_logo! : string;
     public organization_no! : string;
     public archived! : boolean;
@@ -14,9 +15,14 @@ class Organization extends Model {
 
 Organization.init({
     organization_id: {
-        type: DataTypes.UUIDV4,
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
         unique: true,
         primaryKey: true,
+        allowNull: false,
+    },
+    organization_name: {
+        type: DataTypes.STRING,
         allowNull: false,
     },
     organization_logo: {
@@ -40,8 +46,9 @@ Organization.init({
 }, {
     sequelize,
     modelName: 'Organization',
-    tableName: 'organization',
+    tableName: 'organizations',
     timestamps: true,
+    underscored: true,
 });
 
 export default Organization;

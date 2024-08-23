@@ -2,48 +2,48 @@ import { Sequelize, DataType, Model, DataTypes } from "sequelize";
 import sequelize from "../config/database";
 
 // models
+import Account from "./account.model";
 import Organization from "./organization.model";
 
-
-class Role extends Model {
-    public role_id! : number;
-    public role_name! : string;
-    public is_default! : boolean;
+class AdminOrganization extends Model {
+    public id! : number;
+    public account_id! : string;
     public organization_id! : string;
 }
 
-Role.init({
-    role_id: {
+AdminOrganization.init({
+    id: {
         type: DataTypes.INTEGER,
         unique: true,
         primaryKey: true,
         allowNull: false,
         autoIncrement: true,
     },
-    role_name: {
-        type: DataTypes.STRING(20),
+    account_id: {
+        type: DataTypes.UUIDV4,
         allowNull: false,
-    },
-    is_default: {
-        type: DataTypes.BOOLEAN,
-        allowNull: false,
-        defaultValue: false,
+        references: {
+            model: Account,
+            key: 'account_id',
+        },
+        onDelete: 'CASCADE'
     },
     organization_id: {
         type: DataTypes.UUIDV4,
-        allowNull: true,
+        allowNull: false,
         references: {
             model: Organization,
             key: 'organization_id',
         },
         onDelete: 'CASCADE'
-    },
+    }
 }, {
     sequelize,
-    modelName: 'Role',
-    tableName: 'roles',
-    timestamps: false,
+    modelName: 'AdminOrganization',
+    tableName: 'admin_organizations',
+    timestamps: true,
+    underscored: true,
+    createdAt: false,
 });
 
-export default Role;
-
+export default AdminOrganization;

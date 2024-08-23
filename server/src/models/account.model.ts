@@ -3,6 +3,7 @@ import sequelize from "../config/database";
 
 // models
 import Organization from "./organization.model";
+import Role from "./role.model";
 
 
 class Account extends Model {
@@ -21,6 +22,7 @@ class Account extends Model {
 Account.init({
     account_id: {
         type: DataTypes.UUIDV4,
+        defaultValue: DataTypes.UUIDV4,
         unique: true,
         primaryKey: true,
         allowNull: false,
@@ -36,7 +38,7 @@ Account.init({
     },
     email: {
         type: DataTypes.STRING(50),
-        allowNull: false,
+        allowNull: true,
     },
     password: {
         type: DataTypes.STRING,
@@ -51,11 +53,26 @@ Account.init({
         },
         onDelete: 'CASCADE'
     },
+    role_id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+            model: Role,
+            key: 'role_id',
+        },
+        onDelete: 'CASCADE'
+    },
+    archived: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+    }
 }, {
     sequelize,
     modelName: 'Account',
-    tableName: 'account',
+    tableName: 'accounts',
     timestamps: true,
+    underscored: true,
 });
 
 export default Account

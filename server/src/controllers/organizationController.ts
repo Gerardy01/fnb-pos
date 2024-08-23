@@ -1,48 +1,35 @@
 import { Request, Response } from 'express';
+import sequelize from "../config/database";
 
 // services
-import { accountService, organizationAccountService } from '../services';
+import { organizationService, organizationAccountService } from '../services';
 
 // exceptions
 import { ExistData, DataNotFound, WrongFormat } from '../utility/exceptions';
 
-class AccountController {
-    static async createAccounts(req : Request, res : Response) {
+// types and interfaces
+import { Transaction  } from 'sequelize';
+
+
+class OrganizationController {
+    static async createOrganization(req : Request, res : Response) {
+        const transaction : Transaction = await sequelize.transaction();
+        
         try {
-            const newAccount = await accountService.createAccount(req.body, 'f9952f8b-414e-4ce4-9a6e-b8ddf99e2351');
-            
+            const newOrganization = await organizationService.createOrganization(req.body, transaction);
+
+            transaction.commit();
+
             return res.status(201).json({
                 "status" : "success",
-                "message" : "account created",
+                "message" : "organization created",
                 "userMessage" : "",
-                "data" : newAccount,
+                "data" : newOrganization,
             });
 
         } catch(e) {
 
-            if (e instanceof ExistData) {
-                return res.status(409).json({
-                    "status" : "failed",
-                    "message" : e.message,
-                    "userMessage" : e.message,
-                });
-            }
-
-            if (e instanceof DataNotFound) {
-                return res.status(404).json({
-                    "status" : "failed",
-                    "message" : e.message,
-                    "userMessage" : e.message,
-                });
-            }
-
-            if (e instanceof WrongFormat) {
-                return res.status(403).json({
-                    "status" : "failed",
-                    "message" : e.message,
-                    "userMessage" : e.message,
-                });
-            }
+            transaction.rollback();
 
             return res.status(500).json({
                 "status" : "failed",
@@ -53,18 +40,24 @@ class AccountController {
         }
     }
 
-    static async createSuperadminAccount(req : Request, res : Response) {
+    static async createOrganizationWithAccount(req : Request, res : Response) {
+        const transaction : Transaction = await sequelize.transaction();
+
         try {
-            const newAccount = await organizationAccountService.createSuperAdmin(req.body)
+
+            const newOrganization = await organizationAccountService.createOrganizationWithAccount(req.body, transaction);
+
+            transaction.commit();
 
             return res.status(201).json({
                 "status" : "success",
-                "message" : "super admin created",
+                "message" : "organization created",
                 "userMessage" : "",
-                "data" : newAccount,
+                "data" : newOrganization,
             });
 
         } catch(e) {
+            transaction.rollback();
 
             if (e instanceof ExistData) {
                 return res.status(409).json({
@@ -89,7 +82,7 @@ class AccountController {
                     "userMessage" : e.message,
                 });
             }
-            
+
             return res.status(500).json({
                 "status" : "failed",
                 "message" : "server error",
@@ -100,5 +93,4 @@ class AccountController {
     }
 }
 
-
-export default AccountController;
+export default OrganizationController;
