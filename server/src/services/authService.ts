@@ -6,7 +6,7 @@ import { DataNotFound, NotValid } from "../utility/exceptions";
 import { PermissionEnum } from "../utility/enums";
 
 // types and interfaces
-import { ILoginData, ISuperAdminLoginData, LoginReturnData } from "../interfaces/IAuth"
+import { IAccessTokenBody, ILoginData, ISuperAdminLoginData, LoginReturnData } from "../interfaces/IAuth"
 import { IAccountRepository } from "../repositories/accountRepository";
 import { IHashProvider } from "../providers/hashProvider";
 import { IJwtProvider } from "../providers/jwtProvider";
@@ -23,6 +23,7 @@ export interface IAuthService {
     superAdminLogin(data : ISuperAdminLoginData, userAgent : string, transaction? : Transaction) : Promise<LoginReturnData>;
     generateAccessToken(refreshToken : string, userAgent : string) : Promise<string>;
     logout(refreshToken : string) : Promise<void>;
+    authenticate(accesToken : string) : Promise<IAccessTokenBody>
 }
 
 
@@ -149,7 +150,7 @@ export class AuthService implements IAuthService {
         // record access token
         const decoded = await this.jwtProvider.validateToken(refreshToken, this.envData.refreshTokenSignature);
         if (!decoded) throw new Error("decode token error");
-        const refreshExpDate = new Date(decoded.exp * 1000)
+        const refreshExpDate = new Date(decoded.exp * 1000);
         await this.refreshTokenRepository.recordRefreshToken({
             account_id: account.account_id,
             token_expiry_date: refreshExpDate,
@@ -228,6 +229,27 @@ export class AuthService implements IAuthService {
 
         session.is_revoked = true;
         session.save();
+    }
+
+    async authenticate(accesToken: string): Promise<IAccessTokenBody> {
+        
+        const decoded = await this.jwtProvider.validateToken(accesToken, this.envData.accessTokenSignature);
+        
+        if (!decoded) throw new NotValid("Access token is not valid");
+
+        const currentDate = new Date();
+        const accessExpDate = new Date(decoded.exp * 1000);
+
+        if (accessExpDate < currentDate) {
+            throw new NotValid("Access token is not valid");
+        }
+
+        return {
+            username: decoded.username,
+            organizationId : decoded.organizationId,
+            accountId : decoded.accountId,
+            permissions : decoded.permissions
+        }
     }
 
     private async checkAndRevokeSession(accountId : string, cap : number = 3, transaction? : Transaction) : Promise<void> {

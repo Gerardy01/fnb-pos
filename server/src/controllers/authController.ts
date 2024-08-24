@@ -108,7 +108,7 @@ class AuthController {
         try {
             const refreshToken = req.cookies.refreshToken || "";
             authService.logout(refreshToken);
-
+            
             res.clearCookie('refreshToken', {
                 httpOnly: true,
                 secure: true,
