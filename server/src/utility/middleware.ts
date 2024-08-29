@@ -5,6 +5,7 @@ import { authService } from '../services';
 
 // types and interfaces
 import { IZodErrorMessage } from '../interfaces/IUtility';
+import { IRolePermissionData } from '../interfaces/IRole';
 
 export function validateRequest(Schema : any) {
     return async (req : Request, res : Response, next : NextFunction) => {
@@ -41,7 +42,7 @@ export async function authenticate(req : Request, res : Response, next : NextFun
     const token = req.headers['authorization']?.split(' ')[1];
     if (!token) {
         return res.status(401).json({
-            "condition" : "failed",
+            "status" : "failed",
             "message" : "bad request, not authenticated",
             "userMessage" : "",
         });
@@ -54,10 +55,60 @@ export async function authenticate(req : Request, res : Response, next : NextFun
         next();
     } catch(e) {
         return res.status(401).json({
-            "condition" : "failed",
+            "status" : "failed",
             "message" : "bad request, not authenticated",
             "userMessage" : "",
         });
     }
     
+}
+
+export function validatePermission(permission : number, action : 'read' | 'write') {
+    return async (req : Request, res : Response, next : NextFunction) => {
+        try {
+
+            if (!req.user) return;
+    
+            const permissions : IRolePermissionData[] = req.user.permissions;
+    
+            const permissionAvailable : IRolePermissionData | undefined = permissions.find(item => item.permissionId === permission);
+    
+            if (!permissionAvailable) {
+                return res.status(403).json({
+                    "status" : "failed",
+                    "message" : "no valid permission",
+                    "userMessage" : "",
+                    "errors" : {
+                        "permissionCode" : permission,
+                        "action" : action
+                    }
+                });
+            }
+    
+            let gotPermission : boolean = false;
+            if (action === 'read') gotPermission = permissionAvailable.read;
+            if (action === 'write') gotPermission = permissionAvailable.write;
+    
+            if (!gotPermission) {
+                return res.status(403).json({
+                    "status" : "failed",
+                    "message" : "no valid permission",
+                    "userMessage" : "",
+                    "errors" : {
+                        "permissionCode" : permission,
+                        "action" : action
+                    }
+                });
+            }
+    
+            next();
+        } catch(e) {
+            return res.status(500).json({
+                "status" : "failed",
+                "message" : "server error",
+                "userMessage" : "Something wrong. Try again later.",
+                "errors" : e
+            });
+        }
+    }
 }

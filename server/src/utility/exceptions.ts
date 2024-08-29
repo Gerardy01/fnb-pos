@@ -22,13 +22,6 @@ export class WrongFormat extends Error {
 	}
 }
 
-export class DuplicateValue extends Error {
-	constructor(message : string) {
-		super(message);
-		this.name = "DuplicateValueError";
-	}
-}
-
 export class NotValid extends Error {
 	constructor(message : string) {
 		super(message);

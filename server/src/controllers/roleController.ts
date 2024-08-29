@@ -5,7 +5,7 @@ import sequelize from "../config/database";
 import { roleService } from '../services';
 
 // exceptions
-import { ExistData, DataNotFound, DuplicateValue } from '../utility/exceptions';
+import { ExistData, DataNotFound } from '../utility/exceptions';
 
 // types and interfaces
 import { Transaction } from 'sequelize';
@@ -15,7 +15,8 @@ class RoleController {
         const transaction : Transaction = await sequelize.transaction();
 
         try {
-            const newRole = await roleService.createRole(req.body, "17298527-f68d-4b9c-b049-5e775f14b15b", transaction);
+            const organizationId = req.user ? req.user.organizationId : "";
+            const newRole = await roleService.createRole(req.body, organizationId, transaction);
             
             transaction.commit();
 
@@ -43,14 +44,6 @@ class RoleController {
                     "status" : "failed",
                     "message" : e.message,
                     "userMessage" : "Make sure you select exist permission",
-                });
-            }
-
-            if (e instanceof DuplicateValue) {
-                return res.status(403).json({
-                    "status" : "failed",
-                    "message" : e.message,
-                    "userMessage" : e.message,
                 });
             }
 

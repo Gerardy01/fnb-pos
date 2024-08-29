@@ -1,7 +1,10 @@
 import { Router } from 'express';
 
+// utils
+import { PermissionEnum } from '../../utility/enums';
+
 // middlewares
-import { validateRequest } from '../../utility/middleware';
+import { authenticate, validatePermission, validateRequest } from '../../utility/middleware';
 
 // schema
 import { CreateAccountSchema, CreateSuperadminSchema } from '../../schema/accountSchema';
@@ -12,7 +15,12 @@ import AccountController from '../../controllers/accountController';
 const accountRoutes = Router();
 
 
-accountRoutes.post("/", validateRequest(CreateAccountSchema), AccountController.createAccounts);
+accountRoutes.post("/",
+    authenticate,
+    validatePermission(PermissionEnum.ACCOUNT_MANAGEMENT, 'write'),
+    validateRequest(CreateAccountSchema),
+    AccountController.createAccounts
+);
 accountRoutes.post("/action/super-admin", validateRequest(CreateSuperadminSchema), AccountController.createSuperadminAccount);
 
 export default accountRoutes;

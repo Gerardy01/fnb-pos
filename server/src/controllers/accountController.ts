@@ -9,7 +9,8 @@ import { ExistData, DataNotFound, WrongFormat } from '../utility/exceptions';
 class AccountController {
     static async createAccounts(req : Request, res : Response) {
         try {
-            const newAccount = await accountService.createAccount(req.body, 'f9952f8b-414e-4ce4-9a6e-b8ddf99e2351');
+            const organizationId = req.user ? req.user.organizationId : "";
+            const newAccount = await accountService.createAccount(req.body, organizationId);
             
             return res.status(201).json({
                 "status" : "success",
@@ -37,7 +38,7 @@ class AccountController {
             }
 
             if (e instanceof WrongFormat) {
-                return res.status(403).json({
+                return res.status(422).json({
                     "status" : "failed",
                     "message" : e.message,
                     "userMessage" : e.message,
@@ -83,7 +84,7 @@ class AccountController {
             }
 
             if (e instanceof WrongFormat) {
-                return res.status(403).json({
+                return res.status(422).json({
                     "status" : "failed",
                     "message" : e.message,
                     "userMessage" : e.message,

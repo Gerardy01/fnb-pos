@@ -1,6 +1,6 @@
 
 // exceptions
-import { ExistData, DataNotFound, DuplicateValue } from "../utility/exceptions";
+import { ExistData, DataNotFound } from "../utility/exceptions";
 
 // utils
 import { DefaultRoleEnum, PermissionEnum } from "../utility/enums";
@@ -25,13 +25,11 @@ export class RoleService implements IRoleService {
 
     async createRole(data: ICreateRoleData, organizationId: string, transaction? : Transaction): Promise<RoleWithPermissionReturnData> {
         
-        const permissionIds = data.permissions.map(data => data.permissionId);
+        let permissionIds = data.permissions.map(data => data.permissionId);
 
-        // check if there is duplicate permission input
+        // remove duplicate permission input
         const uniquePermissionIds = new Set(permissionIds);
-        if (uniquePermissionIds.size !== permissionIds.length) {
-            throw new DuplicateValue("Make sure not to input two same permission");
-        }
+        permissionIds = Array.from(uniquePermissionIds);
 
         // check if role already exist
         const role = await this.roleRepository.findRoleByNameAndOrganization(data.roleName, organizationId);
