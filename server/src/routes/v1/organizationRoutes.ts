@@ -1,7 +1,10 @@
 import { Router } from 'express';
 
+// utils
+import { PermissionEnum } from '../../utility/enums';
+
 // middlewares
-import { validateRequest } from '../../utility/middleware';
+import { validateRequest, authenticate, validatePermission } from '../../utility/middleware';
 
 // Schema
 import {
@@ -16,11 +19,14 @@ const organizationRoutes = Router();
 
 organizationRoutes.post(
     "/",
+    authenticate,
+    validatePermission(PermissionEnum.SUPER_PERMISSION, 'write'),
     validateRequest(CreateOrganizationSchema),
     OrganizationController.createOrganization
 );
 organizationRoutes.post(
     "/action/create-with-account",
+    // TODO: Must authenticate with dashboard (management) account, and permission
     validateRequest(CreateOrganizationWithAccountSchema),
     OrganizationController.createOrganizationWithAccount
 );

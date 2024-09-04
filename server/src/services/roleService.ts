@@ -38,7 +38,7 @@ export class RoleService implements IRoleService {
             throw new ExistData(`Role ${data.roleName} already exist`);
         }
 
-        // check if no super admin permission included in body
+        // check if no super admin permission included in request body data
         const superPermissionInRequest = data.permissions.find(data => data.permissionId === PermissionEnum.SUPER_PERMISSION);
         if (superPermissionInRequest) {
             throw new DataNotFound(`Permission with id ${superPermissionInRequest.permissionId} does not exist`)

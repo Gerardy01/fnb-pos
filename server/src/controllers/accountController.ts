@@ -10,7 +10,8 @@ class AccountController {
     static async createAccounts(req : Request, res : Response) {
         try {
             const organizationId = req.user ? req.user.organizationId : "";
-            const newAccount = await accountService.createAccount(req.body, organizationId);
+            const userAccount = req.user ? req.user.accountId : "";
+            const newAccount = await accountService.createAccount(req.body, organizationId, userAccount);
             
             return res.status(201).json({
                 "status" : "success",
