@@ -14,6 +14,8 @@ export interface IAccessTokenBody {
     username : string;
     organizationId : string;
     accountId : string;
+    accountRoleId : number;
+    accountRoleName : string;
     permissions : IRolePermissionData[]
 }
 

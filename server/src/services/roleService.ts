@@ -7,12 +7,15 @@ import { DefaultRoleEnum, PermissionEnum } from "../utility/enums";
 
 // types and interfaces
 import { Transaction } from "sequelize";
-import { ICreateRoleData, RoleWithPermissionReturnData, IRolePermissionData } from "../interfaces/IRole";
+import { ICreateRoleData, RoleWithPermissionReturnData, IRolePermissionData, RoleReturnData } from "../interfaces/IRole";
 import { IRoleRepository } from "../repositories/roleRepository";
 import { IPermissionRepository } from "../repositories/permissionRepository";
 import { IRolePermissionsRepository } from "../repositories/rolePermissionsRepository";
 import RolePermissions from "../models/rolePermission.model";
+import { resourceUsage } from "process";
 export interface IRoleService {
+    getAllRole(organizationId : string) : Promise<RoleReturnData[]>
+    getDefaultRole(userRole : string) : Promise<RoleReturnData[]>
     createRole(data : ICreateRoleData, organizationId : string, transaction? : Transaction) : Promise<RoleWithPermissionReturnData>
 }
 
@@ -22,6 +25,44 @@ export class RoleService implements IRoleService {
         private permissionRepository : IPermissionRepository,
         private rolePermissionRepository : IRolePermissionsRepository,
     ) {}
+
+    async getAllRole(organizationId : string): Promise<RoleReturnData[]> {
+        
+        const allRole = await this.roleRepository.findRoleByOrganization(organizationId);
+        
+        if (allRole.length === 0) throw new DataNotFound("No role data");
+
+        const roleList : RoleReturnData[] = [];
+        allRole.forEach(item => {
+            roleList.push({
+                roleId: item.role_id,
+                roleName: item.role_name
+            });
+        });
+        
+        return roleList
+    }
+
+    async getDefaultRole(userRole : string): Promise<RoleReturnData[]> {
+
+        let defaultRoles = await this.roleRepository.findDefaultRole();
+
+        if (userRole !== DefaultRoleEnum.ADMIN && userRole !== DefaultRoleEnum.SUPER_ADMIN) {
+            defaultRoles = defaultRoles.filter(item => item.role_name !== DefaultRoleEnum.ADMIN);
+        }
+
+        if (defaultRoles.length === 0) throw new DataNotFound("No role data");
+
+        const roleList : RoleReturnData[] = [];
+        defaultRoles.forEach(item => {
+            roleList.push({
+                roleId: item.role_id,
+                roleName: item.role_name
+            });
+        });
+
+        return roleList;
+    }
 
     async createRole(data: ICreateRoleData, organizationId: string, transaction? : Transaction): Promise<RoleWithPermissionReturnData> {
         

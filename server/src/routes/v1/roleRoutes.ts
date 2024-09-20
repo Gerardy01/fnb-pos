@@ -14,6 +14,16 @@ import RoleController from '../../controllers/roleController';
 
 const roleRoutes = Router();
 
+roleRoutes.get("/",
+    authenticate,
+    validatePermission(PermissionEnum.ROLE_MANAGEMENT, 'read'),
+    RoleController.getAllRole
+);
+roleRoutes.get("/action/default-role",
+    authenticate,
+    validatePermission(PermissionEnum.ROLE_MANAGEMENT, 'read'),
+    RoleController.getDefaultRole
+);
 roleRoutes.post("/",
     authenticate,
     validatePermission(PermissionEnum.ROLE_MANAGEMENT, 'write'),

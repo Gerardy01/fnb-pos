@@ -11,6 +11,66 @@ import { ExistData, DataNotFound } from '../utility/exceptions';
 import { Transaction } from 'sequelize';
 
 class RoleController {
+
+    static async getAllRole(req : Request, res : Response) {
+        try {
+            const organizationId = req.user ? req.user.organizationId : "";
+            const allRoleData = await roleService.getAllRole(organizationId);
+
+            return res.status(200).json({
+                "status" : "success",
+                "data" : allRoleData,
+            });
+
+        } catch(e) {
+
+            if (e instanceof DataNotFound) {
+                return res.status(404).json({
+                    "status" : "success",
+                    "message" : e.message,
+                    "userMessage" : "",
+                });
+            }
+
+            return res.status(500).json({
+                "status" : "failed",
+                "message" : "server error",
+                "userMessage" : "Something wrong. Try again later.",
+                "errors" : e
+            });
+        }
+    }
+
+    static async getDefaultRole(req : Request, res : Response) {
+
+        try {
+            const userRole = req.user ? req.user.accountRoleName : "";
+            const defaultRoles = await roleService.getDefaultRole(userRole);
+
+            return res.status(200).json({
+                "status" : "success",
+                "data" : defaultRoles,
+            });
+
+        } catch(e) {
+
+            if (e instanceof DataNotFound) {
+                return res.status(404).json({
+                    "status" : "success",
+                    "message" : e.message,
+                    "userMessage" : "",
+                });
+            }
+            
+            return res.status(500).json({
+                "status" : "failed",
+                "message" : "server error",
+                "userMessage" : "Something wrong. Try again later.",
+                "errors" : e
+            });
+        }
+    }
+    
     static async createRole(req : Request, res : Response) {
         const transaction : Transaction = await sequelize.transaction();
 

@@ -13,7 +13,7 @@ import { IAccountRepository } from "../repositories/accountRepository";
 import { IRoleRepository } from "../repositories/roleRepository";
 import { IHashProvider } from "../providers/hashProvider";
 export interface IAccountService {
-    createAccount(data : ICreateAccountData, organizationId : string, userAccountId : string, transaction? : Transaction) : Promise<AccountDataReturn>
+    createAccount(data : ICreateAccountData, organizationId : string, userRole : string, transaction? : Transaction) : Promise<AccountDataReturn>
     createAccountForManagement(data : ICreateAccountForManagementData, transaction? : Transaction, forSuperAdmin? : boolean) : Promise<AccountDataReturn>
 }
 
@@ -26,7 +26,7 @@ export class AccountService implements IAccountService {
         private hashProvider : IHashProvider,
     ) {}
 
-    async createAccount(data: ICreateAccountData, organizationId : string, userAccountId : string, transaction?: Transaction): Promise<AccountDataReturn> {
+    async createAccount(data: ICreateAccountData, organizationId : string, userRole : string, transaction?: Transaction): Promise<AccountDataReturn> {
 
         // check if username format is valid
         const usernameValid = validateUsername(data.username);
@@ -64,10 +64,7 @@ export class AccountService implements IAccountService {
         }
 
         // check if not admin, prevent create admin account
-        const user = await this.accountRepository.findAccountById(userAccountId);
-        if (!user) throw new Error("Account retrive error");
-        const userRole = await this.roleRepository.findOneRole(user.role_id);
-        if (userRole?.role_name !== DefaultRoleEnum.ADMIN && role?.role_name == DefaultRoleEnum.ADMIN) {
+        if (userRole !== DefaultRoleEnum.ADMIN && role?.role_name == DefaultRoleEnum.ADMIN) {
             throw new DataNotFound("Role not found");
         }
 

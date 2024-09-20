@@ -18,6 +18,7 @@ import { Transaction } from "sequelize";
 import { IOrganizationRepository } from "../repositories/organizationRepository";
 import { IAdminOrganizationRepository } from "../repositories/adminOrganizationRepository";
 import { IAdminOrganizationService } from "./adminOrganizationService";
+import { IRoleRepository } from "../repositories/roleRepository";
 export interface IAuthService {
     login(data : ILoginData, userAgent : string, transaction : Transaction) : Promise<LoginReturnData>;
     superAdminLogin(data : ISuperAdminLoginData, userAgent : string, transaction? : Transaction) : Promise<LoginReturnData>;
@@ -32,6 +33,7 @@ export class AuthService implements IAuthService {
 
     constructor(
         private accountRepository : IAccountRepository,
+        private roleRepoitory : IRoleRepository,
         private rolePermissionRepository : IRolePermissionsRepository,
         private refreshTokenRepository : IRefreshTokenRepository,
         private organizationRepository : IOrganizationRepository,
@@ -58,6 +60,10 @@ export class AuthService implements IAuthService {
         // check and revoke sesion if > 3 session detected
         await this.checkAndRevokeSession(account.account_id, 3, transaction);
 
+        // get role data
+        const roleData = await this.roleRepoitory.findOneRole(account.role_id);
+        if (!roleData) throw new Error("something wrong on getting role detail")
+
         // get permission data
         const permissions = await this.rolePermissionRepository.findPermissionByRole(account.role_id);
         const permissionDataTransformed : IRolePermissionData[] = [];
@@ -74,6 +80,8 @@ export class AuthService implements IAuthService {
             username: account.username,
             organizationId: account.organization_id,
             accountId: account.account_id,
+            accountRoleId: roleData.role_id,
+            accountRoleName: roleData.role_name,
             permissions: permissionDataTransformed
         }, this.envData.accessTokenSignature, "10m");
 
@@ -119,6 +127,10 @@ export class AuthService implements IAuthService {
         const organization = await this.organizationRepository.findOrganizationByNo(data.organizationNo);
         if (!organization) throw new DataNotFound("Organization not found")
 
+        // get role data
+        const roleData = await this.roleRepoitory.findOneRole(account.role_id);
+        if (!roleData) throw new Error("something wrong on getting role detail")
+
         // get permission data
         const permissions = await this.rolePermissionRepository.findPermissionByRole(account.role_id);
         const permissionDataTransformed : IRolePermissionData[] = [];
@@ -139,6 +151,8 @@ export class AuthService implements IAuthService {
             username: account.username,
             organizationId: organization.organization_id,
             accountId: account.account_id,
+            accountRoleId: roleData.role_id,
+            accountRoleName: roleData.role_name,
             permissions: permissionDataTransformed
         }, this.envData.accessTokenSignature, "10m");
 
@@ -192,6 +206,10 @@ export class AuthService implements IAuthService {
         const account = await this.accountRepository.findAccountById(decoded.accountId);
         if (!account) throw new Error("something wrong on getting account");
 
+        // get role data
+        const roleData = await this.roleRepoitory.findOneRole(account.role_id);
+        if (!roleData) throw new Error("something wrong on getting role detail")
+
         const permissions = await this.rolePermissionRepository.findPermissionByRole(account.role_id);
         const permissionDataTransformed : IRolePermissionData[] = [];
         permissions.forEach(item => {
@@ -216,6 +234,8 @@ export class AuthService implements IAuthService {
             username: account.username,
             organizationId: organizationId,
             accountId: account.account_id,
+            accountRoleId: roleData.role_id,
+            accountRoleName: roleData.role_name,
             permissions: permissionDataTransformed
         }, this.envData.accessTokenSignature, "10m");
 
@@ -248,6 +268,8 @@ export class AuthService implements IAuthService {
             username: decoded.username,
             organizationId : decoded.organizationId,
             accountId : decoded.accountId,
+            accountRoleId : decoded.accountRoleId,
+            accountRoleName : decoded.accountRoleName,
             permissions : decoded.permissions
         }
     }

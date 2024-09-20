@@ -47,6 +47,7 @@ export const organizationService = new OrganizationService(organizationRepositor
 export const accountService = new AccountService(accountRepository, roleRepository, bcryptHashProvider);
 export const authService = new AuthService(
     accountRepository,
+    roleRepository,
     rolePermissionRepository,
     refreshTokenRepository,
     organizationRepository,
