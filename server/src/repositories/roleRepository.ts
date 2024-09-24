@@ -1,5 +1,7 @@
 import { Op } from "sequelize"
 import Role from "../models/role.model"
+import RolePermissions from "../models/rolePermission.model";
+import RolePageAccessPermission from "../models/rolePageAccessPermission.model";
 
 // utils
 import { DefaultRoleEnum } from "../utility/enums"
@@ -15,6 +17,8 @@ export interface IRoleRepository {
     findDefaultRole() : Promise<Role[]>
     findDefaultRoleByName(name : string) : Promise<Role | null>
     createRole(data : Partial<Role>, transaction? : Transaction) : Promise<Role>
+    bulkCreateRolePermissions(data : Partial<RolePermissions>[], transaction? : Transaction) : Promise<RolePermissions[]>
+    bulkCreateRolePageAccessPermission(data : Partial<RolePageAccessPermission>[], transaction? : Transaction) : Promise<RolePageAccessPermission[]>
 }
 
 
@@ -87,7 +91,16 @@ export class RoleRepository implements IRoleRepository {
             }
         });
     }
+
     createRole(data: Partial<Role>, transaction?: Transaction): Promise<Role> {
         return Role.create(data, { transaction })
+    }
+
+    bulkCreateRolePermissions(data: Partial<RolePermissions>[], transaction? : Transaction): Promise<RolePermissions[]> {
+        return RolePermissions.bulkCreate(data, { transaction });
+    }
+
+    bulkCreateRolePageAccessPermission(data: Partial<RolePageAccessPermission>[], transaction?: Transaction): Promise<RolePageAccessPermission[]> {
+        return RolePageAccessPermission.bulkCreate(data, { transaction });
     }
 }

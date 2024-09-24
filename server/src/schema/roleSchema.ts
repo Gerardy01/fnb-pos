@@ -10,4 +10,5 @@ export const CreateRoleSchema = z.object({
             read: z.boolean({ message: "read is required" }),
         })
     ).min(1, { message: "Must contain at least 1 permission" }),
+    pageAccessPermissionIds : z.array(z.number())
 });

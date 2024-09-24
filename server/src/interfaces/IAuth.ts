@@ -19,10 +19,6 @@ export interface IAccessTokenBody {
     permissions : IRolePermissionData[]
 }
 
-export interface IRefreshTokenBody {
-    accountId : string;
-}
-
 export type LoginReturnData = {
     accessToken : string;
     refreshToken : string;

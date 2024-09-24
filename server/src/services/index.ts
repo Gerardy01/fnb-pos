@@ -12,9 +12,9 @@ import { CounterRepository } from "../repositories/counterRepository";
 import { AccountRepository } from "../repositories/accountRepository";
 import { RoleRepository } from "../repositories/roleRepository";
 import { PermissionRepository } from "../repositories/permissionRepository";
-import { RolePermissionsRepository } from "../repositories/rolePermissionsRepository";
 import { RefreshTokenRepository } from "../repositories/refreshTokenRepository";
 import { AdminOrganizationRepository } from "../repositories/adminOrganizationRepository";
+import { PageAccessPermissionRepository } from "../repositories/pageAccessPermissionRepository";
 
 // providers
 import { BcryptHashProvider } from "../providers/hashProvider";
@@ -30,9 +30,9 @@ const counterRepository = new CounterRepository();
 const accountRepository = new AccountRepository();
 const roleRepository = new RoleRepository();
 const permissionRepository = new PermissionRepository();
-const rolePermissionRepository = new RolePermissionsRepository();
 const refreshTokenRepository = new RefreshTokenRepository();
 const adminOrganizationRepository = new AdminOrganizationRepository();
+const pageAccessPermissionRepository = new PageAccessPermissionRepository();
 
 const bcryptHashProvider = new BcryptHashProvider();
 const jsonWebTokenJwtProvider = new JsonWebTokenJwtProvider();
@@ -48,7 +48,7 @@ export const accountService = new AccountService(accountRepository, roleReposito
 export const authService = new AuthService(
     accountRepository,
     roleRepository,
-    rolePermissionRepository,
+    permissionRepository,
     refreshTokenRepository,
     organizationRepository,
     adminOrganizationRepository,
@@ -57,7 +57,7 @@ export const authService = new AuthService(
     jsonWebTokenJwtProvider,
     envData
 );
-export const roleService = new RoleService(roleRepository, permissionRepository, rolePermissionRepository);
+export const roleService = new RoleService(roleRepository, permissionRepository, pageAccessPermissionRepository);
 
 
 // combined service

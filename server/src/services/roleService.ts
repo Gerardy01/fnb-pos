@@ -5,14 +5,16 @@ import { ExistData, DataNotFound } from "../utility/exceptions";
 // utils
 import { DefaultRoleEnum, PermissionEnum } from "../utility/enums";
 
+// models
+import RolePermissions from "../models/rolePermission.model";
+import RolePageAccessPermission from "../models/rolePageAccessPermission.model";
+
 // types and interfaces
 import { Transaction } from "sequelize";
 import { ICreateRoleData, RoleWithPermissionReturnData, IRolePermissionData, RoleReturnData } from "../interfaces/IRole";
 import { IRoleRepository } from "../repositories/roleRepository";
 import { IPermissionRepository } from "../repositories/permissionRepository";
-import { IRolePermissionsRepository } from "../repositories/rolePermissionsRepository";
-import RolePermissions from "../models/rolePermission.model";
-import { resourceUsage } from "process";
+import { IPageAccessPermissionRepository, PageAccessPermissionRepository } from "../repositories/pageAccessPermissionRepository";
 export interface IRoleService {
     getAllRole(organizationId : string) : Promise<RoleReturnData[]>
     getDefaultRole(userRole : string) : Promise<RoleReturnData[]>
@@ -23,7 +25,7 @@ export class RoleService implements IRoleService {
     constructor(
         private roleRepository : IRoleRepository,
         private permissionRepository : IPermissionRepository,
-        private rolePermissionRepository : IRolePermissionsRepository,
+        private pageAccessPermissionRepository : IPageAccessPermissionRepository,
     ) {}
 
     async getAllRole(organizationId : string): Promise<RoleReturnData[]> {
@@ -72,6 +74,9 @@ export class RoleService implements IRoleService {
         const uniquePermissionIds = new Set(permissionIds);
         permissionIds = Array.from(uniquePermissionIds);
 
+        const uniquePageAccessPermissionIds = new Set(data.pageAccessPermissionIds);
+        const pageAccessPermissionIds = Array.from(uniquePageAccessPermissionIds);
+
         // check if role already exist
         const role = await this.roleRepository.findRoleByNameAndOrganization(data.roleName, organizationId);
         const defaultRole = await this.roleRepository.findDefaultRoleByName(data.roleName);
@@ -87,11 +92,19 @@ export class RoleService implements IRoleService {
 
         // check if all permission exist
         const permissions = await this.permissionRepository.findByIds(permissionIds);
-
         const foundPermissionIds = permissions.map(permission => permission.permission_id);
         if (foundPermissionIds.length !== permissionIds.length) {
             const missingPermissionIds = permissionIds.filter(id => !foundPermissionIds.includes(id));
             throw new DataNotFound(`Permission with id ${missingPermissionIds.join(', ')} does not exist`)
+        }
+
+        if (data.pageAccessPermissionIds.length > 0) {
+            const pageAccessPermissions = await this.pageAccessPermissionRepository.findByIds(pageAccessPermissionIds);
+            const foundPageAccessPermissionIds = pageAccessPermissions.map(item => item.id);
+            if (foundPageAccessPermissionIds.length !== pageAccessPermissionIds.length) {
+                const missingPageAccessPermissionIds = pageAccessPermissionIds.filter(id => !foundPageAccessPermissionIds.includes(id));
+                throw new DataNotFound(`Page Access Permission with id ${missingPageAccessPermissionIds.join(', ')} does not exist`)
+            }
         }
 
         // create role
@@ -109,9 +122,18 @@ export class RoleService implements IRoleService {
                 write : item.write,
             });
         });
+        const newRolePermission = await this.roleRepository.bulkCreateRolePermissions(rolePermissionData, transaction);
 
-        const newRolePermission = await this.rolePermissionRepository.bulkCreateRolePermissions(rolePermissionData, transaction);
+        const rolePageAccessPermissionData : Partial<RolePageAccessPermission>[] = [];
+        pageAccessPermissionIds.forEach(permissionId => {
+            rolePageAccessPermissionData.push({
+                role_id: newRole.role_id,
+                permission_id : permissionId
+            });
+        });
+        const newRolePageAccessPermission = await this.roleRepository.bulkCreateRolePageAccessPermission(rolePageAccessPermissionData, transaction);
         
+        // map return data
         const createdPermissionList : IRolePermissionData[] = [];
         newRolePermission.forEach(item => {
             createdPermissionList.push({
@@ -121,10 +143,13 @@ export class RoleService implements IRoleService {
             });
         });
 
+        const newRolePageAccessPermissionIds = newRolePageAccessPermission.map(item => item.id); 
+
         return {
             roleId : newRole.role_id,
             roleName : newRole.role_name,
-            permissions : createdPermissionList
+            permissions : createdPermissionList,
+            pageAccessPermissionIds : newRolePageAccessPermissionIds
         }
     }
 }

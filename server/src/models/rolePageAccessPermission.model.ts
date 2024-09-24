@@ -3,7 +3,7 @@ import sequelize from "../config/database";
 
 // models
 import Role from "./role.model";
-import PageAccessPermission from "./PageAccessPermission.models";
+import PageAccessPermission from "./pageAccessPermission.models";
 
 class RolePageAccessPermission extends Model {
     public id! : number;

@@ -8,6 +8,7 @@ export interface IRolePermissionData {
 export interface ICreateRoleData {
     roleName : string;
     permissions : IRolePermissionData[];
+    pageAccessPermissionIds : number[];
 }
 
 export type RoleReturnData = {
@@ -19,4 +20,5 @@ export type RoleWithPermissionReturnData = {
     roleId : number;
     roleName : string;
     permissions : IRolePermissionData[];
+    pageAccessPermissionIds : number[];
 }

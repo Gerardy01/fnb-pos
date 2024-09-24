@@ -15,18 +15,18 @@ class AuthController {
     static async login(req : Request, res : Response) {
         const transaction : Transaction = await sequelize.transaction();
 
+        const userAgent = req.get('User-Agent') || "";
+
+        const tokenData = await authService.login(req.body, userAgent, transaction);
+
+        res.cookie('refreshToken', tokenData.refreshToken , {
+            httpOnly: true,
+            secure: true,
+            maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days in milliseconds (following token expiry time)
+        });
+
+        transaction.commit();
         try {
-            const userAgent = req.get('User-Agent') || "";
-
-            const tokenData = await authService.login(req.body, userAgent, transaction);
-
-            res.cookie('refreshToken', tokenData.refreshToken , {
-                httpOnly: true,
-                secure: true,
-                maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days in milliseconds (following token expiry time)
-            });
-
-            transaction.commit();
 
             return res.status(200).json({
                 "status" : "success",

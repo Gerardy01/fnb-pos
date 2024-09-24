@@ -11,7 +11,7 @@ import { IAccountRepository } from "../repositories/accountRepository";
 import { IHashProvider } from "../providers/hashProvider";
 import { IJwtProvider } from "../providers/jwtProvider";
 import { IEnvData } from "../interfaces/IConfig";
-import { IRolePermissionsRepository } from "../repositories/rolePermissionsRepository";
+import { IPermissionRepository } from "../repositories/permissionRepository";
 import { IRolePermissionData } from "../interfaces/IRole";
 import { IRefreshTokenRepository } from "../repositories/refreshTokenRepository";
 import { Transaction } from "sequelize";
@@ -34,7 +34,7 @@ export class AuthService implements IAuthService {
     constructor(
         private accountRepository : IAccountRepository,
         private roleRepoitory : IRoleRepository,
-        private rolePermissionRepository : IRolePermissionsRepository,
+        private permissionRepository : IPermissionRepository,
         private refreshTokenRepository : IRefreshTokenRepository,
         private organizationRepository : IOrganizationRepository,
         private adminOrganizationRepository : IAdminOrganizationRepository,
@@ -65,7 +65,7 @@ export class AuthService implements IAuthService {
         if (!roleData) throw new Error("something wrong on getting role detail")
 
         // get permission data
-        const permissions = await this.rolePermissionRepository.findPermissionByRole(account.role_id);
+        const permissions = await this.permissionRepository.findPermissionByRole(account.role_id);
         const permissionDataTransformed : IRolePermissionData[] = [];
         permissions.forEach(item => {
             permissionDataTransformed.push({
@@ -86,14 +86,11 @@ export class AuthService implements IAuthService {
         }, this.envData.accessTokenSignature, "10m");
 
         // create refresh token
-        const refreshToken = await this.jwtProvider.generateRefreshToken({
-            accountId: account.account_id
-        }, this.envData.refreshTokenSignature, "30d");
+        const refreshToken = await this.jwtProvider.generateRefreshToken("30d");
 
-        // record access token
-        const decoded = await this.jwtProvider.validateToken(refreshToken, this.envData.refreshTokenSignature);
-        if (!decoded) throw new Error("decode token error");
-        const refreshExpDate = new Date(decoded.exp * 1000)
+        // record refresh token
+        const currentTime = new Date();
+        const refreshExpDate = new Date(currentTime.getTime() + 30 * 24 * 60 * 60 * 1000); // 30 days in milliseconds
         await this.refreshTokenRepository.recordRefreshToken({
             account_id: account.account_id,
             token_expiry_date: refreshExpDate,
@@ -132,7 +129,7 @@ export class AuthService implements IAuthService {
         if (!roleData) throw new Error("something wrong on getting role detail")
 
         // get permission data
-        const permissions = await this.rolePermissionRepository.findPermissionByRole(account.role_id);
+        const permissions = await this.permissionRepository.findPermissionByRole(account.role_id);
         const permissionDataTransformed : IRolePermissionData[] = [];
         permissions.forEach(item => {
             permissionDataTransformed.push({
@@ -157,14 +154,11 @@ export class AuthService implements IAuthService {
         }, this.envData.accessTokenSignature, "10m");
 
         // create refresh token
-        const refreshToken = await this.jwtProvider.generateRefreshToken({
-            accountId: account.account_id
-        }, this.envData.refreshTokenSignature, "30d");
+        const refreshToken = await this.jwtProvider.generateRefreshToken("30d");
 
         // record access token
-        const decoded = await this.jwtProvider.validateToken(refreshToken, this.envData.refreshTokenSignature);
-        if (!decoded) throw new Error("decode token error");
-        const refreshExpDate = new Date(decoded.exp * 1000);
+        const currentTime = new Date();
+        const refreshExpDate = new Date(currentTime.getTime() + 30 * 24 * 60 * 60 * 1000); // 30 days in milliseconds
         await this.refreshTokenRepository.recordRefreshToken({
             account_id: account.account_id,
             token_expiry_date: refreshExpDate,
@@ -183,17 +177,9 @@ export class AuthService implements IAuthService {
 
     async generateAccessToken(refreshToken: string, userAgent : string): Promise<string> {
 
-        // check if token valid
-        const decoded = await this.jwtProvider.validateToken(refreshToken, this.envData.refreshTokenSignature);
-        if (!decoded) throw new NotValid("Refresh token is not valid");
-
-        // get all session
-        const session = await this.refreshTokenRepository.findByAccount(decoded.accountId);
-        if (session.length === 0) throw new NotValid("Refresh token is not valid");
-
         // check if token exist inside db
-        const refreshTokenSession = session.find(data => data.identifier === refreshToken && !data.is_revoked);
-        if (!refreshTokenSession) throw new NotValid("Refresh token is not valid");
+        const refreshTokenSession = await this.refreshTokenRepository.findByIdentifier(refreshToken);
+        if (!refreshTokenSession || (refreshTokenSession && refreshTokenSession.is_revoked)) throw new NotValid("Refresh token is not valid");
         
         // match user agent (make sure token remain in the same device)
         if (refreshTokenSession.user_agent !== userAgent) throw new NotValid("Invalid login detected");
@@ -203,14 +189,14 @@ export class AuthService implements IAuthService {
         if (refreshTokenSession.token_expiry_date < currentDate) throw new NotValid("Refresh token is not valid");
 
         // create access token
-        const account = await this.accountRepository.findAccountById(decoded.accountId);
+        const account = await this.accountRepository.findAccountById(refreshTokenSession.account_id);
         if (!account) throw new Error("something wrong on getting account");
 
         // get role data
         const roleData = await this.roleRepoitory.findOneRole(account.role_id);
         if (!roleData) throw new Error("something wrong on getting role detail")
 
-        const permissions = await this.rolePermissionRepository.findPermissionByRole(account.role_id);
+        const permissions = await this.permissionRepository.findPermissionByRole(account.role_id);
         const permissionDataTransformed : IRolePermissionData[] = [];
         permissions.forEach(item => {
             permissionDataTransformed.push({

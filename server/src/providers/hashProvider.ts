@@ -18,3 +18,13 @@ export class BcryptHashProvider implements IHashProvider {
         return isMatch;
     }
 }
+
+export class TestingHashProvider implements IHashProvider {
+    async hashString(string: string, saltRounds?: number): Promise<string> {
+        return "aaaaa"; 
+    }
+
+    async compareHash(plainText: string, hashed: string): Promise<boolean> {
+        return true;
+    }
+}

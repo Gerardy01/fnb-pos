@@ -15,7 +15,7 @@ PageAccessPermission.init({
         allowNull: false,
         autoIncrement: true,
     },
-    ermission_name: {
+    permission_name: {
         type: DataTypes.STRING(30),
         allowNull: false,
         unique: true
