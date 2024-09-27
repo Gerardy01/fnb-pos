@@ -1,4 +1,4 @@
-import AdminOrganization from "../models/adminOrganization.model";
+import { AdminOrganization } from "../models";
 
 // types and interfaces
 import { Transaction } from "sequelize";

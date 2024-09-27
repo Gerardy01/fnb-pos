@@ -1,5 +1,5 @@
-import { Op } from "sequelize"
-import Account from "../models/account.model"
+import { Op } from "sequelize";
+import { Account } from "../models";
 
 // types and interfaces
 import { Transaction } from "sequelize"

@@ -1,4 +1,4 @@
-import PageAccessPermission from "../models/pageAccessPermission.models";
+import { PageAccessPermission, RolePageAccessPermission } from "../models";
 
 // types and interfaces
 export interface IPageAccessPermissionRepository {

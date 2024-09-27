@@ -1,4 +1,4 @@
-import Organization from "../models/organization.model";
+import { Organization } from "../models";
 
 // types and interfaces
 import { Transaction } from "sequelize";

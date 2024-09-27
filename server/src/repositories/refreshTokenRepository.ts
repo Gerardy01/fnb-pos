@@ -1,5 +1,5 @@
-import { Op } from "sequelize"
-import RefreshToken from "../models/refreshToken.model"
+import { Op } from "sequelize";
+import { RefreshToken } from "../models";
 
 // types and interfaces
 import { Transaction } from "sequelize"

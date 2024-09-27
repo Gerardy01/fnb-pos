@@ -1,5 +1,4 @@
-import Permission from "../models/permission.model";
-import RolePermissions from "../models/rolePermission.model";
+import { Permission, RolePermissions } from "../models";
 
 // types and interfaces
 export interface IPermissionRepository {

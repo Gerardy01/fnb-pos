@@ -1,7 +1,9 @@
-import { Op } from "sequelize"
-import Role from "../models/role.model"
-import RolePermissions from "../models/rolePermission.model";
-import RolePageAccessPermission from "../models/rolePageAccessPermission.model";
+import { Op } from "sequelize";
+import {
+    Role,
+    RolePermissions,
+    RolePageAccessPermission,
+} from "../models";
 
 // utils
 import { DefaultRoleEnum } from "../utility/enums"

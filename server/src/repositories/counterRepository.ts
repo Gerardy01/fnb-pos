@@ -1,4 +1,4 @@
-import Counter from "../models/counter.model";
+import { Counter } from "../models";
 
 // types and interfaces
 import { Transaction } from "sequelize";

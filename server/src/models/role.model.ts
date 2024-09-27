@@ -3,6 +3,7 @@ import sequelize from "../config/database";
 
 // models
 import Organization from "./organization.model";
+import Permission from "./permission.model";
 
 
 class Role extends Model {
@@ -10,6 +11,8 @@ class Role extends Model {
     public role_name! : string;
     public is_default! : boolean;
     public organization_id! : string;
+
+    public permissions? : Permission[];
 }
 
 Role.init({
