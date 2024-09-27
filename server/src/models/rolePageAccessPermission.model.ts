@@ -9,6 +9,8 @@ class RolePageAccessPermission extends Model {
     public id! : number;
     public role_id!: number;
     public permission_id!: number;
+
+    public page_access_permission? : PageAccessPermission;
 }
 
 RolePageAccessPermission.init({

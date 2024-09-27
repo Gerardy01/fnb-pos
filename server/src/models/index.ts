@@ -24,6 +24,11 @@ Permission.belongsToMany(Role, {
     otherKey: 'role_id',
     as: 'roles',
 });
+RolePermissions.belongsTo(Permission, { foreignKey: 'permission_id', as: 'permission' });
+RolePageAccessPermission.belongsTo(PageAccessPermission, {
+    foreignKey: 'permission_id',
+    as: 'page_access_permission'
+});
 
 
 

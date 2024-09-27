@@ -1,6 +1,7 @@
 
 export interface IRolePermissionData {
     permissionId : number;
+    permissionName? : string;
     read : boolean;
     write : boolean;
 }

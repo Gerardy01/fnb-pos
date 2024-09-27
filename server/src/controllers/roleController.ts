@@ -70,6 +70,39 @@ class RoleController {
             });
         }
     }
+
+    static async getOneRole(req : Request, res : Response) {
+        
+        try {
+            const roleId : number = parseInt(req.params.id);
+            const organizationId = req.user ? req.user.organizationId : "";
+            const userRole = req.user ? req.user.accountRoleName : "";
+    
+            const roleData = await roleService.getOneRole(roleId, organizationId, userRole);
+
+            return res.status(200).json({
+                "status" : "success",
+                "data" : roleData
+            });
+
+        } catch(e) {
+
+            if (e instanceof DataNotFound) {
+                return res.status(404).json({
+                    "status" : "failed",
+                    "message" : e.message,
+                    "userMessage" : "Make sure you select correct role.",
+                });
+            }
+
+            return res.status(500).json({
+                "status" : "failed",
+                "message" : "server error",
+                "userMessage" : "Something wrong. Try again later.",
+                "errors" : e
+            });
+        }
+    }
     
     static async createRole(req : Request, res : Response) {
         const transaction : Transaction = await sequelize.transaction();

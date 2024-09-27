@@ -4,7 +4,7 @@ import { PageAccessPermission, RolePageAccessPermission } from "../models";
 export interface IPageAccessPermissionRepository {
     findAllPageAccessPermission() : Promise<PageAccessPermission[]>
     findByIds(pageAccessPermissionIds : number[]) : Promise<PageAccessPermission[]>
-    findPageAccessPermissionByRole(roleId : number) : Promise<PageAccessPermission[]>
+    findPageAccessPermissionByRole(roleId : number) : Promise<RolePageAccessPermission[]>
 }
 
 
@@ -22,11 +22,15 @@ export class PageAccessPermissionRepository implements IPageAccessPermissionRepo
         });
     }
 
-    findPageAccessPermissionByRole(roleId: number): Promise<PageAccessPermission[]> {
-        return PageAccessPermission.findAll({
+    findPageAccessPermissionByRole(roleId: number): Promise<RolePageAccessPermission[]> {
+        return RolePageAccessPermission.findAll({
             where: {
                 role_id : roleId
-            }
+            },
+            include: [{
+                model: PageAccessPermission,
+                as: 'page_access_permission'
+            }]
         });
     }
 }

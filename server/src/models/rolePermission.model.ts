@@ -11,6 +11,8 @@ class RolePermissions extends Model {
     public permission_id!: number;
     public read!: boolean;
     public write!: boolean;
+
+    public permission? : Permission
 }
 
 RolePermissions.init({

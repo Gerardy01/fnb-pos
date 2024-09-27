@@ -26,7 +26,11 @@ export class PermissionRepository implements IPermissionRepository {
         return RolePermissions.findAll({
             where: {
                 role_id : roleId
-            }
-        })
+            },
+            include: [{
+                model: Permission,
+                as: 'permission'
+            }]
+        });
     }
 }

@@ -18,6 +18,7 @@ import { IPageAccessPermissionRepository, PageAccessPermissionRepository } from 
 export interface IRoleService {
     getAllRole(organizationId : string) : Promise<RoleReturnData[]>
     getDefaultRole(userRole : string) : Promise<RoleReturnData[]>
+    getOneRole(roleId : number, organizationId : string, userRole : string) : Promise<RoleWithPermissionReturnData>
     createRole(data : ICreateRoleData, organizationId : string, transaction? : Transaction) : Promise<RoleWithPermissionReturnData>
 }
 
@@ -64,6 +65,49 @@ export class RoleService implements IRoleService {
         });
 
         return roleList;
+    }
+
+    async getOneRole(roleId: number, organizationId: string, userRole : string): Promise<RoleWithPermissionReturnData> {
+        
+        const roleData = await this.roleRepository.findOneRole(roleId);
+        
+        if (!roleData) {
+            throw new DataNotFound(`Role with id ${roleId} not found`);
+        }
+
+        let roleNotFound : boolean = false;
+        if (roleData.organization_id !== organizationId && !roleData.is_default) roleNotFound = true;
+        if (roleData.role_name === DefaultRoleEnum.SUPER_ADMIN) roleNotFound = true;
+        if (
+            roleData.role_name === DefaultRoleEnum.ADMIN &&
+            (userRole !== DefaultRoleEnum.ADMIN && userRole !== DefaultRoleEnum.SUPER_ADMIN)
+        ) roleNotFound = true;
+
+        if (roleNotFound) throw new DataNotFound(`Role with id ${roleId} not found`);
+
+        const permissions = await this.permissionRepository.findPermissionByRole(roleId);
+
+        const permissionData : IRolePermissionData[] = [];
+        permissions.forEach(permission => {
+            if (!permission.permission) throw new Error("something wrong on permission query");
+
+            permissionData.push({
+                permissionId: permission.permission.permission_id,
+                permissionName: permission.permission.permission_name,
+                read: permission.read,
+                write: permission.write
+            });
+        });
+
+        const pageAccessPermission = await this.pageAccessPermissionRepository.findPageAccessPermissionByRole(roleId);
+        const pageAccessPermissionIds : number[] = pageAccessPermission.map(item => item.id);
+
+        return {
+            roleId: roleData.role_id,
+            roleName: roleData.role_name,
+            permissions: permissionData,
+            pageAccessPermissionIds: pageAccessPermissionIds
+        }
     }
 
     async createRole(data: ICreateRoleData, organizationId: string, transaction? : Transaction): Promise<RoleWithPermissionReturnData> {

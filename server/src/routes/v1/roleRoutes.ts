@@ -19,6 +19,11 @@ roleRoutes.get("/",
     validatePermission(PermissionEnum.ROLE_MANAGEMENT, 'read'),
     RoleController.getAllRole
 );
+roleRoutes.get("/:id",
+    authenticate,
+    validatePermission(PermissionEnum.ROLE_MANAGEMENT, 'read'),
+    RoleController.getOneRole
+);
 roleRoutes.get("/action/default-role",
     authenticate,
     validatePermission(PermissionEnum.ROLE_MANAGEMENT, 'read'),
