@@ -1,4 +1,5 @@
 import React from "react"
+import { useNavigate } from "react-router-dom";
 
 import {
     Button,
@@ -7,6 +8,7 @@ import {
     Input,
     FormProps,
     Checkbox,
+    Alert
 } from "antd"
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 
@@ -23,11 +25,15 @@ const { Title, Text } = Typography;
 
 export default function Login() {
 
+    const navigate = useNavigate();
+
     const onSubmit : FormProps<LoginForm>['onFinish'] = (values) => {
         console.log(values);
 
         if (values.rememberMe) {
             console.log("store creds on local storage");
+        } else {
+            console.log("remove creds from local storage")
         }
     }
 
@@ -36,8 +42,14 @@ export default function Login() {
             <div style={styles.formContainer}>
                 <Title level={2}>Sign In</Title>
                 <Text style={styles.text}>
-                    Welcome back to AntBlocks UI! Please enter your details below to sign in.
+                    Welcome back to Kumabit POS! Please enter your details below to sign in.
                 </Text>
+                <Alert
+                    message="Sorry, we couldn't find account with that credentials. We can help changing your password using Forgot Password."
+                    type="error"
+                    showIcon
+                    style={styles.alert}
+                />
                 <Form
                     name="login"
                     style={styles.form}
@@ -47,6 +59,7 @@ export default function Login() {
                     <Form.Item
                         name="username"
                         rules={[{ required: true, message: 'Please input your username or email!' }]}
+                        initialValue={"test"}
                     >
                         <Input
                             placeholder="Username/Email"
@@ -56,6 +69,7 @@ export default function Login() {
                     <Form.Item
                         name="password"
                         rules={[{ required: true, message: 'Please input your password!' }]}
+                        initialValue={"test"}
                     >
                         <Input.Password
                             placeholder="password"
@@ -72,11 +86,19 @@ export default function Login() {
                             <Checkbox>Remember Me</Checkbox>
                         </Form.Item>
 
-                        <a style={styles.forgotPassword}>Forgot Password?</a>
+                        <a
+                            style={styles.forgotPassword}
+                            onClick={() => navigate("/forgot-password")}
+                        >Forgot Password?</a>
                     </div>
 
                     <Form.Item>
-                        <Button style={styles.button} type="primary" htmlType="submit">
+                        <Button
+                            style={styles.button}
+                            type="primary"
+                            htmlType="submit"
+                            loading={false}
+                        >
                             Log In
                         </Button>
                     </Form.Item>
@@ -120,5 +142,8 @@ const styles : { [key: string]: React.CSSProperties } = {
     },
     forgotPassword : {
         paddingTop: '5px'
+    },
+    alert : {
+        marginTop: '1rem'
     }
 }
