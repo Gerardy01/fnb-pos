@@ -50,7 +50,7 @@ export class AuthService implements IAuthService {
         const account = await this.accountRepository.findAccountByEmailOrUsername(data.identifier);
 
         if (!account) {
-            throw new DataNotFound("Account not found. Make sure you input correct credentials");
+            throw new DataNotFound("AUTH001");
         }
 
         // check password

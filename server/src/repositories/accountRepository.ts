@@ -43,7 +43,9 @@ export class AccountRepository implements IAccountRepository {
             where: {
                 [Op.or]: [
                     { username: identifier },
-                    { email: identifier }
+                    { email: {
+                        [Op.iLike] : identifier
+                    }}
                 ]
             }
         });

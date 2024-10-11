@@ -1,5 +1,7 @@
-import React from "react"
+import React, { useState } from "react"
 import { useNavigate } from "react-router-dom";
+
+import useCache from "../hooks/useCache";
 
 import {
     Button,
@@ -11,8 +13,9 @@ import {
     Alert
 } from "antd"
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
+import { authApi } from "../api";
 
-
+// types and interfaces
 type LoginForm = {
     username : string;
     password : string;
@@ -26,15 +29,53 @@ const { Title, Text } = Typography;
 export default function Login() {
 
     const navigate = useNavigate();
+    const { getRememberMeData, setRememberMeData, removeRememberMeData } = useCache();
 
-    const onSubmit : FormProps<LoginForm>['onFinish'] = (values) => {
-        console.log(values);
+    const { identifier, password } = getRememberMeData();
 
-        if (values.rememberMe) {
-            console.log("store creds on local storage");
-        } else {
-            console.log("remove creds from local storage")
-        }
+    const [accountNotFound, setAccountNotFound] = useState<boolean>(false);
+    const [loginLoad, setLoginLoad] = useState<boolean>(false);
+
+    const onSubmit : FormProps<LoginForm>['onFinish'] = async (values) => {
+
+        setLoginLoad(true);
+        
+        authApi.login({
+            identifier : values.username,
+            password : values.password
+        }).then(data => {
+
+            if (values.rememberMe) {
+                setRememberMeData({
+                    identifier : values.username,
+                    password : values.password
+                });
+            } else {
+                removeRememberMeData();
+            }
+            
+            // set token into token hooks state
+            console.log(data.accessToken);
+
+            navigate('/dashboard');
+
+        }).catch(err => {
+
+            if (err.status === 400) {
+
+                return;
+            }
+
+            if (err.status === 401) {
+                setAccountNotFound(true);
+                return;
+            }
+
+            // handle 500 error
+            
+        }).finally(() => {
+            setLoginLoad(false);
+        });
     }
 
     return (
@@ -44,12 +85,15 @@ export default function Login() {
                 <Text style={styles.text}>
                     Welcome back to Kumabit POS! Please enter your details below to sign in.
                 </Text>
-                <Alert
-                    message="Sorry, we couldn't find account with that credentials. We can help changing your password using Forgot Password."
-                    type="error"
-                    showIcon
-                    style={styles.alert}
-                />
+
+                {accountNotFound && (
+                    <Alert
+                        message="Sorry, we couldn't find account with that credentials. We can help changing your password using Forgot Password."
+                        type="error"
+                        showIcon
+                        style={styles.alert}
+                    />
+                )}
                 <Form
                     name="login"
                     style={styles.form}
@@ -59,7 +103,7 @@ export default function Login() {
                     <Form.Item
                         name="username"
                         rules={[{ required: true, message: 'Please input your username or email!' }]}
-                        initialValue={"test"}
+                        initialValue={identifier}
                     >
                         <Input
                             placeholder="Username/Email"
@@ -69,7 +113,7 @@ export default function Login() {
                     <Form.Item
                         name="password"
                         rules={[{ required: true, message: 'Please input your password!' }]}
-                        initialValue={"test"}
+                        initialValue={password}
                     >
                         <Input.Password
                             placeholder="password"
@@ -82,14 +126,16 @@ export default function Login() {
                         <Form.Item
                             name="rememberMe"
                             valuePropName="checked"
+                            initialValue={identifier !== "" && password !== ""}
                         >
                             <Checkbox>Remember Me</Checkbox>
                         </Form.Item>
 
-                        <a
-                            style={styles.forgotPassword}
-                            onClick={() => navigate("/forgot-password")}
-                        >Forgot Password?</a>
+                        <div style={styles.forgotPassword}>
+                            <a
+                                onClick={() => navigate("/forgot-password")}
+                            >Forgot Password?</a>
+                        </div>
                     </div>
 
                     <Form.Item>
@@ -97,7 +143,7 @@ export default function Login() {
                             style={styles.button}
                             type="primary"
                             htmlType="submit"
-                            loading={false}
+                            loading={loginLoad}
                         >
                             Log In
                         </Button>
