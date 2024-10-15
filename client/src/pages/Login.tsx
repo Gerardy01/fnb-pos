@@ -2,6 +2,7 @@ import React from "react"
 import { useNavigate } from "react-router-dom";
 
 import useCache from "../hooks/useCache";
+import { useLogin } from "../hooks/authHooks";
 
 import {
     Button,
@@ -14,7 +15,7 @@ import {
 } from "antd"
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 
-import { useLogin } from "../hooks/authHooks";
+import { useTranslation } from 'react-i18next';
 
 // types and interfaces
 type LoginForm = {
@@ -33,6 +34,8 @@ export default function Login() {
     const { getRememberMeData } = useCache();
     const { loginLoad, errorMessage, submitLogin } = useLogin();
 
+    const { t } = useTranslation('auth');
+
     const { identifier, password } = getRememberMeData();
 
     const onSubmit : FormProps<LoginForm>['onFinish'] = (values) => {
@@ -46,14 +49,14 @@ export default function Login() {
     return (
         <section style={styles.section}>
             <div style={styles.formContainer}>
-                <Title level={2}>Sign In</Title>
+                <Title level={2}>{t("signIn")}</Title>
                 <Text style={styles.text}>
-                    Welcome back to Kumabit POS! Please enter your details below to sign in.
+                    {t("loginWelcome")}
                 </Text>
 
                 {errorMessage && (
                     <Alert
-                        message="Sorry, we couldn't find account with that credentials. We can help changing your password using Forgot Password."
+                        message={t(errorMessage)}
                         type="error"
                         showIcon
                         style={styles.alert}
@@ -67,7 +70,7 @@ export default function Login() {
                 >
                     <Form.Item
                         name="username"
-                        rules={[{ required: true, message: 'Please input your username or email!' }]}
+                        rules={[{ required: true, message: t("AUTH002") }]}
                         initialValue={identifier}
                     >
                         <Input
@@ -77,7 +80,7 @@ export default function Login() {
                     </Form.Item>
                     <Form.Item
                         name="password"
-                        rules={[{ required: true, message: 'Please input your password!' }]}
+                        rules={[{ required: true, message: t("AUTH003") }]}
                         initialValue={password}
                     >
                         <Input.Password
@@ -93,13 +96,13 @@ export default function Login() {
                             valuePropName="checked"
                             initialValue={identifier !== "" && password !== ""}
                         >
-                            <Checkbox>Remember Me</Checkbox>
+                            <Checkbox>{t("rememberMe")}</Checkbox>
                         </Form.Item>
 
                         <div style={styles.forgotPassword}>
                             <a
                                 onClick={() => navigate("/forgot-password")}
-                            >Forgot Password?</a>
+                            >{t("forgotPassword")}</a>
                         </div>
                     </div>
 
@@ -110,7 +113,7 @@ export default function Login() {
                             htmlType="submit"
                             loading={loginLoad}
                         >
-                            Log In
+                            {t("login")}
                         </Button>
                     </Form.Item>
                 </Form>
@@ -155,6 +158,7 @@ const styles : { [key: string]: React.CSSProperties } = {
         paddingTop: '5px'
     },
     alert : {
-        marginTop: '1rem'
+        marginTop: '1rem',
+        width: '100%'
     }
 }
