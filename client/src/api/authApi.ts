@@ -7,7 +7,14 @@ import { AuthData, AuthReturn } from "../models/authInterface";
 
 export class AuthApi {
     async login(data : AuthData) : Promise<AuthReturn> {
-        const res = await axiosPublic.post<FetchResponse<AuthReturn>>('/login', data);
+        const res = await axiosPublic.post<FetchResponse<AuthReturn>>(
+            '/login',
+            data,
+            {
+                headers : { 'Content-Type' : 'application/json' },
+            }
+        );
+        
         return res.data.data;
     }
 }

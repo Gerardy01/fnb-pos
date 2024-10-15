@@ -9,3 +9,9 @@ export interface AuthData {
 export interface AuthReturn {
     accessToken : string
 }
+
+export interface LoginData {
+    identifier : string;
+    password : string;
+    rememberMe : boolean;
+}

@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React from "react"
 import { useNavigate } from "react-router-dom";
 
 import useCache from "../hooks/useCache";
@@ -13,7 +13,8 @@ import {
     Alert
 } from "antd"
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
-import { authApi } from "../api";
+
+import { useLogin } from "../hooks/authHooks";
 
 // types and interfaces
 type LoginForm = {
@@ -29,52 +30,16 @@ const { Title, Text } = Typography;
 export default function Login() {
 
     const navigate = useNavigate();
-    const { getRememberMeData, setRememberMeData, removeRememberMeData } = useCache();
+    const { getRememberMeData } = useCache();
+    const { loginLoad, errorMessage, submitLogin } = useLogin();
 
     const { identifier, password } = getRememberMeData();
 
-    const [accountNotFound, setAccountNotFound] = useState<boolean>(false);
-    const [loginLoad, setLoginLoad] = useState<boolean>(false);
-
-    const onSubmit : FormProps<LoginForm>['onFinish'] = async (values) => {
-
-        setLoginLoad(true);
-        
-        authApi.login({
+    const onSubmit : FormProps<LoginForm>['onFinish'] = (values) => {
+        submitLogin({
             identifier : values.username,
-            password : values.password
-        }).then(data => {
-
-            if (values.rememberMe) {
-                setRememberMeData({
-                    identifier : values.username,
-                    password : values.password
-                });
-            } else {
-                removeRememberMeData();
-            }
-            
-            // set token into token hooks state
-            console.log(data.accessToken);
-
-            navigate('/dashboard');
-
-        }).catch(err => {
-
-            if (err.status === 400) {
-
-                return;
-            }
-
-            if (err.status === 401) {
-                setAccountNotFound(true);
-                return;
-            }
-
-            // handle 500 error
-            
-        }).finally(() => {
-            setLoginLoad(false);
+            password : values.password,
+            rememberMe : values.rememberMe ? values.rememberMe : false
         });
     }
 
@@ -86,7 +51,7 @@ export default function Login() {
                     Welcome back to Kumabit POS! Please enter your details below to sign in.
                 </Text>
 
-                {accountNotFound && (
+                {errorMessage && (
                     <Alert
                         message="Sorry, we couldn't find account with that credentials. We can help changing your password using Forgot Password."
                         type="error"
