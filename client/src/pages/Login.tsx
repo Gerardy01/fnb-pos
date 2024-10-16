@@ -11,7 +11,7 @@ import {
     Input,
     FormProps,
     Checkbox,
-    Alert
+    Alert,
 } from "antd"
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 
@@ -72,6 +72,7 @@ export default function Login() {
                         name="username"
                         rules={[{ required: true, message: t("AUTH002") }]}
                         initialValue={identifier}
+                        validateStatus={errorMessage ? "error" : ""}
                     >
                         <Input
                             placeholder="Username/Email"
@@ -82,6 +83,7 @@ export default function Login() {
                         name="password"
                         rules={[{ required: true, message: t("AUTH003") }]}
                         initialValue={password}
+                        validateStatus={errorMessage ? "error" : ""}
                     >
                         <Input.Password
                             placeholder="password"

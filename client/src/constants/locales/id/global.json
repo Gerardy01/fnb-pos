@@ -1,0 +1,13 @@
+
+
+
+{
+    "success" : "Berhasil",
+    "info" : "Informasi",
+    "warning" : "Peringatan",
+    "error" : "Kesalahan",
+    "close" : "Tutup",
+    "wentWrong" : "Ada yang salah",
+    "unexpectedError" : "Terjadi kesalahan yang tidak terduga. Silakan coba lagi nanti. Hubungi dukungan jika kesalahan terus berlanjut.",
+    "goBack" : "Kembali"
+}

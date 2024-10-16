@@ -3,6 +3,7 @@ import { useState } from "react";
 import { authApi } from "../api";
 
 import useCache from "./useCache";
+import useStaticModal from "./useStaticModal";
 import { useNavigate } from "react-router-dom";
 
 // types and interfaces
@@ -12,6 +13,7 @@ export function useLogin() {
 
     const navigate = useNavigate();
     const { setRememberMeData, removeRememberMeData } = useCache();
+    const { serverErrorModal, errorModal } = useStaticModal();
 
     const [loginLoad, setLoginLoad] = useState<boolean>(false);
     const [errorMessage, setErrorMessage] = useState<string>("");
@@ -38,10 +40,9 @@ export function useLogin() {
 
         }).catch(err => {
 
-            console.log(err.response.data)
-
             if (err.status === 400) {
-
+                const error = err.response.data.errors[0]
+                errorModal(undefined, `${error.field} is ${error.message}`);
                 return;
             }
 
@@ -50,7 +51,7 @@ export function useLogin() {
                 return;
             }
 
-            // handle 500 error
+            serverErrorModal();
 
         }).finally(() => {
             setLoginLoad(false);
