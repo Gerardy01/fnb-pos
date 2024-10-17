@@ -24,6 +24,7 @@ export function useLogin() {
 
     useEffect(() => {
         checkLoggedIn();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const checkLoggedIn = async () => {
@@ -33,9 +34,8 @@ export function useLogin() {
             setPageLoading(false);
             return;
         }
-        console.log('test')
 
-        navigate("/dashboard")
+        navigate("/dashboard");
     }
 
     const submitLogin = ({ identifier, password, rememberMe } : LoginData) : void => {
@@ -88,5 +88,36 @@ export function useLogin() {
         errorMessage,
         submitLogin,
         pageLoading
+    }
+}
+
+export function useProtectedRoutes() {
+
+    const [pageLoading, setPageLoading] = useState<boolean>(true);
+    const [loggedIn, setLoggedIn] = useState<boolean>(false);
+
+    const { isLoggedIn } = useRefreshToken();
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        checkLoggedIn();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    const checkLoggedIn = async () => {
+        const loggedInResult = await isLoggedIn();
+
+        if (loggedInResult) {
+            setPageLoading(false);
+            setLoggedIn(true);
+            return;
+        }
+
+        navigate("/login");
+    }
+
+    return {
+        pageLoading,
+        loggedIn
     }
 }
