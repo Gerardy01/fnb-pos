@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { authApi } from "../api";
 
 import useCache from "./useCache";
 import useStaticModal from "./useStaticModal";
+import useRefreshToken from "./useRefreshToken";
 import { useNavigate } from "react-router-dom";
 
 // types and interfaces
@@ -14,9 +15,28 @@ export function useLogin() {
     const navigate = useNavigate();
     const { setRememberMeData, removeRememberMeData } = useCache();
     const { serverErrorModal, errorModal } = useStaticModal();
+    const { setToken, isLoggedIn } = useRefreshToken();
 
     const [loginLoad, setLoginLoad] = useState<boolean>(false);
     const [errorMessage, setErrorMessage] = useState<string>("");
+    const [pageLoading, setPageLoading] = useState<boolean>(true);
+
+
+    useEffect(() => {
+        checkLoggedIn();
+    }, []);
+
+    const checkLoggedIn = async () => {
+        const loggedIn = await isLoggedIn();
+
+        if (!loggedIn) {
+            setPageLoading(false);
+            return;
+        }
+        console.log('test')
+
+        navigate("/dashboard")
+    }
 
     const submitLogin = ({ identifier, password, rememberMe } : LoginData) : void => {
         setLoginLoad(true);
@@ -34,7 +54,7 @@ export function useLogin() {
             }
 
             // set token into token hooks state
-            console.log(data.accessToken);
+            setToken(data.accessToken);
 
             navigate('/dashboard');
 
@@ -60,13 +80,13 @@ export function useLogin() {
                 removeRememberMeData();
             }
         });
-
     }
 
 
     return {
         loginLoad,
         errorMessage,
-        submitLogin
+        submitLogin,
+        pageLoading
     }
 }

@@ -32,7 +32,7 @@ export default function Login() {
 
     const navigate = useNavigate();
     const { getRememberMeData } = useCache();
-    const { loginLoad, errorMessage, submitLogin } = useLogin();
+    const { pageLoading, loginLoad, errorMessage, submitLogin } = useLogin();
 
     const { t } = useTranslation('auth');
 
@@ -44,6 +44,12 @@ export default function Login() {
             password : values.password,
             rememberMe : values.rememberMe ? values.rememberMe : false
         });
+    }
+
+    if (pageLoading) {
+        return (
+            <div>Loading...</div>
+        )
     }
 
     return (

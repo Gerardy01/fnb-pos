@@ -17,4 +17,16 @@ export class AuthApi {
         
         return res.data.data;
     }
+
+    async getAccessToken() : Promise<AuthReturn> {
+        const res = await axiosPublic.get<FetchResponse<AuthReturn>>(
+            '/token',
+            {
+                withCredentials: true,
+                
+            }
+        );
+
+        return res.data.data;
+    }
 }
