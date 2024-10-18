@@ -1,16 +1,16 @@
 import { useEffect, useState } from "react";
 
-import { authApi } from "../api";
+import { authApi } from "../../api";
 
-import useCache from "./useCache";
-import useStaticModal from "./useStaticModal";
-import useToken from "./useToken";
+import useCache from "../useCache";
+import useStaticModal from "../useStaticModal";
+import useToken from "../useToken";
 import { useNavigate } from "react-router-dom";
 
 // types and interfaces
-import { LoginData } from "../models/authInterface";
+import { LoginData } from "../../models/authInterface";
 
-export function useLogin() {
+export default function useLogin() {
 
     const navigate = useNavigate();
     const { setRememberMeData, removeRememberMeData } = useCache();
@@ -54,7 +54,7 @@ export function useLogin() {
                 });
             }
 
-            // set token into token hooks state
+            // set token into token state
             setAccessTokenValue(data.accessToken);
 
             navigate('/dashboard');
@@ -89,36 +89,5 @@ export function useLogin() {
         errorMessage,
         submitLogin,
         pageLoading
-    }
-}
-
-export function useProtectedRoutes() {
-
-    const [pageLoading, setPageLoading] = useState<boolean>(true);
-    const [loggedIn, setLoggedIn] = useState<boolean>(false);
-
-    const { isLoggedIn } = useToken();
-    const navigate = useNavigate();
-
-    useEffect(() => {
-        checkLoggedIn();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
-
-    const checkLoggedIn = async () => {
-        const loggedInResult = await isLoggedIn();
-
-        if (loggedInResult) {
-            setPageLoading(false);
-            setLoggedIn(true);
-            return;
-        }
-
-        navigate("/login");
-    }
-
-    return {
-        pageLoading,
-        loggedIn
     }
 }

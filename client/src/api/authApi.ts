@@ -24,7 +24,6 @@ export class AuthApi {
             '/token',
             {
                 withCredentials: true,
-                
             }
         );
 

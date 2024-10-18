@@ -11,7 +11,7 @@ export default function useToken() {
 
     const dispatch = useDispatch();
 
-    // access token
+    
     const accessToken = useSelector((state : RootState) => state.token.accessToken);
 
     const isLoggedIn = async () : Promise<boolean> => {
@@ -28,7 +28,6 @@ export default function useToken() {
         }
     }
 
-    // access token
     const setAccessTokenValue = (value : string) => {
         dispatch(setAccessToken(value));
     }

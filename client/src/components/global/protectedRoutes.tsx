@@ -1,6 +1,6 @@
 import { Outlet } from "react-router-dom";
 
-import { useProtectedRoutes } from "../../hooks/authHooks";
+import useProtectedRoutes from "../../hooks/authentication/useProtectedRoutes";
 
 
 

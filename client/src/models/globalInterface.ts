@@ -7,5 +7,5 @@ export interface BaseResponse {
 }
 
 export interface FetchResponse<T> extends BaseResponse {
-    data : T
+    data : T;
 }
