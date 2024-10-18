@@ -34,3 +34,13 @@ export type AccountDataReturn = {
     roleName : string;
     archived : boolean;
 }
+
+export type AccountInfoReturn = {
+    accountId : string;
+    username : string;
+    name : string;
+    email : string;
+    roleId : number;
+    roleName : string;
+    pageAccessPermissions : number[];
+}

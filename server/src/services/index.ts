@@ -44,7 +44,7 @@ const adminOrganizationService = new AdminOrganizationService(adminOrganizationR
 
 // main service
 export const organizationService = new OrganizationService(organizationRepository, counterService);
-export const accountService = new AccountService(accountRepository, roleRepository, bcryptHashProvider);
+export const accountService = new AccountService(accountRepository, roleRepository, pageAccessPermissionRepository, bcryptHashProvider);
 export const authService = new AuthService(
     accountRepository,
     roleRepository,

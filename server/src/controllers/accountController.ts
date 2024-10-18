@@ -7,6 +7,39 @@ import { accountService, organizationAccountService } from '../services';
 import { ExistData, DataNotFound, WrongFormat } from '../utility/exceptions';
 
 class AccountController {
+    static async getUserAccountInfo(req : Request, res : Response) {
+
+        try {
+            const accountId = req.user ? req.user.accountId : "";
+            const accountInfo = await accountService.getUserAccount(accountId);
+
+            return res.status(200).json({
+                "status" : "success",
+                "message" : "user account info retrived",
+                "userMessage" : "",
+                "data" : accountInfo,
+            });
+
+        } catch(e) {
+
+            if (e instanceof DataNotFound) {
+                return res.status(404).json({
+                    "status" : "failed",
+                    "message" : e.message,
+                    "userMessage" : e.message,
+                });
+            }
+
+            return res.status(500).json({
+                "status" : "failed",
+                "message" : "server error",
+                "userMessage" : "500",
+                "errors" : e
+            });
+
+        }
+    }
+
     static async createAccounts(req : Request, res : Response) {
         try {
             const organizationId = req.user ? req.user.organizationId : "";
@@ -49,7 +82,7 @@ class AccountController {
             return res.status(500).json({
                 "status" : "failed",
                 "message" : "server error",
-                "userMessage" : "Something wrong. Try again later.",
+                "userMessage" : "500",
                 "errors" : e
             });
         }
@@ -95,7 +128,7 @@ class AccountController {
             return res.status(500).json({
                 "status" : "failed",
                 "message" : "server error",
-                "userMessage" : "Something wrong. Try again later.",
+                "userMessage" : "500",
                 "errors" : e
             });
         }

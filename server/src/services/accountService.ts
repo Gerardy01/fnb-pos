@@ -8,11 +8,13 @@ import { ExistData, DataNotFound, WrongFormat } from "../utility/exceptions";
 
 // types and interfaces
 import { Transaction } from "sequelize";
-import { AccountDataReturn, ICreateAccountData, ICreateAccountForManagementData } from "../interfaces/IAccount";
+import { AccountDataReturn, ICreateAccountData, ICreateAccountForManagementData, AccountInfoReturn } from "../interfaces/IAccount";
 import { IAccountRepository } from "../repositories/accountRepository";
 import { IRoleRepository } from "../repositories/roleRepository";
 import { IHashProvider } from "../providers/hashProvider";
+import { IPageAccessPermissionRepository } from "../repositories/pageAccessPermissionRepository";
 export interface IAccountService {
+    getUserAccount(accountId : string) : Promise<AccountInfoReturn>
     createAccount(data : ICreateAccountData, organizationId : string, userRole : string, transaction? : Transaction) : Promise<AccountDataReturn>
     createAccountForManagement(data : ICreateAccountForManagementData, transaction? : Transaction, forSuperAdmin? : boolean) : Promise<AccountDataReturn>
 }
@@ -23,8 +25,31 @@ export class AccountService implements IAccountService {
     constructor(
         private accountRepository : IAccountRepository,
         private roleRepository : IRoleRepository,
+        private pageAccessPermissionRepository : IPageAccessPermissionRepository,
         private hashProvider : IHashProvider,
     ) {}
+
+    async getUserAccount(accountId: string): Promise<AccountInfoReturn> {
+
+        // get account
+        const account = await this.accountRepository.findAccountWithRole(accountId);
+        if (!account) throw new DataNotFound("Account not found");
+        if (!account.role) throw Error("Error in getting role from this account");
+
+        // get page access permission
+        const pageAccessPermissions = await this.pageAccessPermissionRepository.findPageAccessPermissionByRole(account.role.role_id);
+        const pageAccessPermissionIds = pageAccessPermissions.map(item => item.id);
+        
+        return {
+            accountId: account.account_id,
+            username: account.username,
+            name: account.name,
+            email: account.email,
+            roleId: account.role.role_id,
+            roleName: account.role.role_name,
+            pageAccessPermissions: pageAccessPermissionIds
+        }
+    }
 
     async createAccount(data: ICreateAccountData, organizationId : string, userRole : string, transaction?: Transaction): Promise<AccountDataReturn> {
 

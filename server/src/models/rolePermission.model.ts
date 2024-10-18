@@ -12,7 +12,7 @@ class RolePermissions extends Model {
     public read!: boolean;
     public write!: boolean;
 
-    public permission? : Permission
+    public permission? : Permission;
 }
 
 RolePermissions.init({

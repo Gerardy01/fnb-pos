@@ -15,6 +15,10 @@ import AccountController from '../../controllers/accountController';
 const accountRoutes = Router();
 
 
+accountRoutes.get("/action/user-info",
+    authenticate,
+    AccountController.getUserAccountInfo
+);
 accountRoutes.post("/",
     authenticate,
     validatePermission(PermissionEnum.ACCOUNT_MANAGEMENT, 'write'),
