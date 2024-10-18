@@ -12,6 +12,7 @@ export class AuthApi {
             data,
             {
                 headers : { 'Content-Type' : 'application/json' },
+                withCredentials: true
             }
         );
         

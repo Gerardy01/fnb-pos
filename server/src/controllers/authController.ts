@@ -24,6 +24,7 @@ class AuthController {
                 httpOnly: true,
                 secure: true,
                 maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days in milliseconds (following token expiry time)
+                sameSite: 'none'
             });
     
             transaction.commit();

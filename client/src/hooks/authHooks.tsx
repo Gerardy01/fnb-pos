@@ -4,7 +4,7 @@ import { authApi } from "../api";
 
 import useCache from "./useCache";
 import useStaticModal from "./useStaticModal";
-import useRefreshToken from "./useRefreshToken";
+import useToken from "./useToken";
 import { useNavigate } from "react-router-dom";
 
 // types and interfaces
@@ -15,7 +15,7 @@ export function useLogin() {
     const navigate = useNavigate();
     const { setRememberMeData, removeRememberMeData } = useCache();
     const { serverErrorModal, errorModal } = useStaticModal();
-    const { setToken, isLoggedIn } = useRefreshToken();
+    const { setAccessTokenValue, isLoggedIn } = useToken();
 
     const [loginLoad, setLoginLoad] = useState<boolean>(false);
     const [errorMessage, setErrorMessage] = useState<string>("");
@@ -45,7 +45,8 @@ export function useLogin() {
             identifier : identifier,
             password : password
         }).then(data => {
-
+            
+            // set credentials into localstorage
             if (rememberMe) {
                 setRememberMeData({
                     identifier : identifier,
@@ -54,7 +55,7 @@ export function useLogin() {
             }
 
             // set token into token hooks state
-            setToken(data.accessToken);
+            setAccessTokenValue(data.accessToken);
 
             navigate('/dashboard');
 
@@ -96,7 +97,7 @@ export function useProtectedRoutes() {
     const [pageLoading, setPageLoading] = useState<boolean>(true);
     const [loggedIn, setLoggedIn] = useState<boolean>(false);
 
-    const { isLoggedIn } = useRefreshToken();
+    const { isLoggedIn } = useToken();
     const navigate = useNavigate();
 
     useEffect(() => {
