@@ -12,8 +12,9 @@ export class UAParserJsUaParserProvider implements IuaParserProvider {
 
         const browserName = parser.getBrowser().name || 'unknown';
         const osName = parser.getOS().name || 'unknown';
+        const deviceType = parser.getDevice().type || 'unknown'
         const engineName = parser.getEngine().name || 'unknown';
 
-        return `${browserName}-${osName}-${engineName}`;
+        return `${browserName}-${osName}-${deviceType}-${engineName}`;
     }
 }
