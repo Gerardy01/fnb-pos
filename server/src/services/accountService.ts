@@ -33,7 +33,7 @@ export class AccountService implements IAccountService {
 
         // get account
         const account = await this.accountRepository.findAccountWithRole(accountId);
-        if (!account) throw new DataNotFound("Account not found");
+        if (!account) throw new DataNotFound("ACCOUNT404");
         if (!account.role) throw Error("Error in getting role from this account");
 
         // get page access permission

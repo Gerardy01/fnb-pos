@@ -25,7 +25,7 @@ class AccountController {
             if (e instanceof DataNotFound) {
                 return res.status(404).json({
                     "status" : "failed",
-                    "message" : e.message,
+                    "message" : "Account not found",
                     "userMessage" : e.message,
                 });
             }

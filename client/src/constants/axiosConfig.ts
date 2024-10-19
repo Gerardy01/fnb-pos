@@ -12,14 +12,14 @@ export const axiosPublic = axios.create({
 
 
 export const axiosPrivate = axios.create({
-    baseURL : process.env.REACT_APP_BASE_URL,
+    baseURL : 'http://localhost:8000/api/v1',
     withCredentials : true
 });
 
 
 axiosPrivate.interceptors.request.use(
     config => {
-        const accessToken = store.getState().token;
+        const accessToken = store.getState().token.accessToken;
 
         if (accessToken) {
             config.headers.Authorization = `Bearer ${accessToken}`;
@@ -46,6 +46,9 @@ axiosPrivate.interceptors.response.use(
             const newAccessToken = res.data.data.accessToken ? res.data.data.accessToken : "";
 
             store.dispatch(setAccessToken(newAccessToken));
+            originalRequest.headers["Authorization"] = `Bearer ${newAccessToken}`;
+            
+            return axiosPrivate(originalRequest);
         } catch(err) {
             window.location.href = '/login';
             return Promise.reject(err);
