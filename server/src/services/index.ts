@@ -19,6 +19,7 @@ import { PageAccessPermissionRepository } from "../repositories/pageAccessPermis
 // providers
 import { BcryptHashProvider } from "../providers/hashProvider";
 import { JsonWebTokenJwtProvider } from "../providers/jwtProvider";
+import { UAParserJsUaParserProvider } from "../providers/uaParserProvider";
 
 // config
 import envData from "../config/envData";
@@ -36,6 +37,7 @@ const pageAccessPermissionRepository = new PageAccessPermissionRepository();
 
 const bcryptHashProvider = new BcryptHashProvider();
 const jsonWebTokenJwtProvider = new JsonWebTokenJwtProvider();
+const uaParserJsUaParserProvider = new UAParserJsUaParserProvider(); 
 
 // unexposed service
 const counterService = new CounterService(counterRepository);
@@ -55,6 +57,7 @@ export const authService = new AuthService(
     adminOrganizationService,
     bcryptHashProvider,
     jsonWebTokenJwtProvider,
+    uaParserJsUaParserProvider,
     envData
 );
 export const roleService = new RoleService(roleRepository, permissionRepository, pageAccessPermissionRepository);

@@ -19,6 +19,7 @@ import { IOrganizationRepository } from "../repositories/organizationRepository"
 import { IAdminOrganizationRepository } from "../repositories/adminOrganizationRepository";
 import { IAdminOrganizationService } from "./adminOrganizationService";
 import { IRoleRepository } from "../repositories/roleRepository";
+import { IuaParserProvider } from "../providers/uaParserProvider";
 export interface IAuthService {
     login(data : ILoginData, userAgent : string, transaction : Transaction) : Promise<LoginReturnData>;
     superAdminLogin(data : ISuperAdminLoginData, userAgent : string, transaction? : Transaction) : Promise<LoginReturnData>;
@@ -41,6 +42,7 @@ export class AuthService implements IAuthService {
         private adminOrganizationService : IAdminOrganizationService,
         private hashProvider : IHashProvider,
         private jwtProvider : IJwtProvider,
+        private uaParserProvider : IuaParserProvider,
         private envData : IEnvData,
     ) {}
 
@@ -91,10 +93,12 @@ export class AuthService implements IAuthService {
         // record refresh token
         const currentTime = new Date();
         const refreshExpDate = new Date(currentTime.getTime() + 30 * 24 * 60 * 60 * 1000); // 30 days in milliseconds
+        const cleanUserAgent =  this.uaParserProvider.getCleanUserAgent(userAgent);
+        const hashedUserAgent = await this.hashProvider.hashString(cleanUserAgent);
         await this.refreshTokenRepository.recordRefreshToken({
             account_id: account.account_id,
             token_expiry_date: refreshExpDate,
-            user_agent : userAgent,
+            user_agent : hashedUserAgent,
             identifier : refreshToken
         }, transaction);
 
@@ -159,10 +163,12 @@ export class AuthService implements IAuthService {
         // record access token
         const currentTime = new Date();
         const refreshExpDate = new Date(currentTime.getTime() + 30 * 24 * 60 * 60 * 1000); // 30 days in milliseconds
+        const cleanUserAgent =  this.uaParserProvider.getCleanUserAgent(userAgent);
+        const hashedUserAgent = await this.hashProvider.hashString(cleanUserAgent);
         await this.refreshTokenRepository.recordRefreshToken({
             account_id: account.account_id,
             token_expiry_date: refreshExpDate,
-            user_agent : userAgent,
+            user_agent : hashedUserAgent,
             identifier : refreshToken
         }, transaction);
 
@@ -182,7 +188,9 @@ export class AuthService implements IAuthService {
         if (!refreshTokenSession || (refreshTokenSession && refreshTokenSession.is_revoked)) throw new NotValid("Refresh token is not valid");
         
         // match user agent (make sure token remain in the same device)
-        if (refreshTokenSession.user_agent !== userAgent) throw new NotValid("Invalid login detected");
+        const cleanUserAgent = this.uaParserProvider.getCleanUserAgent(userAgent);
+        const isMatch = this.hashProvider.compareHash(refreshTokenSession.user_agent, cleanUserAgent);
+        if (!isMatch) throw new NotValid("Invalid login detected");
 
         // check token expiry
         const currentDate = new Date();
