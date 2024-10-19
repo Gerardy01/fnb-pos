@@ -17,6 +17,9 @@ import { UserOutlined, LockOutlined } from '@ant-design/icons';
 
 import { useTranslation } from 'react-i18next';
 
+// components
+import PageLoading from "../components/global/PageLoading";
+
 // types and interfaces
 type LoginForm = {
     username : string;
@@ -48,7 +51,7 @@ export default function Login() {
 
     if (pageLoading) {
         return (
-            <div>Loading...</div>
+            <PageLoading />
         )
     }
 

@@ -2,6 +2,8 @@ import { Outlet } from "react-router-dom";
 
 import useProtectedRoutes from "../../hooks/authentication/useProtectedRoutes";
 
+// componetns
+import PageLoading from "./PageLoading";
 
 
 
@@ -11,7 +13,7 @@ export default function ProtectedRoutes() {
 
     if (pageLoading) {
         return (
-            <div>Loading...</div>
+            <PageLoading />
         )
     }
 

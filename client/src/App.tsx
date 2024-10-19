@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 // components
-import ProtectedRoutes from "./components/global/protectedRoutes";
+import ProtectedRoutes from "./components/global/ProtectedRoutes";
 
 // pages
 import Home from "./pages/Home";
