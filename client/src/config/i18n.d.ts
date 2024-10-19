@@ -6,6 +6,7 @@ declare module 'i18next' {
     resources: {
       global: typeof import('./locales/en.json');
       auth: typeof import('./locales/en.json');
+      account: typeof import('./locales/en.json');
     };
   }
 }

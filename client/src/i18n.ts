@@ -5,9 +5,11 @@ import { initReactI18next } from 'react-i18next';
 // Translation
 import enGlobal from "./constants/locales/en/global.json";
 import enAuth from "./constants/locales/en/auth.json";
+import enAccount from "./constants/locales/en/account.json";
 
 import idGlobal from "./constants/locales/id/global.json";
 import idAuth from "./constants/locales/id/auth.json";
+import idAccount from "./constants/locales/id/account.json";
 
 
 i18n
@@ -18,16 +20,19 @@ i18n
             en: {
                 global : enGlobal,
                 auth : enAuth,
+                account : enAccount,
             },
             id: {
                 auth : idAuth,
                 global : idGlobal,
+                account : idAccount,
             }
         },
         fallbackLng: 'en',
         ns : [
             "global",
             "auth",
+            "account",
         ],
         interpolation: {
             escapeValue: false

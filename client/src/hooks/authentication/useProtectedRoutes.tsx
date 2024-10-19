@@ -2,9 +2,12 @@ import { useEffect, useState } from "react";
 
 import useToken from "../useToken";
 import useStaticModal from "../useStaticModal";
+import useNotification from "../useNotification";
 import { useNavigate } from "react-router-dom";
 
 import { accountApi } from "../../api";
+
+import { useTranslation } from 'react-i18next';
 
 // redux
 import { useDispatch } from "react-redux";
@@ -14,8 +17,11 @@ import { setUserInfo } from "../../redux/account/userInfoSlice";
 
 export default function useProtectedRoutes() {
 
+    const { t } = useTranslation(["account", "global"]);
+
     const { isLoggedIn } = useToken();
     const { serverErrorModal } = useStaticModal();
+    const { errorNotification } = useNotification();
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
@@ -42,6 +48,8 @@ export default function useProtectedRoutes() {
         }).catch(err => {
 
             if (err.status === 404) {
+                const error = err.response.data;
+                errorNotification(t("global:wentWrong"), t(`account:${error.userMessage}`));
                 return;
             }
 
