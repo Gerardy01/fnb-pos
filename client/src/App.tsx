@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 // components
 import ProtectedRoutes from "./components/global/ProtectedRoutes";
+import CommonLayout from "./components/global/CommonLayout";
 
 // pages
 import Home from "./pages/Home";
@@ -20,7 +21,9 @@ export default function App() {
 					<Route path="/login" element={<Login />} />
 
 					<Route element={<ProtectedRoutes />}>
-						<Route path="/dashboard" element={<Dashboard />} />
+						<Route element={<CommonLayout />}>
+							<Route path="/dashboard" element={<Dashboard />} />
+						</Route>
 					</Route>
 
 					<Route path="*" element={<NotFound />} />
