@@ -9,7 +9,7 @@ import Navbar from './Navbar';
 
 export default function CommonLayout() {
 
-    const { collapsed, items, handleCollapse } = useCommonLayout();
+    const { collapsed, sidebarItems, handleCollapse } = useCommonLayout();
     
     return (
         <section style={styles.section}>
@@ -22,7 +22,7 @@ export default function CommonLayout() {
                         mode="inline"
                         theme="light"
                         inlineCollapsed={collapsed}
-                        items={items}
+                        items={sidebarItems}
                         style={styles.menu}
                     />
                 </div>
@@ -53,6 +53,8 @@ const styles : { [key: string]: React.CSSProperties } = {
         height: '100%'
     },
     contentHolder : {
-        flex: 1
+        flex: 1,
+        backgroundColor: '#f0f2f5',
+        padding: '1.5rem'
     }
 }

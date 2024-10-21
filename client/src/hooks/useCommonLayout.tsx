@@ -4,16 +4,24 @@ import {
     AppstoreOutlined,
     ContainerOutlined,
     DesktopOutlined,
+    EditOutlined,
+    LogoutOutlined,
     MailOutlined,
     PieChartOutlined,
 } from '@ant-design/icons';
+
+import { useNavigate } from 'react-router-dom';
+
+// redux
+import { useSelector } from 'react-redux';
+import { RootState } from '../redux/store';
 
 // types and interfaces
 import type { MenuProps } from 'antd';
 type MenuItem = Required<MenuProps>['items'][number];
 
 
-const items: MenuItem[] = [
+const sidebarItems: MenuItem[] = [
     { key: '1', icon: <PieChartOutlined />, label: 'Option 1' },
     { key: '2', icon: <DesktopOutlined />, label: 'Option 2' },
     { key: '3', icon: <ContainerOutlined />, label: 'Option 3' },
@@ -50,15 +58,45 @@ const items: MenuItem[] = [
 
 export default function useCommonLayout() {
 
+    const navigate = useNavigate();
+    const userInfo = useSelector((state : RootState) => state.userInfo);
+
     const [collapsed, setCollapsed] = useState<boolean>(false);
 
     const handleCollapse = () : void => {
         setCollapsed(prev => !prev);
     }
 
+    const handleLogout = () : void => {
+
+    }
+
+    const dropdownItems: MenuProps['items'] = [
+        {
+            key: '1',
+            label: (
+                <a onClick={() => navigate("/dashboard/profile")}>
+                    Profile
+                </a>
+            ),
+            icon: <EditOutlined />
+        },
+        {
+            key: '2',
+            label: (
+                <a onClick={handleLogout}>
+                    logout
+                </a>
+            ),
+            icon: <LogoutOutlined />
+        },
+    ];
+
     return {
-        items,
+        sidebarItems,
+        dropdownItems,
         collapsed,
-        handleCollapse
+        userInfo,
+        handleCollapse,
     }
 }
