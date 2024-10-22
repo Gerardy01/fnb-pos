@@ -25,15 +25,15 @@ export default function useCommonLayout() {
     const navigate = useNavigate();
     const userInfo = useSelector((state : RootState) => state.userInfo);
 
-    const [collapsed, setCollapsed] = useState<boolean>(false);
+    const [collapsed, setCollapsed] = useState<boolean>(true);
 
     const handleCollapse = () : void => {
         setCollapsed(prev => !prev);
     }
 
     const sidebarItems: MenuItem[] = [
-        { key: '1', icon: <PieChartOutlined />, label: 'Option 1' },
-        { key: '2', icon: <DesktopOutlined />, label: 'Option 2' },
+        { key: '1', icon: <PieChartOutlined />, label: 'Dashboard' },
+        { key: '2', icon: <DesktopOutlined />, label: 'POS' },
         { key: '3', icon: <ContainerOutlined />, label: 'Option 3' },
         {
             key: 'sub1',

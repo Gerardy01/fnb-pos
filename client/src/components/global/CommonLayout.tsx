@@ -16,7 +16,12 @@ export default function CommonLayout() {
             <Navbar collapsed={collapsed} handleCollapse={handleCollapse} />
             
             <div style={styles.container}>
-                <div style={{ ...styles.menuHolder, width: collapsed ? "fit-content" : "256px" }}>
+                <div 
+                    style={{
+                        ...styles.menuHolder,
+                        width: collapsed ? "fit-content" : "256px"
+                    }}
+                >
                     <Menu
                         defaultSelectedKeys={['1']}
                         mode="inline"
