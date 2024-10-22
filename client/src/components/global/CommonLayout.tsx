@@ -2,7 +2,7 @@
 import { Menu } from 'antd';
 import { Outlet } from "react-router-dom";
 
-import useCommonLayout from '../../hooks/useCommonLayout';
+import useCommonLayout from '../../hooks/global/useCommonLayout';
 
 // components
 import Navbar from './Navbar';

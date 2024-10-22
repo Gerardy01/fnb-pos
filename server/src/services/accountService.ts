@@ -32,9 +32,10 @@ export class AccountService implements IAccountService {
     async getUserAccount(accountId: string): Promise<AccountInfoReturn> {
 
         // get account
-        const account = await this.accountRepository.findAccountWithRole(accountId);
+        const account = await this.accountRepository.findAccountWithRoleAndOrganization(accountId);
         if (!account) throw new DataNotFound("ACCOUNT404");
         if (!account.role) throw Error("Error in getting role from this account");
+        if (!account.organization) throw Error("Error in getting organization from this account");
 
         // get page access permission
         const pageAccessPermissions = await this.pageAccessPermissionRepository.findPageAccessPermissionByRole(account.role.role_id);
@@ -47,6 +48,8 @@ export class AccountService implements IAccountService {
             email: account.email,
             roleId: account.role.role_id,
             roleName: account.role.role_name,
+            organizationId: account.organization.organization_id,
+            organizationName: account.organization.organization_name,
             pageAccessPermissions: pageAccessPermissionIds
         }
     }

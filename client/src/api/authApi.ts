@@ -1,4 +1,4 @@
-import { axiosPublic } from "../constants/axiosConfig";
+import { axiosPrivate, axiosPublic } from "../constants/axiosConfig";
 
 // types and interfaces
 import { FetchResponse } from "../models/globalInterface";
@@ -17,6 +17,10 @@ export class AuthApi {
         );
         
         return res.data.data;
+    }
+
+    async logout() : Promise<void> {
+        await axiosPrivate.post('/logout');
     }
 
     async getAccessToken() : Promise<AuthReturn> {

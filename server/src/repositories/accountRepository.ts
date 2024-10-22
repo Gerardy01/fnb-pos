@@ -1,11 +1,11 @@
 import { Op } from "sequelize";
-import { Account, Role } from "../models";
+import { Account, Organization, Role } from "../models";
 
 // types and interfaces
 import { Transaction } from "sequelize"
 export interface IAccountRepository {
     findAccountById(id : string) : Promise<Account | null>
-    findAccountWithRole(id : string) : Promise<Account | null>
+    findAccountWithRoleAndOrganization(id : string) : Promise<Account | null>
     findAccountByUsername(username : string) : Promise<Account | null>
     findAccountByEmail(email : string) : Promise<Account | null>
     findAccountByEmailOrUsername(identifier: string) : Promise<Account | null>
@@ -23,13 +23,19 @@ export class AccountRepository implements IAccountRepository {
         });
     }
 
-    findAccountWithRole(id: string): Promise<Account | null> {
+    findAccountWithRoleAndOrganization(id: string): Promise<Account | null> {
         return Account.findOne({
             where: {account_id : id},
-            include: [{
-                model: Role,
-                as: 'role'
-            }]
+            include: [
+                {
+                    model: Role,
+                    as: 'role'
+                },
+                {
+                    model: Organization,
+                    as: 'organization'
+                }
+            ]
         });
     }
 

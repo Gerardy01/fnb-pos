@@ -19,6 +19,7 @@ class Account extends Model {
     public readonly updated_at! : Date;
 
     public role? : Role;
+    public organization? : Organization;
 }
 
 Account.init({

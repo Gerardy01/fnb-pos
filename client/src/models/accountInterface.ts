@@ -8,5 +8,7 @@ export interface AccountInfoReturn {
     email : string;
     roleId : number;
     roleName : string;
+    organizationId : string;
+    organizationName : string;
     pageAccessPermissions : number[];
 }

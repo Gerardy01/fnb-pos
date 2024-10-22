@@ -33,6 +33,9 @@ RolePageAccessPermission.belongsTo(PageAccessPermission, {
 Account.belongsTo(Role, { foreignKey: 'role_id', as: 'role' });
 Role.hasMany(Account, { foreignKey: 'role_id', as: 'account' });
 
+Account.belongsTo(Organization, { foreignKey: 'organization_id', as: 'organization' });
+Organization.hasMany(Account, { foreignKey: 'organization_id', as: 'account' });
+
 
 
 export {
