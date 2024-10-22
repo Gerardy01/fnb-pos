@@ -16,6 +16,10 @@ module.exports = {
         permission_name: 'Role Management Page',
         description: ''
       },
+      {
+        permission_name: 'POS Page',
+        description: ''
+      },
     ]);
   },
 
