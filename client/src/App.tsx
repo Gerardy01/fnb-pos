@@ -8,6 +8,7 @@ import CommonLayout from "./components/global/CommonLayout";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
+import POS from "./pages/POS";
 import NotFound from "./pages/NotFound";
 
 
@@ -23,7 +24,12 @@ export default function App() {
 					<Route element={<ProtectedRoutes />}>
 						<Route element={<CommonLayout />}>
 							<Route path="/dashboard" element={<Dashboard />} />
+							<Route path="/account-management" element={<Dashboard />} />
+							<Route path="/role-management" element={<Dashboard />} />
+							<Route path="/organization-settings" element={<Dashboard />} />
 						</Route>
+
+						<Route path="/pos" element={<POS />} />
 					</Route>
 
 					<Route path="*" element={<NotFound />} />

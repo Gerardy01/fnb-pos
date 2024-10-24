@@ -9,7 +9,7 @@ import Navbar from './Navbar';
 
 export default function CommonLayout() {
 
-    const { collapsed, sidebarItems, handleCollapse } = useCommonLayout();
+    const { collapsed, filteredSidebarItems, activeMenuItem, handleCollapse } = useCommonLayout();
     
     return (
         <section style={styles.section}>
@@ -22,14 +22,19 @@ export default function CommonLayout() {
                         width: collapsed ? "fit-content" : "256px"
                     }}
                 >
-                    <Menu
-                        defaultSelectedKeys={['1']}
-                        mode="inline"
-                        theme="light"
-                        inlineCollapsed={collapsed}
-                        items={sidebarItems}
-                        style={styles.menu}
-                    />
+                    {activeMenuItem && filteredSidebarItems.length > 0 ? (
+                        <Menu
+                            defaultSelectedKeys={[activeMenuItem]}
+                            // defaultOpenKeys={defaultOpenKey}
+                            mode="inline"
+                            theme="light"
+                            inlineCollapsed={collapsed}
+                            items={filteredSidebarItems}
+                            style={styles.menu}
+                        />
+                    ) : (
+                        <div style={styles.sidebarDecoy} />
+                    )}
                 </div>
                 <div style={styles.contentHolder}>
                     <Outlet />
@@ -61,5 +66,9 @@ const styles : { [key: string]: React.CSSProperties } = {
         flex: 1,
         backgroundColor: '#f0f2f5',
         padding: '1.5rem'
+    },
+    sidebarDecoy : {
+        width: '5rem',
+        backgroundColor: 'white'
     }
 }

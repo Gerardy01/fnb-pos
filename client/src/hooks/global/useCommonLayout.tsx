@@ -1,14 +1,14 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 import {
-    AppstoreOutlined,
-    ContainerOutlined,
+    ApartmentOutlined,
     DesktopOutlined,
-    MailOutlined,
-    PieChartOutlined,
+    HomeOutlined,
+    ToolOutlined,
 } from '@ant-design/icons';
 
-import { useNavigate } from 'react-router-dom';
+import { PageAccessPermissionEnum } from '../../utils/enums';
 
 // redux
 import { useSelector } from 'react-redux';
@@ -17,57 +17,135 @@ import { RootState } from '../../redux/store';
 // types and interfaces
 import type { MenuProps } from 'antd';
 type MenuItem = Required<MenuProps>['items'][number];
+type CustomMenuItem = MenuItem & {
+    permissions?: number[];
+    children?: CustomMenuItem[];
+};
 
 
 
 export default function useCommonLayout() {
 
+    const location = useLocation();
     const navigate = useNavigate();
     const userInfo = useSelector((state : RootState) => state.userInfo);
 
     const [collapsed, setCollapsed] = useState<boolean>(true);
+    const [activeMenuItem, setActiveMenuItem] = useState<string>("");
+    // const [defaultOpenKey, setDefaultOpenKey] = useState<string[] | null>(null);
+    const [filteredSidebarItems, setFilteredSidebarItems] = useState<CustomMenuItem[]>([]);
+
+    useEffect(() => {
+        filterSidebarItem();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    useEffect(() => {
+        setActiveMenuItem(location.pathname);
+    }, [location.pathname]);
+
+    // useEffect(() => {
+    //     defaultOpenKeyChecker();
+    //     // eslint-disable-next-line react-hooks/exhaustive-deps
+    // }, [activeMenuItem]);
 
     const handleCollapse = () : void => {
         setCollapsed(prev => !prev);
     }
 
-    const sidebarItems: MenuItem[] = [
-        { key: '1', icon: <PieChartOutlined />, label: 'Dashboard' },
-        { key: '2', icon: <DesktopOutlined />, label: 'POS' },
-        { key: '3', icon: <ContainerOutlined />, label: 'Option 3' },
+    const handleClick = (url : string) : void => {
+        navigate(url);
+    }
+
+    const filterSidebarItem = () => {
+        const filtered = sidebarItems
+            .filter(item =>
+                !item.permissions || item.permissions.every(permission => userInfo.pageAccessPermissions.includes(permission))
+            )
+            .map(item => {
+                if (!item.children) return item;
+                
+                const filteredChildren = item.children.filter(child =>
+                    !child.permissions || child.permissions.every(permission => userInfo.pageAccessPermissions.includes(permission))
+                )
+                return {
+                    ...item,
+                    children: filteredChildren
+                }
+            });
+        setFilteredSidebarItems(filtered);
+    }
+
+    // const defaultOpenKeyChecker = () => {
+    //     if (!activeMenuItem) return;
+
+    //     let isFind = false;
+    //     sidebarItems.forEach(data => {
+    //         if (!data.children) return;
+            
+    //         const childWithActiveMenu = data.children.find(item => item.key === activeMenuItem);
+    //         if (!childWithActiveMenu) return;
+    //         const menuKey = data.key ? data.key.toString() : "";
+    //         setDefaultOpenKey([menuKey]);
+    //         isFind = true;
+    //     });
+
+    //     if (!isFind) setDefaultOpenKey([]);
+    // }
+
+    const sidebarItems: CustomMenuItem[] = [
         {
-            key: 'sub1',
-            label: 'Navigation One',
-            icon: <MailOutlined />,
-            children: [
-                { key: '5', label: 'Option 5' },
-                { key: '6', label: 'Option 6' },
-                { key: '7', label: 'Option 7' },
-                { key: '8', label: 'Option 8' },
-            ],
+            key: '/dashboard',
+            icon: <HomeOutlined />,
+            label: 'Dashboard',
+            onClick: () => handleClick("/dashboard")
         },
         {
-            key: 'sub2',
-            label: 'Navigation Two',
-            icon: <AppstoreOutlined />,
+            key: '/pos',
+            icon: <DesktopOutlined />,
+            label: 'POS',
+            permissions: [PageAccessPermissionEnum.POS],
+            onClick: () => handleClick("/pos"),
+        },
+        {
+            key: 'management',
+            label: 'Management',
+            icon: <ApartmentOutlined />,
             children: [
-                { key: '9', label: 'Option 9' },
-                { key: '10', label: 'Option 10' },
                 {
-                    key: 'sub3',
-                    label: 'Submenu',
-                    children: [
-                        { key: '11', label: 'Option 11' },
-                        { key: '12', label: 'Option 12' },
-                    ],
+                    key: '/account-management',
+                    label: 'Account',
+                    permissions: [PageAccessPermissionEnum.ACCOUNT_MANAGEMENT],
+                    onClick: () => handleClick("/account-management"),
+                },
+                {
+                    key: '/role-management',
+                    label: 'Role',
+                    permissions: [PageAccessPermissionEnum.ROLE_MANAGEMENT],
+                    onClick: () => handleClick("/role-management"),
                 },
             ],
         },
+        {
+            key: 'config',
+            label: 'Configuration',
+            icon: <ToolOutlined />,
+            permissions: [PageAccessPermissionEnum.ORGANIZATION_SETTINGS],
+            children: [
+                {
+                    key: 'organization-settings',
+                    label: 'Organization',
+                    permissions: [PageAccessPermissionEnum.ORGANIZATION_SETTINGS],
+                    onClick: () => handleClick("/organization-settings"),
+                }
+            ]
+        }
     ];
 
     return {
-        sidebarItems,
+        filteredSidebarItems,
         collapsed,
+        activeMenuItem,
         handleCollapse,
     }
 }
