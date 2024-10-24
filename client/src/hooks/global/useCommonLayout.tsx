@@ -60,13 +60,13 @@ export default function useCommonLayout() {
     const filterSidebarItem = () => {
         const filtered = sidebarItems
             .filter(item =>
-                !item.permissions || item.permissions.every(permission => userInfo.pageAccessPermissions.includes(permission))
+                !item.permissions || item.permissions.some(permission => userInfo.pageAccessPermissions.includes(permission))
             )
             .map(item => {
                 if (!item.children) return item;
                 
                 const filteredChildren = item.children.filter(child =>
-                    !child.permissions || child.permissions.every(permission => userInfo.pageAccessPermissions.includes(permission))
+                    !child.permissions || child.permissions.some(permission => userInfo.pageAccessPermissions.includes(permission))
                 )
                 return {
                     ...item,
@@ -111,6 +111,10 @@ export default function useCommonLayout() {
             key: 'management',
             label: 'Management',
             icon: <ApartmentOutlined />,
+            permissions: [
+                PageAccessPermissionEnum.ACCOUNT_MANAGEMENT,
+                PageAccessPermissionEnum.ROLE_MANAGEMENT,
+            ],
             children: [
                 {
                     key: '/account-management',
