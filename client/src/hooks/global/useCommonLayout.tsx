@@ -8,6 +8,9 @@ import {
     ToolOutlined,
 } from '@ant-design/icons';
 
+import { useTranslation } from 'react-i18next';
+
+// utils
 import { PageAccessPermissionEnum } from '../../utils/enums';
 
 // redux
@@ -29,6 +32,8 @@ export default function useCommonLayout() {
     const location = useLocation();
     const navigate = useNavigate();
     const userInfo = useSelector((state : RootState) => state.userInfo);
+
+    const { t } = useTranslation('global');
 
     const [collapsed, setCollapsed] = useState<boolean>(true);
     const [activeMenuItem, setActiveMenuItem] = useState<string>("");
@@ -97,19 +102,19 @@ export default function useCommonLayout() {
         {
             key: '/dashboard',
             icon: <HomeOutlined />,
-            label: 'Dashboard',
+            label: t('dashboard'),
             onClick: () => handleClick("/dashboard")
         },
         {
             key: '/pos',
             icon: <DesktopOutlined />,
-            label: 'POS',
+            label: t('pos'),
             permissions: [PageAccessPermissionEnum.POS],
             onClick: () => handleClick("/pos"),
         },
         {
             key: 'management',
-            label: 'Management',
+            label: t('management'),
             icon: <ApartmentOutlined />,
             permissions: [
                 PageAccessPermissionEnum.ACCOUNT_MANAGEMENT,
@@ -118,13 +123,13 @@ export default function useCommonLayout() {
             children: [
                 {
                     key: '/account-management',
-                    label: 'Account',
+                    label: t('account'),
                     permissions: [PageAccessPermissionEnum.ACCOUNT_MANAGEMENT],
                     onClick: () => handleClick("/account-management"),
                 },
                 {
                     key: '/role-management',
-                    label: 'Role',
+                    label: t('role'),
                     permissions: [PageAccessPermissionEnum.ROLE_MANAGEMENT],
                     onClick: () => handleClick("/role-management"),
                 },
@@ -132,13 +137,13 @@ export default function useCommonLayout() {
         },
         {
             key: 'config',
-            label: 'Configuration',
+            label: t('configuration'),
             icon: <ToolOutlined />,
             permissions: [PageAccessPermissionEnum.ORGANIZATION_SETTINGS],
             children: [
                 {
-                    key: 'organization-settings',
-                    label: 'Organization',
+                    key: '/organization-settings',
+                    label: t('organization'),
                     permissions: [PageAccessPermissionEnum.ORGANIZATION_SETTINGS],
                     onClick: () => handleClick("/organization-settings"),
                 }

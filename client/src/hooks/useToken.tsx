@@ -10,14 +10,11 @@ import { RootState } from "../redux/store";
 export default function useToken() {
 
     const dispatch = useDispatch();
-
     
     const accessToken = useSelector((state : RootState) => state.token.accessToken);
 
     const isLoggedIn = async () : Promise<boolean> => {
-        if (accessToken) {
-            return true;
-        }
+        if (accessToken) return true;
         
         try {
             const res = await authApi.getAccessToken();

@@ -7,7 +7,14 @@
     "warning" : "Peringatan",
     "error" : "Kesalahan",
     "close" : "Tutup",
-    "wentWrong" : "Ada yang salah",
-    "unexpectedError" : "Terjadi kesalahan yang tidak terduga. Silakan coba lagi nanti. Hubungi dukungan jika kesalahan terus berlanjut.",
-    "goBack" : "Kembali"
+    "wentWrong" : "Terjadi kesalahan",
+    "unexpectedError" : "Terjadi kesalahan tak terduga. Silakan coba lagi nanti. Hubungi dukungan jika kesalahan berlanjut.",
+    "goBack" : "Kembali",
+    "dashboard" : "Dasbor",
+    "pos" : "POS",
+    "management" : "Manajemen",
+    "account" : "Akun",
+    "role" : "Peran",
+    "configuration" : "Konfigurasi",
+    "organization" : "Organisasi"
 }

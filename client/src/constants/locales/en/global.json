@@ -9,5 +9,12 @@
     "close" : "Close",
     "wentWrong" : "Something went wrong",
     "unexpectedError" : "An unexpected error has occured. Please try again later. Contact support if the error persists.",
-    "goBack" : "Go Back"
+    "goBack" : "Go Back",
+    "dashboard" : "Dashboard",
+    "pos" : "POS",
+    "management" : "Management",
+    "account" : "Account",
+    "role" : "Role",
+    "configuration" : "Configuration",
+    "organization" : "Organization"
 }
