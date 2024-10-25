@@ -54,7 +54,8 @@ const styles : { [key: string]: React.CSSProperties } = {
     container : {
         width: '100%',
         flex: 1,
-        display: 'flex'
+        display: 'flex',
+        overflow: 'auto'
     },
     menuHolder : {
         height : '100%'
@@ -65,7 +66,8 @@ const styles : { [key: string]: React.CSSProperties } = {
     contentHolder : {
         flex: 1,
         backgroundColor: '#f0f2f5',
-        padding: '1.5rem'
+        padding: '1.5rem',
+        overflow: 'auto'
     },
     sidebarDecoy : {
         width: '5rem',
