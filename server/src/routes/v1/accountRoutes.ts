@@ -7,7 +7,7 @@ import { PermissionEnum } from '../../utility/enums';
 import { authenticate, validatePermission, validateRequest } from '../../utility/middleware';
 
 // schema
-import { CreateAccountSchema, CreateSuperadminSchema } from '../../schema/accountSchema';
+import { CreateAccountSchema, CreateSuperadminSchema, ChangePasswordSchema } from '../../schema/accountSchema';
 
 // controllers
 import AccountController from '../../controllers/accountController';
@@ -26,5 +26,11 @@ accountRoutes.post("/",
     AccountController.createAccounts
 );
 accountRoutes.post("/action/super-admin", validateRequest(CreateSuperadminSchema), AccountController.createSuperadminAccount);
+accountRoutes.put("/action/change-password",
+    authenticate,
+    validatePermission(PermissionEnum.ACCOUNT_MANAGEMENT, 'write'),
+    validateRequest(ChangePasswordSchema),
+    AccountController.changePassword
+);
 
 export default accountRoutes;

@@ -28,3 +28,10 @@ export class NotValid extends Error {
 		this.name = "NotValidError";
 	}
 }
+
+export class Forbidden extends Error {
+	constructor(message : string) {
+		super(message);
+		this.name = "ForbiddenError";
+	}
+}

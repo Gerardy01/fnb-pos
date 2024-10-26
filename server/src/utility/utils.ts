@@ -22,17 +22,17 @@ export function validateUsername(username : string) : { valid : boolean; message
 
     // Check for minimum length
     if (username.length < 4) {
-        return { valid: false, message: "Username must be at least 4 characters long." };
+        return { valid: false, message: "USERNAME01" }; // Username must be at least 4 characters long.
     }
 
     // Check for maximum length
     if (username.length > 20) {
-        return { valid: false, message: "Username must be no more than 20 characters long." };
+        return { valid: false, message: "USERNAME02" }; // Username must be no more than 20 characters long.
     }
 
     // Check for allowed characters
     if (!usernameRegex.test(username)) {
-        return { valid: false, message: "Username can only contain letters, numbers, and underscores." };
+        return { valid: false, message: "USERNAME03" }; // Username can only contain letters, numbers, and underscores.
     }
 
     return {valid: true, message: ""}
@@ -44,17 +44,17 @@ export function validatePassword(password : string) : { valid : boolean; message
 
     // Check for minimum length
     if (password.length < 5) {
-        return { valid: false, message: "Password must be at least 8 characters long." };
+        return { valid: false, message: "PASS01" }; // Password must be at least 8 characters long.
     }
 
     // Check for uppercase letter
     if (!uppercaseRegex.test(password)) {
-        return { valid: false, message: "Password must contain at least one uppercase letter." };
+        return { valid: false, message: "PASS02" }; // Password must contain at least one uppercase letter.
     }
 
     // Check for number
     if (!numberRegex.test(password)) {
-        return { valid: false, message: "Password must contain at least one number." };
+        return { valid: false, message: "PASS03" }; // Password must contain at least one number.
     }
     return {valid: true, message: ""}
 }

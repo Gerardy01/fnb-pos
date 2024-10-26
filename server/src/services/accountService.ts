@@ -1,14 +1,17 @@
 
+// models
+import { Account } from "../models";
+
 // utils
 import { DefaultRoleEnum } from "../utility/enums";
 import { validatePassword, validateUsername } from "../utility/utils";
 
 // exceptions
-import { ExistData, DataNotFound, WrongFormat } from "../utility/exceptions";
+import { ExistData, DataNotFound, WrongFormat, NotValid, Forbidden } from "../utility/exceptions";
 
 // types and interfaces
 import { Transaction } from "sequelize";
-import { AccountDataReturn, ICreateAccountData, ICreateAccountForManagementData, AccountInfoReturn } from "../interfaces/IAccount";
+import { AccountDataReturn, ICreateAccountData, ICreateAccountForManagementData, AccountInfoReturn, IChangePassword, IResetPassword } from "../interfaces/IAccount";
 import { IAccountRepository } from "../repositories/accountRepository";
 import { IRoleRepository } from "../repositories/roleRepository";
 import { IHashProvider } from "../providers/hashProvider";
@@ -17,6 +20,8 @@ export interface IAccountService {
     getUserAccount(accountId : string) : Promise<AccountInfoReturn>
     createAccount(data : ICreateAccountData, organizationId : string, userRole : string, transaction? : Transaction) : Promise<AccountDataReturn>
     createAccountForManagement(data : ICreateAccountForManagementData, transaction? : Transaction, forSuperAdmin? : boolean) : Promise<AccountDataReturn>
+    changePaassword(data : IChangePassword, accountId : string) : Promise<boolean>
+    resetPassword(data : IResetPassword, userRole : string) : Promise<boolean>
 }
 
 
@@ -172,5 +177,55 @@ export class AccountService implements IAccountService {
             roleName : role.role_name,
             archived : account.archived,
         }
+    }
+
+    async changePaassword(data: IChangePassword, accountId : string): Promise<boolean> {
+        const account = await this.accountRepository.findAccountById(accountId);
+        if (!account) throw new Error("something wrong when getting account");
+
+        // compare password
+        const isMatch = await this.hashProvider.compareHash(data.currentPassword, account.password);
+        if (!isMatch) throw new Forbidden("Wrong password");
+
+        // change password
+        return this.changePasswordHandler(account, data.newPassword);
+    }
+
+    async resetPassword(data: IResetPassword, userRole : string): Promise<boolean> {
+        const account = await this.accountRepository.findAccountById(data.accountId);
+        if (!account) throw new DataNotFound("account not found");
+        if (!account.role) throw new Error("something wrong when getting role data")
+        
+        // Check if user allowed to change account with specific role's password
+        let isForbidden = false;
+        if (userRole !== DefaultRoleEnum.ADMIN && userRole !== DefaultRoleEnum.SUPER_ADMIN) {
+            if (account.role.role_name === DefaultRoleEnum.ADMIN || account.role.role_name === DefaultRoleEnum.SUPER_ADMIN) {
+                isForbidden = true;
+            }
+        }
+        if (userRole === DefaultRoleEnum.ADMIN) {
+            if (account.role.role_name === DefaultRoleEnum.SUPER_ADMIN) isForbidden = true;
+            if (account.role.role_name === DefaultRoleEnum.ADMIN) isForbidden = true;
+        }
+        if (isForbidden) throw new Forbidden("you dont have permission to do this action");
+
+        // change password
+        return this.changePasswordHandler(account, data.newPassword);
+    }
+
+    private async changePasswordHandler(account : Account, newPassword : string) : Promise<boolean> {
+
+        // check if password format is valid
+        const passwordValid = validatePassword(newPassword);
+        if (!passwordValid.valid) {
+            throw new WrongFormat(passwordValid.message);
+        }
+
+        // save password
+        const hashedPassword = await this.hashProvider.hashString(newPassword);
+        account.password = hashedPassword;
+        await account.save();
+
+        return true;
     }
 }

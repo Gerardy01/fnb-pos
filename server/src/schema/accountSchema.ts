@@ -14,3 +14,8 @@ export const CreateSuperadminSchema = z.object({
     email : z.string().max(50).nullable(),
     password : z.string().min(1),
 });
+
+export const ChangePasswordSchema = z.object({
+    currentPassword : z.string().min(1),
+    newPassword : z.string().min(1),
+});

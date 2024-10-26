@@ -24,6 +24,16 @@ export interface ICreateSuperAdminData {
     password : string;
 }
 
+export interface IChangePassword {
+    currentPassword : string;
+    newPassword : string;
+}
+
+export interface IResetPassword {
+    accountId : string;
+    newPassword : string;
+}
+
 export type AccountDataReturn = {
     accountId : string;
     username : string;
