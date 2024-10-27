@@ -16,3 +16,9 @@ export enum PermissionEnum {
     ACCOUNT_MANAGEMENT = 3,
     ROLE_MANAGEMENT = 4,
 }
+
+export enum EditAccountProcessEnum {
+    USERNAME = "username",
+    EMAIL = "email",
+    NAME = "name"
+}

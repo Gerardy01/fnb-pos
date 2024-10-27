@@ -3,7 +3,7 @@
 import { Account } from "../models";
 
 // utils
-import { DefaultRoleEnum } from "../utility/enums";
+import { DefaultRoleEnum, EditAccountProcessEnum } from "../utility/enums";
 import { validatePassword, validateUsername } from "../utility/utils";
 
 // exceptions
@@ -11,7 +11,19 @@ import { ExistData, DataNotFound, WrongFormat, NotValid, Forbidden } from "../ut
 
 // types and interfaces
 import { Transaction } from "sequelize";
-import { AccountDataReturn, ICreateAccountData, ICreateAccountForManagementData, AccountInfoReturn, IChangePassword, IResetPassword } from "../interfaces/IAccount";
+import {
+    AccountDataReturn,
+    ICreateAccountData,
+    ICreateAccountForManagementData,
+    AccountInfoReturn,
+    IChangePassword,
+    IResetPassword,
+    IChangeUsername,
+    IChangeEmail,
+    IChangeName,
+    IEditAccount,
+    EditAccountReturn
+} from "../interfaces/IAccount";
 import { IAccountRepository } from "../repositories/accountRepository";
 import { IRoleRepository } from "../repositories/roleRepository";
 import { IHashProvider } from "../providers/hashProvider";
@@ -20,8 +32,14 @@ export interface IAccountService {
     getUserAccount(accountId : string) : Promise<AccountInfoReturn>
     createAccount(data : ICreateAccountData, organizationId : string, userRole : string, transaction? : Transaction) : Promise<AccountDataReturn>
     createAccountForManagement(data : ICreateAccountForManagementData, transaction? : Transaction, forSuperAdmin? : boolean) : Promise<AccountDataReturn>
-    changePaassword(data : IChangePassword, accountId : string) : Promise<boolean>
+    checkUsernameAvailable(username : string) : Promise<boolean>
+    checkEmailAvailable(email : string) : Promise<boolean>
+    editAccount(data : IEditAccount, userAccountId : string, userRole : string) : Promise<EditAccountReturn>
+    changeUsername(data : IChangeUsername, userAccountId : string, userRole : string) : Promise<string>
+    changeEmail(data : IChangeEmail, userAccountId : string, userRole : string) : Promise<string>
+    changeName(data : IChangeName, userAccountId : string, userRole : string) : Promise<string>
     resetPassword(data : IResetPassword, userRole : string) : Promise<boolean>
+    changePaassword(data : IChangePassword, accountId : string) : Promise<boolean>
 }
 
 
@@ -179,6 +197,135 @@ export class AccountService implements IAccountService {
         }
     }
 
+    async checkUsernameAvailable(username: string): Promise<boolean> {
+        const usernameExist = await this.accountRepository.findAccountByUsername(username);
+        if (usernameExist) return false;
+        return true;
+    }
+
+    async checkEmailAvailable(email: string): Promise<boolean> {
+        const emailExist = await this.accountRepository.findAccountByEmail(email);
+        if (emailExist) return false;
+        return true;
+    }
+
+    async editAccount(data: IEditAccount, userAccountId: string, userRole: string): Promise<EditAccountReturn> {
+        
+        const process = data.process;
+
+        let message = "";
+        let newValue = "";
+
+        if (process === EditAccountProcessEnum.USERNAME) {
+            if (data.value.length > 20) {
+                throw new NotValid("ACCOUNT400-1"); // Username cannot be more than 20 characters.
+            }
+            newValue = await this.changeUsername({
+                accountId: data.accountId,
+                newUsername: data.value
+            }, userAccountId, userRole);
+            message = "username changed";
+        } else if (process === EditAccountProcessEnum.EMAIL) {
+            if (data.value.length > 50) {
+                throw new NotValid("ACCOUNT400-2"); // Email cannot be more than 50 characters.
+            }
+            newValue = await this.changeEmail({
+                accountId: data.accountId,
+                newEmail: data.value
+            }, userAccountId, userRole);
+            message = "email changed";
+        } else if (process === EditAccountProcessEnum.NAME) {
+            newValue = await this.changeName({
+                accountId: data.accountId,
+                newName: data.value
+            }, userAccountId, userRole);
+            message = "name changed";
+        } else {
+            throw new WrongFormat("process must be either username, email, or name");
+        }
+
+        return {
+            message : message,
+            newValue : newValue
+        }
+    }
+
+    async changeUsername(data: IChangeUsername, userAccountId: string, userRole : string): Promise<string> {
+
+        // check if username is available
+        const isAvailable = await this.checkUsernameAvailable(data.newUsername);
+        if (!isAvailable) throw new ExistData("ACCOUNT409-1"); // Username already used.
+
+        const account = await this.accountRepository.findAccountById(data.accountId);
+        if (!account) throw new DataNotFound("account not found");
+        console.log(account)
+        if (!account.role) throw new Error("something wrong when getting role data");
+
+        // Check if user allowed to change account with specific role's username
+        if (account.account_id !== userAccountId) {
+            const isAllowed = this.checkRoleEligibility(userRole, account.role.role_name);
+            if (!isAllowed) throw new Forbidden("you dont have permission to do this action");
+        }
+
+        account.username = data.newUsername;
+        const updatedAccount = await account.save();
+
+        return updatedAccount.username;
+    }
+
+    async changeEmail(data: IChangeEmail, userAccountId: string, userRole : string): Promise<string> {
+
+        // check if email is available
+        const isAvailable = await this.checkEmailAvailable(data.newEmail);
+        if (!isAvailable) throw new ExistData("ACCOUNT409-2"); // Email already used.
+
+        const account = await this.accountRepository.findAccountById(data.accountId);
+        if (!account) throw new DataNotFound("account not found");
+        if (!account.role) throw new Error("something wrong when getting role data");
+
+        // Check if user allowed to change account with specific role's email
+        if (account.account_id !== userAccountId) {
+            const isAllowed = this.checkRoleEligibility(userRole, account.role.role_name);
+            if (!isAllowed) throw new Forbidden("you dont have permission to do this action");
+        }
+
+        account.email = data.newEmail;
+        const updatedAccount = await account.save();
+
+        return updatedAccount.email;
+    }
+
+    async changeName(data: IChangeName, userAccountId: string, userRole : string): Promise<string> {
+
+        const account = await this.accountRepository.findAccountById(data.accountId);
+        if (!account) throw new DataNotFound("account not found");
+        if (!account.role) throw new Error("something wrong when getting role data");
+
+        // Check if user allowed to change account with specific role's email
+        if (account.account_id !== userAccountId) {
+            const isAllowed = this.checkRoleEligibility(userRole, account.role.role_name);
+            if (!isAllowed) throw new Forbidden("you dont have permission to do this action");
+        }
+
+        account.name = data.newName;
+        const updatedAccount = await account.save();
+
+        return updatedAccount.name;
+    }
+
+    async resetPassword(data: IResetPassword, userRole : string): Promise<boolean> {
+        const account = await this.accountRepository.findAccountById(data.accountId);
+        if (!account) throw new DataNotFound("account not found");
+        if (!account.role) throw new Error("something wrong when getting role data");
+        
+        // Check if user allowed to change account with specific role's password
+        const isAllowed = this.checkRoleEligibility(userRole, account.role.role_name);
+        if (!isAllowed) throw new Forbidden("you dont have permission to do this action");
+
+        // change password
+        return this.changePasswordHandler(account, data.newPassword);
+    }
+
     async changePaassword(data: IChangePassword, accountId : string): Promise<boolean> {
         const account = await this.accountRepository.findAccountById(accountId);
         if (!account) throw new Error("something wrong when getting account");
@@ -186,28 +333,6 @@ export class AccountService implements IAccountService {
         // compare password
         const isMatch = await this.hashProvider.compareHash(data.currentPassword, account.password);
         if (!isMatch) throw new Forbidden("Wrong password");
-
-        // change password
-        return this.changePasswordHandler(account, data.newPassword);
-    }
-
-    async resetPassword(data: IResetPassword, userRole : string): Promise<boolean> {
-        const account = await this.accountRepository.findAccountById(data.accountId);
-        if (!account) throw new DataNotFound("account not found");
-        if (!account.role) throw new Error("something wrong when getting role data")
-        
-        // Check if user allowed to change account with specific role's password
-        let isForbidden = false;
-        if (userRole !== DefaultRoleEnum.ADMIN && userRole !== DefaultRoleEnum.SUPER_ADMIN) {
-            if (account.role.role_name === DefaultRoleEnum.ADMIN || account.role.role_name === DefaultRoleEnum.SUPER_ADMIN) {
-                isForbidden = true;
-            }
-        }
-        if (userRole === DefaultRoleEnum.ADMIN) {
-            if (account.role.role_name === DefaultRoleEnum.SUPER_ADMIN) isForbidden = true;
-            if (account.role.role_name === DefaultRoleEnum.ADMIN) isForbidden = true;
-        }
-        if (isForbidden) throw new Forbidden("you dont have permission to do this action");
 
         // change password
         return this.changePasswordHandler(account, data.newPassword);
@@ -227,5 +352,20 @@ export class AccountService implements IAccountService {
         await account.save();
 
         return true;
+    }
+
+    private checkRoleEligibility(userRole : string, targetRole : string) : boolean {
+        let allowed = true;
+        if (userRole !== DefaultRoleEnum.ADMIN && userRole !== DefaultRoleEnum.SUPER_ADMIN) {
+            if (targetRole === DefaultRoleEnum.ADMIN || targetRole === DefaultRoleEnum.SUPER_ADMIN) {
+                allowed = false;
+            }
+        }
+        if (userRole === DefaultRoleEnum.ADMIN) {
+            if (targetRole === DefaultRoleEnum.SUPER_ADMIN) allowed = false;
+            if (targetRole === DefaultRoleEnum.ADMIN) allowed = false;
+        }
+
+        return allowed;
     }
 }

@@ -6,6 +6,11 @@ import { accountService, organizationAccountService } from '../services';
 // exceptions
 import { ExistData, DataNotFound, WrongFormat, NotValid, Forbidden } from '../utility/exceptions';
 
+// types and interfaces
+import { CheckAvailabilityQueryParams } from '../interfaces/IAccount';
+
+
+
 class AccountController {
     static async getUserAccountInfo(req : Request, res : Response) {
 
@@ -37,6 +42,48 @@ class AccountController {
                 "errors" : e
             });
 
+        }
+    }
+
+    static async checkAvailability(req : Request<{}, {}, {}, CheckAvailabilityQueryParams>, res : Response) {
+        const { username, email } = req.query;
+
+        try {
+
+            let isAvailable = false;
+            if (username) {
+                isAvailable = await accountService.checkUsernameAvailable(username);
+            } else if(email) {
+                isAvailable = await accountService.checkEmailAvailable(email);
+            } else {
+                throw new WrongFormat("need to specify either username or email under query params");
+            }
+
+            return res.status(200).json({
+                "status" : "success",
+                "message" : "",
+                "userMessage" : "",
+                "data" : {
+                    "available" : isAvailable
+                },
+            });
+
+        } catch(e) {
+
+            if (e instanceof WrongFormat) {
+                return res.status(400).json({
+                    "status" : "failed",
+                    "message" : e.message,
+                    "userMessage" : "",
+                });
+            }
+
+            return res.status(500).json({
+                "status" : "failed",
+                "message" : "server error",
+                "userMessage" : "500",
+                "errors" : e
+            });
         }
     }
 
@@ -134,6 +181,121 @@ class AccountController {
         }
     }
 
+    static async editAccount(req : Request, res : Response) {
+        try {
+
+            const accountId = req.user ? req.user.accountId : "";
+            const roleName = req.user ? req.user.accountRoleName : "";
+            const returnData = await accountService.editAccount(req.body, accountId, roleName);
+
+            return res.status(200).json({
+                "status" : "success",
+                "message" : returnData.message,
+                "userMessage" : "",
+                "data" : {
+                    "newValue" : returnData.newValue
+                }
+            });
+            
+        } catch(e) {
+
+            if (e instanceof NotValid) {
+                return res.status(400).json({
+                    "status" : "failed",
+                    "message" : "bad request",
+                    "userMessage" : e.message,
+                });
+            }
+
+            if (e instanceof ExistData) {
+                return res.status(409).json({
+                    "status" : "failed",
+                    "message" : e.message,
+                    "userMessage" : e.message,
+                });
+            }
+
+            if (e instanceof DataNotFound) {
+                return res.status(404).json({
+                    "status" : "failed",
+                    "message" : "Account not found",
+                    "userMessage" : "",
+                });
+            }
+
+            if (e instanceof Forbidden) {
+                return res.status(403).json({
+                    "status" : "failed",
+                    "message" : e.message,
+                    "userMessage" : "ACCOUNT403-2", // You dont have permission to do this action
+                });
+            }
+
+            if (e instanceof WrongFormat) {
+                return res.status(422).json({
+                    "status" : "failed",
+                    "message" : e.message,
+                    "userMessage" : "",
+                });
+            }
+
+            return res.status(500).json({
+                "status" : "failed",
+                "message" : "server error",
+                "userMessage" : "500",
+                "errors" : e
+            });
+        }
+    }
+
+    static async resetPassword(req : Request, res : Response) {
+        try {
+
+            const roleName = req.user ? req.user.accountRoleName : "";
+            const isChanged = await accountService.resetPassword(req.body, roleName);
+
+            return res.status(200).json({
+                "status" : "success",
+                "message" : "password changed",
+                "userMessage" : "",
+                "data" : isChanged
+            });
+
+        } catch(e) {
+
+            if (e instanceof DataNotFound) {
+                return res.status(404).json({
+                    "status" : "failed",
+                    "message" : "Account not found",
+                    "userMessage" : "",
+                });
+            }
+
+            if (e instanceof Forbidden) {
+                return res.status(403).json({
+                    "status" : "failed",
+                    "message" : e.message,
+                    "userMessage" : "ACCOUNT403-2", // You dont have permission to do this action
+                });
+            }
+
+            if (e instanceof WrongFormat) {
+                return res.status(422).json({
+                    "status" : "failed",
+                    "message" : e.message,
+                    "userMessage" : e.message,
+                });
+            }
+
+            return res.status(500).json({
+                "status" : "failed",
+                "message" : "server error",
+                "userMessage" : "500",
+                "errors" : e
+            });
+        }
+    }
+
     static async changePassword(req : Request, res : Response) {
         try {
             
@@ -153,7 +315,7 @@ class AccountController {
                 return res.status(403).json({
                     "status" : "failed",
                     "message" : e.message,
-                    "userMessage" : "ACCOUNT404-2",
+                    "userMessage" : "ACCOUNT403-1", // Wrong password.
                 });
             }
 

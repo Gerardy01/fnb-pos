@@ -29,9 +29,35 @@ export interface IChangePassword {
     newPassword : string;
 }
 
+export interface IEditAccount {
+    accountId : string;
+    process : string;
+    value : string;
+}
+
+export interface IChangeUsername {
+    accountId : string;
+    newUsername : string;
+}
+
+export interface IChangeEmail {
+    accountId : string;
+    newEmail : string;
+}
+
+export interface IChangeName {
+    accountId : string;
+    newName : string;
+}
+
 export interface IResetPassword {
     accountId : string;
     newPassword : string;
+}
+
+export interface CheckAvailabilityQueryParams {
+    username? : string;
+    email? : string;
 }
 
 export type AccountDataReturn = {
@@ -55,4 +81,9 @@ export type AccountInfoReturn = {
     organizationId : string;
     organizationName : string;
     pageAccessPermissions : number[];
+}
+
+export type EditAccountReturn = {
+    newValue : string;
+    message : string;
 }

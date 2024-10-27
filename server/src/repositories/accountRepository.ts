@@ -19,7 +19,17 @@ export class AccountRepository implements IAccountRepository {
         return Account.findOne({
             where: {
                 account_id : id
-            }
+            },
+            include: [
+                {
+                    model: Role,
+                    as: 'role'
+                },
+                {
+                    model: Organization,
+                    as: 'organization'
+                }
+            ]
         });
     }
 
@@ -50,7 +60,9 @@ export class AccountRepository implements IAccountRepository {
     findAccountByEmail(email: string): Promise<Account | null> {
         return Account.findOne({
             where: {
-                email : email
+                email : {
+                    [Op.iLike] : email
+                }
             }
         });
     }
