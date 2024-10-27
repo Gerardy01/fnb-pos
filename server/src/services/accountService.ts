@@ -258,7 +258,6 @@ export class AccountService implements IAccountService {
 
         const account = await this.accountRepository.findAccountById(data.accountId);
         if (!account) throw new DataNotFound("account not found");
-        console.log(account)
         if (!account.role) throw new Error("something wrong when getting role data");
 
         // Check if user allowed to change account with specific role's username
