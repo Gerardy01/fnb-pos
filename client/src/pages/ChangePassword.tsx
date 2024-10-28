@@ -1,0 +1,126 @@
+
+import { Button, Typography, Form, Input, Divider } from "antd"
+
+import { useTranslation } from "react-i18next";
+
+// components
+import Container from "../components/global/Container"
+import { ArrowLeftOutlined } from "@ant-design/icons"
+
+import useChangePassword from "../hooks/accounts/useChangePassword";
+
+const { Title, Text } = Typography;
+
+
+
+export default function ChangePassword() {
+
+    const { userInfo, handleSubmit, handleClickBack } = useChangePassword();
+
+    const { t } = useTranslation(["account", "global"]);
+
+    return (
+        <Container maxWidth="27rem">
+            <div style={styles.holder}>
+                <Button
+                    shape="circle"
+                    icon={<ArrowLeftOutlined />}
+                    onClick={handleClickBack}
+                />
+                <div style={styles.textHolder}>
+                    <Title level={3}>{t("account:changePassword")}</Title>
+                    <Text type="secondary">{`${t("account:createNewPassword")} ${userInfo.username}.`}</Text>
+                </div>
+                
+                <Form
+                    name="changePassword"
+                    style={styles.form}
+                    onFinish={handleSubmit}
+                    autoComplete="off"
+                >
+                    <Divider orientation="left">{t("account:oldPassword")}</Divider>
+                    <Form.Item
+                        name="oldPassword"
+                        rules={[{ required: true, message: t("global:fieldRequired") }]}
+                    >
+                        <Input.Password
+                            placeholder={t("account:oldPassword")}
+                            type="password"
+                        />
+                    </Form.Item>
+
+                    <Divider orientation="left">{t("account:newPassword")}</Divider>
+                    <Form.Item
+                        name="newPassword"
+                        validateTrigger="onSubmit"
+                        rules={[
+                            { required: true, message: t("global:fieldRequired") },
+                            { min: 8, message: t("account:PASS01") },
+                            {
+                                pattern: /^(?=.*[A-Z]).*$/,
+                                message: t("account:PASS02")
+                            },
+                            {
+                                pattern: /^(?=.*\d).*$/,
+                                message:t("account:PASS03")
+                            }
+                        ]}
+                    >
+                        <Input.Password
+                            placeholder={t("account:newPassword")}
+                            type="password"
+                        />
+                    </Form.Item>
+                    <Form.Item
+                        name="newPasswordRepeat"
+                        dependencies={['newPassword']}
+                        validateTrigger="onSubmit"
+                        rules={[
+                            { required: true, message: t("global:fieldRequired") },
+                            ({ getFieldValue }) => ({
+                                validator(_, value) {
+                                    if (!value || getFieldValue('newPassword') === value) {
+                                        return Promise.resolve();
+                                    }
+                                    return Promise.reject(new Error(t("account:passwordNotMatch")));
+                                }
+                            })
+                        ]}
+                    >
+                        <Input.Password
+                            placeholder={t("account:retype")}
+                            type="password"
+                        />
+                    </Form.Item>
+
+                    <Form.Item>
+                        <Button
+                            style={styles.submitButton}
+                            type="primary"
+                            htmlType="submit"
+                            size="large"
+                        >
+                            {t("global:submit")}
+                        </Button>
+                    </Form.Item>
+                </Form>
+            </div>
+        </Container>
+    )
+}
+
+const styles : { [key: string]: React.CSSProperties } = {
+    holder : {
+        marginTop: '1rem',
+    },
+    textHolder : {
+        padding: '1.5rem 0px'
+    },
+    form: {
+        width: '100%'
+    },
+    submitButton : {
+        width: '100%',
+        marginTop: '0.5rem'
+    }
+}

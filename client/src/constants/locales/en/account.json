@@ -2,5 +2,19 @@
 
 
 {
-    "ACCOUNT404" : "Account info not found."
+    "ACCOUNT404" : "Account info not found.",
+    "USERNAME01" : "Username must be at least 4 characters long",
+    "USERNAME02" : "Username must be no more than 20 characters long",
+    "USERNAME03" : "Username can only contain letters, numbers, and underscores",
+    "PASS01" : "Password must be at least 8 characters long",
+    "PASS02" : "Password must contain at least one uppercase letter",
+    "PASS03" : "Password must contain at least one number",
+
+    "changePassword" : "Change Password",
+    "createNewPassword" : "Create new password for account",
+    "oldPassword" : "Old Password",
+    "newPassword" : "New Password",
+    "retype" : "Retype New Password",
+    "passwordNotMatch" : "Password do not match",
+    "passwordNotChanged" : "If you exit now, the password you change will not be saved."
 }

@@ -2,6 +2,17 @@ import { Modal, Typography } from "antd";
 import { useTranslation } from 'react-i18next';
 import { CheckCircleOutlined, CloseCircleOutlined, InfoCircleOutlined, WarningOutlined } from "@ant-design/icons";
 
+// types and interfaces
+interface ConfirmationModalParams {
+    title : string,
+    content : string,
+    onOk? : () => void,
+    onCancel? : () => void,
+    okBtn? : string,
+    cancelBtn? : string,
+    centered? : boolean,
+    okBtnDanger? : boolean,
+}
 
 const { Title, Text } = Typography;
 
@@ -145,12 +156,41 @@ export default function useStaticModal() {
         });
     }
 
+    const confirmationModal = ({
+        title,
+        content,
+        okBtn,
+        cancelBtn,
+        centered,
+        okBtnDanger,
+        onOk,
+        onCancel
+    } : ConfirmationModalParams) : void => {
+        Modal.confirm({
+            centered : centered ? centered : false,
+            title: title,
+            content: content,
+            okText: okBtn ? okBtn : t("ok"),
+            cancelText: cancelBtn ? cancelBtn : t("cancel"),
+            okButtonProps: {danger : okBtnDanger ? okBtnDanger : false},
+            onOk: onOk,
+            onCancel: onCancel,
+            footer: (_, { OkBtn, CancelBtn }) => (
+                <>
+                    <CancelBtn />
+                    <OkBtn />
+                </>
+            ),
+        });
+    }
+
     return {
         successModal,
         infoModal,
         warningModal,
         errorModal,
         serverErrorModal,
+        confirmationModal,
     }
     
 }

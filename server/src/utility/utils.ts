@@ -43,7 +43,7 @@ export function validatePassword(password : string) : { valid : boolean; message
     const numberRegex = /\d/;
 
     // Check for minimum length
-    if (password.length < 5) {
+    if (password.length < 8) {
         return { valid: false, message: "PASS01" }; // Password must be at least 8 characters long.
     }
 

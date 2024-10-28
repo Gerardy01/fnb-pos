@@ -16,5 +16,11 @@
     "account" : "Account",
     "role" : "Role",
     "configuration" : "Configuration",
-    "organization" : "Organization"
+    "organization" : "Organization",
+    "ok" : "Ok",
+    "cancel" : "Cancel",
+    "fieldRequired" : "This field is required.",
+    "submit" : " Submit",
+    "exitPage" : "Exit this page?",
+    "profile" : "Profile"
 }

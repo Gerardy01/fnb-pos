@@ -79,6 +79,7 @@ export default function Login() {
                 >
                     <Form.Item
                         name="username"
+                        validateTrigger="onSubmit"
                         rules={[{ required: true, message: t("AUTH002") }]}
                         initialValue={identifier}
                         validateStatus={errorMessage ? "error" : ""}
@@ -90,6 +91,7 @@ export default function Login() {
                     </Form.Item>
                     <Form.Item
                         name="password"
+                        validateTrigger="onSubmit"
                         rules={[{ required: true, message: t("AUTH003") }]}
                         initialValue={password}
                         validateStatus={errorMessage ? "error" : ""}
@@ -123,6 +125,7 @@ export default function Login() {
                             type="primary"
                             htmlType="submit"
                             loading={loginLoad}
+                            size="large"
                         >
                             {t("login")}
                         </Button>

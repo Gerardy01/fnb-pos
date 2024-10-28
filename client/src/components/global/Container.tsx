@@ -1,15 +1,16 @@
 
 // types and interfaces
 interface Props {
+    maxWidth? : string;
     children : JSX.Element;
 }
 
 
 
-export default function Container({ children } : Props) {
+export default function Container({ children, maxWidth } : Props) {
     return (
         <section style={styles.section}>
-            <div style={styles.contentContainer}>
+            <div style={{ ...styles.contentContainer, maxWidth: maxWidth ? maxWidth : '75rem' }}>
                 {children}
             </div>
         </section>
@@ -23,7 +24,6 @@ const styles : { [key: string]: React.CSSProperties } = {
         justifyContent: 'center'
     },
     contentContainer : {
-        maxWidth: '75rem',
         flex: 1
     },
 }
