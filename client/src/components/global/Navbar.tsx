@@ -19,7 +19,7 @@ const { Text, Title } = Typography;
 
 export default function Navbar({ collapsed, handleCollapse } : NavbarProps) {
 
-    const { userInfo, dropdownItems } = useNavbar();
+    const { userInfo, organizationInfo, dropdownItems } = useNavbar();
 
     return (
         <nav style={styles.navbar}>
@@ -33,7 +33,7 @@ export default function Navbar({ collapsed, handleCollapse } : NavbarProps) {
                 <Title
                     level={5}
                     style={styles.title}
-                >{userInfo.organizationName}</Title>
+                >{organizationInfo.organizationName}</Title>
             </div>
 
             <Dropdown

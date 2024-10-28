@@ -26,6 +26,7 @@ export default function useNavbar() {
     const { serverErrorModal } = useStaticModal();
 
     const userInfo = useSelector((state : RootState) => state.userInfo);
+    const organizationInfo = useSelector((state : RootState) => state.organizationInfo);
 
     const handleLogout = () : void => {
         authApi.logout().then(() => {
@@ -59,6 +60,7 @@ export default function useNavbar() {
 
     return {
         userInfo,
+        organizationInfo,
         dropdownItems,
     }
 }

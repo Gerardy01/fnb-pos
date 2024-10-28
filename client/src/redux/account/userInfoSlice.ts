@@ -9,8 +9,6 @@ export interface UserInfoState {
     email : string;
     roleId : number | null;
     roleName : string;
-    organizationId : string;
-    organizationName : string;
     pageAccessPermissions : number[];
 }
 
@@ -21,8 +19,6 @@ const initialState : UserInfoState = {
     email : "",
     roleId : null,
     roleName : "",
-    organizationId: "",
-    organizationName: "",
     pageAccessPermissions : []
 }
 
@@ -37,8 +33,6 @@ export const userInfoSlice = createSlice({
             state.email = action.payload.email;
             state.roleId = action.payload.roleId;
             state.roleName = action.payload.roleName;
-            state.organizationId = action.payload.organizationId;
-            state.organizationName = action.payload.organizationName;
             state.pageAccessPermissions = action.payload.pageAccessPermissions;
         }
     }

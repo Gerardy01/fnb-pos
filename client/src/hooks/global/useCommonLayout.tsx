@@ -2,10 +2,11 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 import {
-    ApartmentOutlined,
+    // ApartmentOutlined,
     DesktopOutlined,
     HomeOutlined,
     ToolOutlined,
+    UserSwitchOutlined,
 } from '@ant-design/icons';
 
 import { useTranslation } from 'react-i18next';
@@ -113,9 +114,9 @@ export default function useCommonLayout() {
             onClick: () => handleClick("/pos"),
         },
         {
-            key: 'management',
-            label: t('management'),
-            icon: <ApartmentOutlined />,
+            key: 'accountConfig',
+            label: t('accountConfig'),
+            icon: <UserSwitchOutlined />,
             permissions: [
                 PageAccessPermissionEnum.ACCOUNT_MANAGEMENT,
                 PageAccessPermissionEnum.ROLE_MANAGEMENT,

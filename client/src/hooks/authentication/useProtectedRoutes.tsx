@@ -5,13 +5,14 @@ import useStaticModal from "../useStaticModal";
 import useNotification from "../useNotification";
 import { useNavigate } from "react-router-dom";
 
-import { accountApi } from "../../api";
+import { accountApi, organizationApi } from "../../api";
 
 import { useTranslation } from 'react-i18next';
 
 // redux
 import { useDispatch } from "react-redux";
 import { setUserInfo } from "../../redux/account/userInfoSlice";
+import { setOrganizationInfo } from "../../redux/organization/organizationSlice";
 
 
 
@@ -25,6 +26,8 @@ export default function useProtectedRoutes() {
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
+    const [userInfoFetchLoad, setUserInfoFetchLoad] = useState<boolean>(true);
+    const [organizationInfoFetchLoad, setOrganizationinfoFetchLoad] = useState<boolean>(true);
     const [pageLoading, setPageLoading] = useState<boolean>(true);
     const [loggedIn, setLoggedIn] = useState<boolean>(false);
 
@@ -33,6 +36,11 @@ export default function useProtectedRoutes() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
+    useEffect(() => {
+        if (userInfoFetchLoad || organizationInfoFetchLoad) return;
+        setPageLoading(false);
+    }, [userInfoFetchLoad, organizationInfoFetchLoad]);
+
     const checkLoggedIn = async () => {
         const loggedInResult = await isLoggedIn();
 
@@ -40,6 +48,7 @@ export default function useProtectedRoutes() {
 
         setLoggedIn(true);
         getAccountInfo();
+        getOrganizationInfo();
     }
 
     const getAccountInfo = () => {
@@ -56,8 +65,25 @@ export default function useProtectedRoutes() {
             serverErrorModal();
 
         }).finally(() => {
-            setPageLoading(false);
-        })
+            setUserInfoFetchLoad(false);
+        });
+    }
+
+    const getOrganizationInfo = () => {
+        organizationApi.getUserOrganizationInfo().then(res => {
+            dispatch(setOrganizationInfo(res));
+        }).catch(err => {
+            if (err.status === 404) {
+                const error = err.response.data;
+                errorNotification(t("global:wentWrong"), t(`account:${error.userMessage}`));
+                return;
+            }
+
+            serverErrorModal();
+
+        }).finally(() => {
+            setOrganizationinfoFetchLoad(false);
+        });
     }
 
     return {

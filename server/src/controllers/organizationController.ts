@@ -12,6 +12,40 @@ import { Transaction  } from 'sequelize';
 
 
 class OrganizationController {
+
+    static async getUserOrganization(req : Request, res : Response) {
+
+        try {
+
+            const organizationId = req.user ? req.user.organizationId : "";
+            const organizationInfo = await organizationService.getOrganizationInfo(organizationId);
+            
+            return res.status(200).json({
+                "status" : "success",
+                "message" : "info retrived",
+                "userMessage" : "",
+                "data" : organizationInfo
+            });
+
+        } catch(e) {
+
+            if (e instanceof DataNotFound) {
+                return res.status(404).json({
+                    "status" : "failed",
+                    "message" : e.message,
+                    "userMessage" : "ACCOUNT404", // Account not found.
+                });
+            }
+
+            return res.status(500).json({
+                "status" : "failed",
+                "message" : "server error",
+                "userMessage" : "500",
+                "errors" : e
+            });
+        }
+    }
+
     static async createOrganization(req : Request, res : Response) {
         const transaction : Transaction = await sequelize.transaction();
         
@@ -34,7 +68,7 @@ class OrganizationController {
             return res.status(500).json({
                 "status" : "failed",
                 "message" : "server error",
-                "userMessage" : "Something wrong. Try again later.",
+                "userMessage" : "500",
                 "errors" : e
             });
         }
@@ -86,7 +120,7 @@ class OrganizationController {
             return res.status(500).json({
                 "status" : "failed",
                 "message" : "server error",
-                "userMessage" : "Something wrong. Try again later.",
+                "userMessage" : "500",
                 "errors" : e
             });
         }

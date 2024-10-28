@@ -5,6 +5,15 @@ export interface ICreateOrganizationData {
     endValidDatetime : number;
 }
 
+export interface createOrganizationWithAccountData {
+    organizationName : string;
+    endValidDatetime : number;
+    username : string;
+    name : string;
+    email : string;
+    password : string;
+}
+
 export type OrganizationDataReturn = {
     organizationId : string;
     organizationName : string;
@@ -14,11 +23,9 @@ export type OrganizationDataReturn = {
     endValidDatetime : Date;
 }
 
-export interface createOrganizationWithAccountData {
+export type OrganizationInfoDataReturn = {
+    organizationId : string;
     organizationName : string;
-    endValidDatetime : number;
-    username : string;
-    name : string;
-    email : string;
-    password : string;
+    organizationLogo : string | null;
+    organizationNo : string;
 }
