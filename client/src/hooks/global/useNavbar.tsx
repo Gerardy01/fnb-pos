@@ -38,6 +38,7 @@ export default function useNavbar() {
 
     useEffect(() => {
         checkPermission();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const handleLogout = () : void => {

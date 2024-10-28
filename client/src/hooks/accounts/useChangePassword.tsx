@@ -1,35 +1,103 @@
+import { useState } from 'react';
 
 import { useNavigate } from 'react-router-dom';
 import useStaticModal from '../useStaticModal';
 import { useTranslation } from 'react-i18next';
 
+import { accountApi, authApi } from '../../api';
+
 // redux
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../../redux/store';
+import { removeAccessToken } from '../../redux/authentication/tokenSlice';
+
+// types and interfaces
+import { ChangePasswordData } from '../../models/accountInterface';
+
+
 
 export default function useChangePassword() {
 
     const navigate = useNavigate();
-    const { confirmationModal } = useStaticModal();
+    const dispatch = useDispatch();
+    const { confirmationModal, serverErrorModal, errorModal } = useStaticModal();
 
     const { t } = useTranslation(["account", "global"]);
 
     const userInfo = useSelector((state : RootState) => state.userInfo);
 
+    const [wrongPassMsg, setWrongPassMsg] = useState<string>("");
+    const [submitLoad, setSubmitLoad] = useState<boolean>(false);
+
     const handleClickBack = () => {
         confirmationModal({
             title : t("global:exitPage"),
             content: t("account:passwordNotChanged"),
-            onOk : () => navigate(-1)
+            okBtn: t("global:leave"),
+            cancelBtn: t("global:stay"),
+            okBtnDanger: true,
+            onOk : () => navigate(-1),
         });
     }
 
-    const handleSubmit = () => {
+    const handleLogout = () : void => {
+        // need logout in all session api
 
+        // authApi.logout().then(() => {
+        //     dispatch(removeAccessToken());
+        //     navigate("/login");
+        // }).catch(() => {
+        //     serverErrorModal();
+        // });
+    }
+
+    const handleSubmit = (data : ChangePasswordData) => {
+        setWrongPassMsg("");
+        setSubmitLoad(true);
+
+        accountApi.changePassword({
+            currentPassword: data.oldPassword,
+            newPassword: data.newPassword
+        }).then(() => {
+            
+            confirmationModal({
+                title: t("account:passwordChanged"),
+                content: t("account:passwordChangedAskLogout"),
+                okBtn: t("global:yes"),
+                cancelBtn: t("global:no"),
+                centered: true,
+                onOk : handleLogout
+            });
+
+            navigate(-1);
+
+        }).catch(err => {
+
+            if (err.status === 403) {
+                setWrongPassMsg(t(`account:${err.response.data.userMessage}`));
+                return;
+            }
+
+            if (err.status === 422) {
+                errorModal(
+                    t(`account:wrongPassFormat`),
+                    t(`account:${err.response.data.userMessage}`)
+                );
+                return;
+            }
+
+            serverErrorModal();
+
+        }).finally(() => {
+            setSubmitLoad(false);
+        })
+        
     }
 
     return {
         userInfo,
+        submitLoad,
+        wrongPassMsg,
         handleSubmit,
         handleClickBack,
     }

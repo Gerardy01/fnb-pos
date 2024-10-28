@@ -1,5 +1,5 @@
 
-import { Button, Typography, Form, Input, Divider } from "antd"
+import { Button, Typography, Form, Input, Divider, FormProps, Alert } from "antd"
 
 import { useTranslation } from "react-i18next";
 
@@ -9,15 +9,29 @@ import { ArrowLeftOutlined } from "@ant-design/icons"
 
 import useChangePassword from "../hooks/accounts/useChangePassword";
 
+// types and interfaces
+type ChangePasswordForm = {
+    oldPassword : string;
+    newPassword : string;
+    newPasswordRepeat : string;
+}
+
 const { Title, Text } = Typography;
 
 
 
 export default function ChangePassword() {
 
-    const { userInfo, handleSubmit, handleClickBack } = useChangePassword();
+    const { userInfo, submitLoad, wrongPassMsg, handleSubmit, handleClickBack } = useChangePassword();
 
     const { t } = useTranslation(["account", "global"]);
+
+    const onSubmit : FormProps<ChangePasswordForm>['onFinish'] = (values) => {
+        handleSubmit({
+            oldPassword : values.oldPassword,
+            newPassword : values.newPassword,
+        });
+    }
 
     return (
         <Container maxWidth="27rem">
@@ -35,13 +49,22 @@ export default function ChangePassword() {
                 <Form
                     name="changePassword"
                     style={styles.form}
-                    onFinish={handleSubmit}
+                    onFinish={onSubmit}
                     autoComplete="off"
                 >
                     <Divider orientation="left">{t("account:oldPassword")}</Divider>
+                    {wrongPassMsg && (
+                        <Alert
+                            message={wrongPassMsg}
+                            type="error"
+                            showIcon
+                            style={styles.alert}
+                        />
+                    )}
                     <Form.Item
                         name="oldPassword"
                         rules={[{ required: true, message: t("global:fieldRequired") }]}
+                        validateStatus={wrongPassMsg ? "error" : ""}
                     >
                         <Input.Password
                             placeholder={t("account:oldPassword")}
@@ -99,6 +122,7 @@ export default function ChangePassword() {
                             type="primary"
                             htmlType="submit"
                             size="large"
+                            loading={submitLoad}
                         >
                             {t("global:submit")}
                         </Button>
@@ -122,5 +146,8 @@ const styles : { [key: string]: React.CSSProperties } = {
     submitButton : {
         width: '100%',
         marginTop: '0.5rem'
+    },
+    alert : {
+        marginBottom: '1.5rem'
     }
 }

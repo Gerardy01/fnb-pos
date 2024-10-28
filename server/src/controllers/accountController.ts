@@ -300,13 +300,13 @@ class AccountController {
         try {
             
             const accountId = req.user ? req.user.accountId : "";
-            await accountService.changePaassword(req.body, accountId);
+            const changed = await accountService.changePaassword(req.body, accountId);
 
             return res.status(200).json({
                 "status" : "success",
                 "message" : "password changed",
                 "userMessage" : "",
-                "data" : {},
+                "data" : changed,
             });
 
         } catch(e) {

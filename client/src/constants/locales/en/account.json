@@ -3,6 +3,7 @@
 
 {
     "ACCOUNT404" : "Account info not found.",
+    "ACCOUNT403-1" : "Password incorrect. Make sure you input correct password.",
     "USERNAME01" : "Username must be at least 4 characters long",
     "USERNAME02" : "Username must be no more than 20 characters long",
     "USERNAME03" : "Username can only contain letters, numbers, and underscores",
@@ -16,5 +17,8 @@
     "newPassword" : "New Password",
     "retype" : "Retype New Password",
     "passwordNotMatch" : "Password do not match",
-    "passwordNotChanged" : "If you exit now, the password you change will not be saved."
+    "passwordNotChanged" : "If you exit now, the password you change will not be saved.",
+    "wrongPassFormat" : "Wrong Password Format",
+    "passwordChanged" : "Password Changed",
+    "passwordChangedAskLogout" : "Your password has been changed successfully. Do you want to logout your session in all device?"
 }

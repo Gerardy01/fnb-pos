@@ -2,7 +2,7 @@ import { axiosPrivate } from "../constants/axiosConfig";
 
 // types and interfaces
 import { FetchResponse } from "../models/globalInterface";
-import { AccountInfoReturn } from "../models/accountInterface";
+import { AccountInfoReturn, ChangePasswordBodyData } from "../models/accountInterface";
 
 
 export class AccountApi {
@@ -10,6 +10,18 @@ export class AccountApi {
         const res = await axiosPrivate.get<FetchResponse<AccountInfoReturn>>(
             "account/action/user-info",
         );
+
+        return res.data.data;
+    }
+
+    async changePassword(data : ChangePasswordBodyData) : Promise<boolean> {
+        const res = await axiosPrivate.put<FetchResponse<boolean>>(
+            "account/action/change-password",
+            data,
+            {
+                headers : { 'Content-Type' : 'application/json' },
+            }
+        )
 
         return res.data.data;
     }

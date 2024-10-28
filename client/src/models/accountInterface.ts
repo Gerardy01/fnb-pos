@@ -10,3 +10,13 @@ export interface AccountInfoReturn {
     roleName : string;
     pageAccessPermissions : number[];
 }
+
+export interface ChangePasswordBodyData {
+    currentPassword : string;
+    newPassword : string;
+}
+
+export interface ChangePasswordData {
+    oldPassword : string;
+    newPassword : string;
+}
