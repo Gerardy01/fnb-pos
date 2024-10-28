@@ -76,7 +76,13 @@ export class AccountRepository implements IAccountRepository {
                         [Op.iLike] : identifier
                     }}
                 ]
-            }
+            },
+            include: [
+                {
+                    model: Organization,
+                    as: 'organization'
+                }
+            ]
         });
     }
 

@@ -13,6 +13,7 @@ export interface ISuperAdminLoginData extends ILoginData {
 export interface IAccessTokenBody {
     username : string;
     organizationId : string;
+    organizationExpiryDate : Date;
     accountId : string;
     accountRoleId : number;
     accountRoleName : string;

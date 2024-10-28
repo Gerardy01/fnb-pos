@@ -3,7 +3,7 @@
 import { DataNotFound, NotValid } from "../utility/exceptions";
 
 // utils
-import { PermissionEnum } from "../utility/enums";
+import { DefaultRoleEnum, PermissionEnum } from "../utility/enums";
 
 // types and interfaces
 import { IAccessTokenBody, ILoginData, ISuperAdminLoginData, LoginReturnData } from "../interfaces/IAuth"
@@ -50,9 +50,13 @@ export class AuthService implements IAuthService {
 
         // find account
         const account = await this.accountRepository.findAccountByEmailOrUsername(data.identifier);
+        if (!account) throw new DataNotFound("AUTH001");
+        if (!account.organization) throw new Error("something wrong when getting account's organization");
 
-        if (!account) {
-            throw new DataNotFound("AUTH001");
+        // check if organization still valid
+        const currentDate = new Date();
+        if (account.organization.end_valid_datetime < currentDate) {
+            throw new NotValid("Organization is no longer valid (expired)");
         }
 
         // check password
@@ -81,6 +85,7 @@ export class AuthService implements IAuthService {
         const accessToken = await this.jwtProvider.generateAccessToken({
             username: account.username,
             organizationId: account.organization_id,
+            organizationExpiryDate: account.organization.end_valid_datetime,
             accountId: account.account_id,
             accountRoleId: roleData.role_id,
             accountRoleName: roleData.role_name,
@@ -112,10 +117,7 @@ export class AuthService implements IAuthService {
         
         // find account
         const account = await this.accountRepository.findAccountByEmailOrUsername(data.identifier);
-
-        if (!account) {
-            throw new DataNotFound("Account not found. Make sure you input correct credentials");
-        }
+        if (!account) throw new DataNotFound("AUTH001");
 
         // check password
         const isMatch = await this.hashProvider.compareHash(data.password, account.password);
@@ -151,6 +153,7 @@ export class AuthService implements IAuthService {
         const accessToken = await this.jwtProvider.generateAccessToken({
             username: account.username,
             organizationId: organization.organization_id,
+            organizationExpiryDate: organization.end_valid_datetime,
             accountId: account.account_id,
             accountRoleId: roleData.role_id,
             accountRoleName: roleData.role_name,
@@ -196,9 +199,15 @@ export class AuthService implements IAuthService {
         const currentDate = new Date();
         if (refreshTokenSession.token_expiry_date < currentDate) throw new NotValid("Refresh token is not valid");
 
-        // create access token
         const account = await this.accountRepository.findAccountById(refreshTokenSession.account_id);
         if (!account) throw new Error("something wrong on getting account");
+        if (!account.organization) throw new Error("something wrong when getting account's organization");
+        if (!account.role) throw new Error("something wrong when getting account's role");
+
+        // check if organization still valid
+        if (account.organization.end_valid_datetime < currentDate && account.role.role_name !== DefaultRoleEnum.SUPER_ADMIN) {
+            throw new NotValid("Organization is no longer valid (expired)");
+        }
 
         // get role data
         const roleData = await this.roleRepoitory.findOneRole(account.role_id);
@@ -227,6 +236,7 @@ export class AuthService implements IAuthService {
         const accessToken = await this.jwtProvider.generateAccessToken({
             username: account.username,
             organizationId: organizationId,
+            organizationExpiryDate: account.organization.end_valid_datetime,
             accountId: account.account_id,
             accountRoleId: roleData.role_id,
             accountRoleName: roleData.role_name,
@@ -257,10 +267,17 @@ export class AuthService implements IAuthService {
         if (accessExpDate < currentDate) {
             throw new NotValid("Access token is not valid");
         }
+        
+        // add ons validation
+        const organizationExpired = new Date(decoded.organizationExpiryDate)
+        if (organizationExpired < currentDate && decoded.accountRoleName !== DefaultRoleEnum.SUPER_ADMIN) {
+            throw new NotValid("Access token is not valid");
+        }
 
         return {
             username: decoded.username,
             organizationId : decoded.organizationId,
+            organizationExpiryDate: decoded.organizationExpiryDate,
             accountId : decoded.accountId,
             accountRoleId : decoded.accountRoleId,
             accountRoleName : decoded.accountRoleName,

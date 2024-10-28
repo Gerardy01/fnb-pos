@@ -50,6 +50,14 @@ class AuthController {
                 });
             }
 
+            if (e instanceof NotValid) {
+                return res.status(403).json({
+                    "status" : "failed",
+                    "message" : e.message,
+                    "userMessage" : e.message,
+                });
+            }
+
             return res.status(500).json({
                 "status" : "failed",
                 "message" : "server error",

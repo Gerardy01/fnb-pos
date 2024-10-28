@@ -6,15 +6,18 @@ import useCache from "../useCache";
 import useStaticModal from "../useStaticModal";
 import useToken from "../useToken";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 // types and interfaces
 import { LoginData } from "../../models/authInterface";
 
 export default function useLogin() {
 
+    const { t } = useTranslation('auth');
+
     const navigate = useNavigate();
     const { setRememberMeData, removeRememberMeData } = useCache();
-    const { serverErrorModal, errorModal } = useStaticModal();
+    const { serverErrorModal, errorModal, warningModal } = useStaticModal();
     const { setAccessTokenValue, isLoggedIn } = useToken();
 
     const [loginLoad, setLoginLoad] = useState<boolean>(false);
@@ -69,6 +72,11 @@ export default function useLogin() {
 
             if (err.status === 401) {
                 setErrorMessage(err.response.data.userMessage)
+                return;
+            }
+
+            if (err.status === 403) {
+                warningModal(t("organizationExpired"), t("organizationExpiredMsg"));
                 return;
             }
 

@@ -71,8 +71,6 @@ export class AccountService implements IAccountService {
             email: account.email,
             roleId: account.role.role_id,
             roleName: account.role.role_name,
-            organizationId: account.organization.organization_id,
-            organizationName: account.organization.organization_name,
             pageAccessPermissions: pageAccessPermissionIds
         }
     }
