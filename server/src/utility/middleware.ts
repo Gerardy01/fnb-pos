@@ -29,7 +29,7 @@ export function validateRequest(Schema : any) {
                 "status" : "failed",
                 "message" : "bad request",
                 "userMessage" : "",
-                "errors" : errors
+                "schemaErrors" : errors
             });
         }
 

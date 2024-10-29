@@ -1,28 +1,33 @@
 import { axiosPrivate } from "../constants/axiosConfig";
 
+import { catchFetchError } from "../utils/utility";
+
 // types and interfaces
-import { FetchResponse } from "../models/globalInterface";
+import { FetchResponse, ErrorResponse } from "../models/globalInterface";
 import { AccountInfoReturn, ChangePasswordBodyData } from "../models/accountInterface";
 
 
 export class AccountApi {
-    async getUserAccountInfo() : Promise<AccountInfoReturn> {
-        const res = await axiosPrivate.get<FetchResponse<AccountInfoReturn>>(
+    async getUserAccountInfo() : Promise<[undefined, AccountInfoReturn] | [ErrorResponse]> {
+        const [error, res] = await catchFetchError(axiosPrivate.get<FetchResponse<AccountInfoReturn>>(
             "account/action/user-info",
-        );
+        ));
 
-        return res.data.data;
+        if (error) return [error];
+        return [error, res.data.data];
     }
 
-    async changePassword(data : ChangePasswordBodyData) : Promise<boolean> {
-        const res = await axiosPrivate.put<FetchResponse<boolean>>(
+    async changePassword(data : ChangePasswordBodyData) : Promise<[undefined, boolean] | [ErrorResponse]> {
+
+        const [error, res] = await catchFetchError(axiosPrivate.put<FetchResponse<boolean>>(
             "account/action/change-password",
             data,
             {
                 headers : { 'Content-Type' : 'application/json' },
             }
-        )
+        ));
 
-        return res.data.data;
+        if (error) return [error];
+        return [error, res.data.data];
     }
 }

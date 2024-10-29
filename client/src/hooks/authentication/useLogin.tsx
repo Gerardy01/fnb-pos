@@ -41,15 +41,37 @@ export default function useLogin() {
         navigate("/dashboard");
     }
 
-    const submitLogin = ({ identifier, password, rememberMe } : LoginData) : void => {
+    const submitLogin = async ({ identifier, password, rememberMe } : LoginData) : Promise<void> => {
         setLoginLoad(true);
-        
-        authApi.login({
-            identifier : identifier,
-            password : password
-        }).then(data => {
-            
-            // set credentials into localstorage
+
+        try {
+            const [err, data] = await authApi.login({
+                identifier : identifier,
+                password : password
+            });
+    
+            if (err) {
+                if (err.status === 400) {
+                    const error = err.response.data.schemaErrors ? err.response.data.schemaErrors[0] : undefined;
+                    if (!error) return;
+                    errorModal(undefined, `${error.field} is ${error.message}`);
+                    return;
+                }
+    
+                if (err.status === 401) {
+                    setErrorMessage(err.response.data.userMessage)
+                    return;
+                }
+    
+                if (err.status === 403) {
+                    warningModal(t("organizationExpired"), t("organizationExpiredMsg"));
+                    return;
+                }
+    
+                serverErrorModal();
+                return;
+            }
+    
             if (rememberMe) {
                 setRememberMeData({
                     identifier : identifier,
@@ -59,36 +81,15 @@ export default function useLogin() {
 
             // set token into token state
             setAccessTokenValue(data.accessToken);
-
             navigate('/dashboard');
 
-        }).catch(err => {
-
-            if (err.status === 400) {
-                const error = err.response.data.errors[0]
-                errorModal(undefined, `${error.field} is ${error.message}`);
-                return;
-            }
-
-            if (err.status === 401) {
-                setErrorMessage(err.response.data.userMessage)
-                return;
-            }
-
-            if (err.status === 403) {
-                warningModal(t("organizationExpired"), t("organizationExpiredMsg"));
-                return;
-            }
-
-            serverErrorModal();
-
-        }).finally(() => {
+        } finally {
             setLoginLoad(false);
 
             if (!rememberMe) {
                 removeRememberMeData();
             }
-        });
+        }
     }
 
 

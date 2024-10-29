@@ -16,13 +16,12 @@ export default function useToken() {
     const isLoggedIn = async () : Promise<boolean> => {
         if (accessToken) return true;
         
-        try {
-            const res = await authApi.getAccessToken();
-            dispatch(setAccessToken(res.accessToken));
-            return true;
-        } catch {
-            return false
-        }
+        const [err, res] = await authApi.getAccessToken();
+
+        if (err) return false;
+
+        dispatch(setAccessToken(res.accessToken));
+        return true;
     }
 
     const setAccessTokenValue = (value : string) => {

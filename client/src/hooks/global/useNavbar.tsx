@@ -42,13 +42,15 @@ export default function useNavbar() {
     }, []);
 
     const handleLogout = async () : Promise<void> => {
-        try {
-            await authApi.logout();
-            dispatch(removeAccessToken());
-            navigate("/login");
-        } catch {
+        const [err] = await authApi.logout();
+
+        if (err) {
             serverErrorModal();
+            return;
         }
+
+        dispatch(removeAccessToken());
+        navigate("/login");
     }
 
     const checkPermission = () => {

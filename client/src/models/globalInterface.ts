@@ -9,3 +9,19 @@ export interface BaseResponse {
 export interface FetchResponse<T> extends BaseResponse {
     data : T;
 }
+
+interface SchemaErrors {
+    field : string;
+    message : string;
+}
+
+interface BaseResponseError extends BaseResponse {
+    schemaErrors? : SchemaErrors[];
+}
+
+export interface ErrorResponse {
+    status : number;
+    response : {
+        data : BaseResponseError;
+    }
+}

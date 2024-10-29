@@ -51,39 +51,49 @@ export default function useProtectedRoutes() {
         getOrganizationInfo();
     }
 
-    const getAccountInfo = () => {
-        accountApi.getUserAccountInfo().then(res => {
-            dispatch(setUserInfo(res));
-        }).catch(err => {
+    const getAccountInfo = async () => {
+        try {
+            const [err, res] = await accountApi.getUserAccountInfo();
 
-            if (err.status === 404) {
-                const error = err.response.data;
-                errorNotification(t("global:wentWrong"), t(`account:${error.userMessage}`));
+            if (err) {
+                if (err.status === 404) {
+                    const error = err.response.data;
+                    errorNotification(t("global:wentWrong"), t(`account:${error.userMessage}`));
+                    return;
+                }
+
+                serverErrorModal();
                 return;
             }
 
-            serverErrorModal();
+            dispatch(setUserInfo(res));
 
-        }).finally(() => {
+        } finally {
             setUserInfoFetchLoad(false);
-        });
+        }
     }
 
-    const getOrganizationInfo = () => {
-        organizationApi.getUserOrganizationInfo().then(res => {
-            dispatch(setOrganizationInfo(res));
-        }).catch(err => {
-            if (err.status === 404) {
-                const error = err.response.data;
-                errorNotification(t("global:wentWrong"), t(`account:${error.userMessage}`));
+    const getOrganizationInfo = async () => {
+
+        try {
+            const [err, res] = await organizationApi.getUserOrganizationInfo();
+
+            if (err) {
+                if (err.status === 404) {
+                    const error = err.response.data;
+                    errorNotification(t("global:wentWrong"), t(`account:${error.userMessage}`));
+                    return;
+                }
+
+                serverErrorModal();
                 return;
             }
 
-            serverErrorModal();
+            dispatch(setOrganizationInfo(res));
 
-        }).finally(() => {
+        } finally {
             setOrganizationinfoFetchLoad(false);
-        });
+        }
     }
 
     return {

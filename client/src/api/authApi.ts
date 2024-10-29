@@ -1,41 +1,50 @@
 import { axiosPrivate, axiosPublic } from "../constants/axiosConfig";
 
+import { catchFetchError } from "../utils/utility";
+
 // types and interfaces
-import { FetchResponse } from "../models/globalInterface";
+import { FetchResponse, ErrorResponse } from "../models/globalInterface";
 import { AuthData, AuthReturn } from "../models/authInterface";
 
 
 export class AuthApi {
-    async login(data : AuthData) : Promise<AuthReturn> {
-        const res = await axiosPublic.post<FetchResponse<AuthReturn>>(
+    async login(data : AuthData) : Promise<[undefined, AuthReturn] | [ErrorResponse]> {
+        const [error, res] = await catchFetchError(axiosPublic.post<FetchResponse<AuthReturn>>(
             '/login',
             data,
             {
                 headers : { 'Content-Type' : 'application/json' },
                 withCredentials: true
             }
-        );
-        
-        return res.data.data;
+        ));
+
+        if (error) return [error];
+        return [error, res.data.data];
     }
 
-    async logout() : Promise<void> {
-        await axiosPrivate.post('/logout');
+    async logout() : Promise<[undefined, boolean] | [ErrorResponse]> {
+        const [error] = await catchFetchError(axiosPrivate.post<FetchResponse<boolean>>('/logout'));
+
+        if (error) return [error];
+        return [error, true]
     }
 
-    async logoutAllSession() : Promise<boolean> {
-        const res = await axiosPrivate.post<FetchResponse<boolean>>("/logout-all");
-        return res.data.data;
+    async logoutAllSession() :  Promise<[undefined, boolean] | [ErrorResponse]> {
+        const [error, res] = await catchFetchError(axiosPrivate.post<FetchResponse<boolean>>("/logout-all"));
+
+        if (error) return [error];
+        return [error, res.data.data]
     }
 
-    async getAccessToken() : Promise<AuthReturn> {
-        const res = await axiosPublic.get<FetchResponse<AuthReturn>>(
+    async getAccessToken() : Promise<[undefined, AuthReturn] | [ErrorResponse]> {
+        const [error, res] = await catchFetchError(axiosPublic.get<FetchResponse<AuthReturn>>(
             '/token',
             {
                 withCredentials: true,
             }
-        );
+        ));
 
-        return res.data.data;
+        if (error) return [error];
+        return [error, res.data.data]
     }
 }

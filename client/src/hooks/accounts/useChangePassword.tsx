@@ -41,24 +41,53 @@ export default function useChangePassword() {
     }
 
     const handleLogout = async () : Promise<void> => {
-        try {
-            await authApi.logoutAllSession()
-            dispatch(removeAccessToken());
-            navigate("/login");
-        } catch {
+        const [err] = await authApi.logoutAllSession()
+
+        if (err) {
             serverErrorModal();
+            return;
         }
+
+        dispatch(removeAccessToken());
+        navigate("/login");
     }
 
-    const handleSubmit = (data : ChangePasswordData) => {
+    const handleSubmit = async (data : ChangePasswordData) => {
         setWrongPassMsg("");
         setSubmitLoad(true);
 
-        accountApi.changePassword({
-            currentPassword: data.oldPassword,
-            newPassword: data.newPassword
-        }).then(() => {
-            
+        try {
+            const [err] = await accountApi.changePassword({
+                currentPassword: data.oldPassword,
+                newPassword: data.newPassword
+            });
+
+            if (err) {
+
+                if (err.status === 400) {
+                    const error = err.response.data.schemaErrors ? err.response.data.schemaErrors[0] : undefined;
+                    if (!error) return;
+                    errorModal(undefined, `${error.field} is ${error.message}`);
+                    return;
+                }
+
+                if (err.status === 403) {
+                    setWrongPassMsg(t(`account:${err.response.data.userMessage}`));
+                    return;
+                }
+    
+                if (err.status === 422) {
+                    errorModal(
+                        t(`account:wrongPassFormat`),
+                        t(`account:${err.response.data.userMessage}`)
+                    );
+                    return;
+                }
+
+                serverErrorModal();
+                return;
+            }
+
             confirmationModal({
                 title: t("account:passwordChanged"),
                 content: t("account:passwordChangedAskLogout"),
@@ -70,27 +99,9 @@ export default function useChangePassword() {
 
             navigate(-1);
 
-        }).catch(err => {
-
-            if (err.status === 403) {
-                setWrongPassMsg(t(`account:${err.response.data.userMessage}`));
-                return;
-            }
-
-            if (err.status === 422) {
-                errorModal(
-                    t(`account:wrongPassFormat`),
-                    t(`account:${err.response.data.userMessage}`)
-                );
-                return;
-            }
-
-            serverErrorModal();
-
-        }).finally(() => {
+        } finally {
             setSubmitLoad(false);
-        })
-        
+        }   
     }
 
     return {
