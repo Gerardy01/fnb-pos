@@ -41,13 +41,14 @@ export default function useNavbar() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    const handleLogout = () : void => {
-        authApi.logout().then(() => {
+    const handleLogout = async () : Promise<void> => {
+        try {
+            await authApi.logout();
             dispatch(removeAccessToken());
             navigate("/login");
-        }).catch(() => {
+        } catch {
             serverErrorModal();
-        });
+        }
     }
 
     const checkPermission = () => {
@@ -82,7 +83,7 @@ export default function useNavbar() {
                     content: t("auth:sureLogout"),
                     okBtn: t("auth:logout"),
                     okBtnDanger: true,
-                    onOk : handleLogout,
+                    onOkWithPromise : handleLogout,
                     centered: true
                 })}>
                     {t("auth:logout")}

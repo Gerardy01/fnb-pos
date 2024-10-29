@@ -14,6 +14,7 @@ const authRoutes = Router();
 authRoutes.get("/token", AuthController.requestAccessToken)
 authRoutes.post("/login", validateRequest(LoginSchema), AuthController.login);
 authRoutes.post("/login/super-admin", validateRequest(SuperAdminLoginSchema), AuthController.superAdminLogin);
-authRoutes.post("/logout", authenticate, AuthController.logout)
+authRoutes.post("/logout", authenticate, AuthController.logout);
+authRoutes.post("/logout-all", authenticate, AuthController.logoutAll);
 
 export default authRoutes;

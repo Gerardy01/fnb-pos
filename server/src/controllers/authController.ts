@@ -107,7 +107,7 @@ class AuthController {
             return res.status(500).json({
                 "status" : "failed",
                 "message" : "server error",
-                "userMessage" : "Something wrong. Try again later.",
+                "userMessage" : "500",
                 "errors" : e
             });
         }
@@ -134,7 +134,30 @@ class AuthController {
             return res.status(500).json({
                 "status" : "failed",
                 "message" : "server error",
-                "userMessage" : "Something wrong. Try again later.",
+                "userMessage" : "500",
+                "errors" : e
+            });
+        }
+    }
+
+    static async logoutAll(req : Request, res : Response) {
+
+        try {
+            const accountId = req.user ? req.user.accountId : "";
+            const revoked = await authService.logoutAllSession(accountId);
+
+            return res.status(200).json({
+                "status" : "success",
+                "message" : "logout success",
+                "userMessage" : "",
+                "data" : revoked
+            });
+
+        } catch(e) {
+            return res.status(500).json({
+                "status" : "failed",
+                "message" : "server error",
+                "userMessage" : "500",
                 "errors" : e
             });
         }
@@ -170,7 +193,7 @@ class AuthController {
             return res.status(500).json({
                 "status" : "failed",
                 "message" : "server error",
-                "userMessage" : "Something wrong. Try again later.",
+                "userMessage" : "500",
                 "errors" : e
             });
         }

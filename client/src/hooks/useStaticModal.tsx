@@ -7,6 +7,7 @@ interface ConfirmationModalParams {
     title : string,
     content : string,
     onOk? : () => void,
+    onOkWithPromise? : () => Promise<void>,
     onCancel? : () => void,
     okBtn? : string,
     cancelBtn? : string,
@@ -161,19 +162,26 @@ export default function useStaticModal() {
         content,
         okBtn,
         cancelBtn,
-        centered,
-        okBtnDanger,
+        centered = false,
+        okBtnDanger = false,
         onOk,
+        onOkWithPromise,
         onCancel
     } : ConfirmationModalParams) : void => {
         Modal.confirm({
-            centered : centered ? centered : false,
+            centered : centered ,
             title: title,
             content: content,
-            okText: okBtn ? okBtn : t("ok"),
-            cancelText: cancelBtn ? cancelBtn : t("cancel"),
-            okButtonProps: {danger : okBtnDanger ? okBtnDanger : false},
-            onOk: onOk,
+            okText: okBtn || t("ok"),
+            cancelText: cancelBtn || t("cancel"),
+            okButtonProps: {danger : okBtnDanger},
+            onOk: onOkWithPromise
+                ? () => new Promise((resolve, reject) => {
+                    onOkWithPromise()
+                    .then(resolve)
+                    .catch(reject);
+                }).catch(() => console.log('Oops errors!'))
+                : onOk,
             onCancel: onCancel,
             footer: (_, { OkBtn, CancelBtn }) => (
                 <>

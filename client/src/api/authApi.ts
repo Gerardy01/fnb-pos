@@ -23,6 +23,11 @@ export class AuthApi {
         await axiosPrivate.post('/logout');
     }
 
+    async logoutAllSession() : Promise<boolean> {
+        const res = await axiosPrivate.post<FetchResponse<boolean>>("/logout-all");
+        return res.data.data;
+    }
+
     async getAccessToken() : Promise<AuthReturn> {
         const res = await axiosPublic.get<FetchResponse<AuthReturn>>(
             '/token',

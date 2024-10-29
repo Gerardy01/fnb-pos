@@ -7,7 +7,7 @@ export interface IRefreshTokenRepository {
     findByIdentifier(identifier : string) : Promise<RefreshToken | null>
     findByAccount(accountId : string) : Promise<RefreshToken[]>
     recordRefreshToken(data : Partial<RefreshToken>, transaction? : Transaction) : Promise<RefreshToken>
-    
+    revokeAllByAccount(accountId: string, transaction?: Transaction): Promise<[number]>;
 }
 
 
@@ -32,5 +32,15 @@ export class RefreshTokenRepository implements IRefreshTokenRepository {
 
     recordRefreshToken(data: Partial<RefreshToken>, transaction? : Transaction): Promise<RefreshToken> {
         return RefreshToken.create(data, { transaction })
+    }
+
+    revokeAllByAccount(accountId: string, transaction?: Transaction): Promise<[number]> {
+        return RefreshToken.update(
+            { is_revoked: true },
+            {
+                where: { account_id: accountId },
+                transaction
+            }
+        );
     }
 }

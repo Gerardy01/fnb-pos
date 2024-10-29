@@ -25,6 +25,7 @@ export interface IAuthService {
     superAdminLogin(data : ISuperAdminLoginData, userAgent : string, transaction? : Transaction) : Promise<LoginReturnData>;
     generateAccessToken(refreshToken : string, userAgent : string) : Promise<string>;
     logout(refreshToken : string) : Promise<void>;
+    logoutAllSession(accountId : string) : Promise<boolean>
     authenticate(accesToken : string) : Promise<IAccessTokenBody>
 }
 
@@ -253,6 +254,14 @@ export class AuthService implements IAuthService {
 
         session.is_revoked = true;
         session.save();
+    }
+
+    async logoutAllSession(accountId: string): Promise<boolean> {
+
+        const [affectedCount] = await this.refreshTokenRepository.revokeAllByAccount(accountId);
+        if (affectedCount === 0) return false;
+        return true;
+        
     }
 
     async authenticate(accesToken: string): Promise<IAccessTokenBody> {

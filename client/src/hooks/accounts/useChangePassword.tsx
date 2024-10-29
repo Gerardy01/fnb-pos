@@ -40,15 +40,14 @@ export default function useChangePassword() {
         });
     }
 
-    const handleLogout = () : void => {
-        // need logout in all session api
-
-        // authApi.logout().then(() => {
-        //     dispatch(removeAccessToken());
-        //     navigate("/login");
-        // }).catch(() => {
-        //     serverErrorModal();
-        // });
+    const handleLogout = async () : Promise<void> => {
+        try {
+            await authApi.logoutAllSession()
+            dispatch(removeAccessToken());
+            navigate("/login");
+        } catch {
+            serverErrorModal();
+        }
     }
 
     const handleSubmit = (data : ChangePasswordData) => {
@@ -66,7 +65,7 @@ export default function useChangePassword() {
                 okBtn: t("global:yes"),
                 cancelBtn: t("global:no"),
                 centered: true,
-                onOk : handleLogout
+                onOkWithPromise : handleLogout
             });
 
             navigate(-1);
