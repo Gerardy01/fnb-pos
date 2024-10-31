@@ -34,7 +34,7 @@ export default function ChangePassword() {
     }
 
     return (
-        <Container maxWidth="27rem">
+        <Container maxWidth="27rem" bgColor="white">
             <div style={styles.holder}>
                 <Button
                     shape="circle"
@@ -75,7 +75,8 @@ export default function ChangePassword() {
                     <Divider orientation="left">{t("account:newPassword")}</Divider>
                     <Form.Item
                         name="newPassword"
-                        validateTrigger="onSubmit"
+                        validateDebounce={1000}
+                        hasFeedback
                         rules={[
                             { required: true, message: t("global:fieldRequired") },
                             { min: 8, message: t("account:PASS01") },

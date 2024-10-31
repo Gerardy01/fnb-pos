@@ -15,6 +15,7 @@ import Dashboard from "./pages/Dashboard";
 import POS from "./pages/POS";
 import AccountManagement from "./pages/AccountManagement";
 import ChangePassword from "./pages/ChangePassword";
+import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 
 
@@ -44,6 +45,10 @@ export default function App() {
 
 						<Route element={<PermissionProtectedRoutes pageLoad requiredPermission={[PageAccessPermissionEnum.POS]} />}>
 							<Route path="/pos" element={<POS />} />
+						</Route>
+
+						<Route element={<PermissionProtectedRoutes requiredPermission={[PageAccessPermissionEnum.ACCOUNT_MANAGEMENT]} />}>
+							<Route path="/dashboard/profile" element={<Profile />} />
 						</Route>
 
 						<Route path="/dashboard/change-password" element={<ChangePassword />} />
