@@ -3,7 +3,7 @@ import { Button, Avatar, Typography, Input, Form, Space, Modal, FormProps } from
 import { ArrowLeftOutlined, LockOutlined } from "@ant-design/icons";
 
 import { useNavigate } from "react-router-dom";
-import useProfile from "../hooks/accounts/useProfile";
+import useProfile, { ChangeUsernameForm, useChangeName, useChangeUsername } from "../hooks/accounts/useProfile";
 
 // components
 import Container from "../components/global/Container";
@@ -25,6 +25,7 @@ interface FormModal<T> {
     onCancel : () => void;
     handleSubmit : (data : T) => void;
     children : JSX.Element;
+    btnDisabled? : boolean;
 }
 
 
@@ -46,7 +47,15 @@ function ProfileForm({ label, value, onBtnClick } : ProfileFormProps) {
     )
 }
 
-function FormModal<T>({ title, description, open, onCancel, handleSubmit, children } : FormModal<T>) {
+function FormModal<T>({
+    title,
+    description,
+    open,
+    btnDisabled = false,
+    onCancel,
+    handleSubmit,
+    children
+} : FormModal<T>) {
 
     const onSubmit : FormProps<T>['onFinish']= (values) => {
         handleSubmit(values);
@@ -75,6 +84,7 @@ function FormModal<T>({ title, description, open, onCancel, handleSubmit, childr
                         size="large"
                         style={styles.formModalBtn}
                         htmlType="submit"
+                        disabled={btnDisabled}
                     >
                         Submit
                     </Button>
@@ -88,12 +98,27 @@ export default function Profile() {
 
     const navigate = useNavigate();
 
+    const { userInfo } = useProfile();
+
     const {
-        userInfo,
+        changeUsernameValue,
+        openChangeUsernameModal,
+        changeUsernameBtnDisabled,
+        checkUsernameLoad,
+        usernameValidated,
+        handleChangeUsernameValue,
+        handleOpenChangeUsername,
+        handleChangeUsername
+    } = useChangeUsername();
+
+    const {
         openChangeNameModal,
+        changeNameValue,
+        changeNameBtnDisabled,
+        handleSetChangeNameValue,
         handleOpenChangeName,
         handleChangeName
-    } = useProfile();
+    } = useChangeName();
     
     return (
         <>
@@ -119,6 +144,7 @@ export default function Profile() {
                                 type="default"
                                 shape="round"
                                 icon={<LockOutlined />}
+                                onClick={() => navigate("/dashboard/change-password")}
                             >
                                 Change Password
                             </Button>
@@ -133,7 +159,7 @@ export default function Profile() {
                                 <ProfileForm
                                     label="Username"
                                     value={userInfo.username}
-                                    onBtnClick={() => {}}
+                                    onBtnClick={() => handleOpenChangeUsername(true)}
                                 />
                                 <ProfileForm
                                     label="Name"
@@ -159,22 +185,71 @@ export default function Profile() {
                     </div>
                 </>
             </Container>
+
+            <FormModal<ChangeUsernameForm>
+                title="Change Username"
+                description="Change your username"
+                open={openChangeUsernameModal}
+                onCancel={() => handleOpenChangeUsername(false)}
+                handleSubmit={handleChangeUsername}
+                btnDisabled={changeUsernameBtnDisabled}
+            >
+                <Form.Item
+                    name="username"
+                    rules={[
+                        { required: true, message: 'This field is required' },
+                        {
+                            pattern: /^[a-zA-Z0-9_]+$/,
+                            message: 'Username must contain only letters, numbers, and underscores.',
+                        },
+                        {
+                            max: 20,
+                            message: 'Username cannot be longer than 20 characters.',
+                        },
+                        {
+                            min: 4,
+                            message: 'Username must be at least 4 characters long.',
+                        }
+                    ]}
+                    validateFirst
+                    initialValue={changeUsernameValue}
+                    hasFeedback
+                    validateStatus={
+                        checkUsernameLoad ? "validating" :
+                        usernameValidated === undefined ? "" :
+                        !usernameValidated ? "error" : "success"
+                    }
+                    extra={!usernameValidated && usernameValidated !== undefined ? "Username already exist" : ""}
+                >
+                    <Input
+                        size="large"
+                        placeholder="new name"
+                        value={changeUsernameValue}
+                        onChange={e => handleChangeUsernameValue(e.target.value)}
+                        disabled={checkUsernameLoad}
+                    />
+                </Form.Item>
+            </FormModal>
+
             <FormModal<ChangeNmaeForm>
                 title="Change Name"
                 description="Change your name"
                 open={openChangeNameModal}
                 onCancel={() => handleOpenChangeName(false)}
                 handleSubmit={handleChangeName}
+                btnDisabled={changeNameBtnDisabled}
             >
                 <Form.Item
                     name="name"
                     validateTrigger="onSubmit"
                     rules={[{ required: true, message: 'This field is required' }]}
-                    initialValue={userInfo.name}
+                    initialValue={changeNameValue}
                 >
                     <Input
                         size="large"
                         placeholder="new name"
+                        value={changeNameValue}
+                        onChange={e => handleSetChangeNameValue(e.target.value)}
                     />
                 </Form.Item>
             </FormModal>

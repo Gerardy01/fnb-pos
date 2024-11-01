@@ -11,6 +11,15 @@ export interface AccountInfoReturn {
     pageAccessPermissions : number[];
 }
 
+export interface CheckAvailabilityReturn {
+    available : boolean;
+}
+
+export interface CheckAvailabilityQueryParams {
+    username? : string;
+    email? : string;
+}
+
 export interface ChangePasswordBodyData {
     currentPassword : string;
     newPassword : string;
