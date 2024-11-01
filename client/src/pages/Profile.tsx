@@ -3,7 +3,7 @@ import { Button, Avatar, Typography, Input, Form, Space, Modal, FormProps } from
 import { ArrowLeftOutlined, LockOutlined } from "@ant-design/icons";
 
 import { useNavigate } from "react-router-dom";
-import useProfile, { ChangeUsernameForm, useChangeName, useChangeUsername } from "../hooks/accounts/useProfile";
+import useProfile, { useChangeName, useChangeUsername, useChangeEmail } from "../hooks/accounts/useProfile";
 
 // components
 import Container from "../components/global/Container";
@@ -12,7 +12,7 @@ import Container from "../components/global/Container";
 import { getShortenName } from "../utils/utility";
 
 // types and interfaces
-import { ChangeNmaeForm } from "../hooks/accounts/useProfile";
+import { ChangeUsernameForm, ChangeNameForm, ChangeEmailForm } from "../hooks/accounts/useProfile";
 interface ProfileFormProps {
     label : string;
     value : string;
@@ -119,6 +119,17 @@ export default function Profile() {
         handleOpenChangeName,
         handleChangeName
     } = useChangeName();
+
+    const {
+        changeEmailValue,
+        openChangeEmailModal,
+        changeEmailBtnDisabled,
+        checkEmailLoad,
+        emailValidated,
+        handleChangeEmailValue,
+        handleOpenChangeEmail,
+        handleChangeEmail
+    } = useChangeEmail();
     
     return (
         <>
@@ -169,7 +180,7 @@ export default function Profile() {
                                 <ProfileForm
                                     label="Email"
                                     value={userInfo.email}
-                                    onBtnClick={() => {}}
+                                    onBtnClick={() => handleOpenChangeEmail(true)}
                                 />
                                 <div style={styles.unEditableFormHolder}>
                                     <Form.Item
@@ -231,7 +242,7 @@ export default function Profile() {
                 </Form.Item>
             </FormModal>
 
-            <FormModal<ChangeNmaeForm>
+            <FormModal<ChangeNameForm>
                 title="Change Name"
                 description="Change your name"
                 open={openChangeNameModal}
@@ -250,6 +261,43 @@ export default function Profile() {
                         placeholder="new name"
                         value={changeNameValue}
                         onChange={e => handleSetChangeNameValue(e.target.value)}
+                    />
+                </Form.Item>
+            </FormModal>
+
+            <FormModal<ChangeEmailForm>
+                title="Change Email"
+                description="Change your email"
+                open={openChangeEmailModal}
+                onCancel={() => handleOpenChangeEmail(false)}
+                handleSubmit={handleChangeEmail}
+                btnDisabled={changeEmailBtnDisabled}
+            >
+                <Form.Item
+                    name="email"
+                    rules={[
+                        { required: true, message: 'This field is required' },
+                        {
+                            max: 50,
+                            message: 'Username cannot be longer than 50 characters.',
+                        },
+                    ]}
+                    validateFirst
+                    initialValue={changeEmailValue}
+                    hasFeedback 
+                    validateStatus={
+                        checkEmailLoad ? "validating" :
+                        emailValidated === undefined ? "" :
+                        !emailValidated ? "error" : "success"
+                    }
+                    extra={!emailValidated && emailValidated !== undefined ? "Username already exist" : ""}
+                >
+                    <Input
+                        size="large"
+                        placeholder="new name"
+                        value={changeUsernameValue}
+                        onChange={e => handleChangeEmailValue(e.target.value)}
+                        disabled={checkEmailLoad}
                     />
                 </Form.Item>
             </FormModal>

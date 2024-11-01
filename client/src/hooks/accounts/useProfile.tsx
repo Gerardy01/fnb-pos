@@ -9,11 +9,15 @@ import { useSelector } from "react-redux"
 import { RootState } from "../../redux/store"
 
 // types and interfaces
-export type ChangeNmaeForm = {
+export type ChangeNameForm = {
     name : string;
 }
 export type ChangeUsernameForm = {
     username : string;
+}
+
+export type ChangeEmailForm = {
+    email : string;
 }
 
 
@@ -68,12 +72,10 @@ export function useChangeUsername() {
                 return;
             }
 
-            if (data.available) {
-                setValidated(true);
-                setChangeUsernameBtnDisabled(false);
-            } else {
-                setValidated(false);
-            }
+            if (data.available) return setValidated(false);
+
+            setValidated(true);
+            setChangeUsernameBtnDisabled(false);
 
         } finally {
             setCheckUsernameLoad(false);
@@ -128,12 +130,7 @@ export function useChangeName() {
         setChangeNameBtnDisabled(false);
     }
 
-    const handleChangeName = (data : ChangeNmaeForm) : void => {
-        if (data.name === userInfo.name) {
-            setOpenChangeNameModal(false);
-            return;
-        }
-
+    const handleChangeName = (data : ChangeNameForm) : void => {
         console.log(data.name)
     }
 
@@ -145,6 +142,79 @@ export function useChangeName() {
         handleOpenChangeName,
         handleChangeName
     }
+}
+
+export function useChangeEmail() {
+
+    const { serverErrorModal } = useStaticModal();
+
+    const userInfo = useSelector((state : RootState) => state.userInfo);
+
+    const [changeEmailValue, setChangeEmailValue] = useState<string>(userInfo.email);
+    const [checkEmailLoad, setCheckEmailLoad] = useState<boolean>(false);
+    const [validated, setValidated] = useState<boolean | undefined>(undefined);
+    const [openChangeEmailModal, setOpenChangeEmailModal] = useState<boolean>(false);
+    const [changeEmailBtnDisabled, setChangeEmailBtnDisabled] = useState<boolean>(true);
+
+    useEffect(() => {
+        setChangeEmailBtnDisabled(true);
+        setValidated(undefined);
+        const timeoutId = setTimeout(() => {
+            handleCheckEmailExist();
+        }, 1000)
+
+        return () => clearTimeout(timeoutId);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [changeEmailValue]);
+
+    const handleChangeEmailValue = (value : string) => {
+        setChangeEmailValue(value);
+    }
+
+    const handleOpenChangeEmail = (open : boolean) : void => {
+        setOpenChangeEmailModal(open);
+    }
+
+    const handleCheckEmailExist = async () => {
+        if (!changeEmailValue) return;
+        if (changeEmailValue.length > 50) return;
+        if (changeEmailValue === userInfo.email) return;
+
+        setCheckEmailLoad(true);
+
+        try {
+            const [err, data] = await accountApi.checkAvailability({ email : changeEmailValue });
+
+            if (err) {
+                serverErrorModal();
+                return;
+            }
+
+            if (!data.available) return setValidated(false);
+
+            setValidated(true);
+            setChangeEmailBtnDisabled(false);
+
+        } finally {
+            setCheckEmailLoad(false);
+        }
+    }
+
+    const handleChangeEmail = (data : ChangeEmailForm) => {
+        console.log(data);
+    }
+
+    return {
+        changeEmailValue,
+        openChangeEmailModal,
+        changeEmailBtnDisabled,
+        checkEmailLoad,
+        emailValidated : validated,
+        handleChangeEmailValue,
+        handleOpenChangeEmail,
+        handleChangeEmail,
+    }
+
 }
 
 export default function useProfile() {
