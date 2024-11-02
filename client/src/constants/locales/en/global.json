@@ -26,5 +26,6 @@
     "exitPage" : "Exit this page?",
     "profile" : "Profile",
     "yes" : "Yes",
-    "no" : "No"
+    "no" : "No",
+    "change" : "Change"
 }

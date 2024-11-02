@@ -25,6 +25,16 @@ export interface ChangePasswordBodyData {
     newPassword : string;
 }
 
+export interface EditAccountBodyData {
+    accountId : string;
+    process : string;
+    value : string;
+}
+
+export interface EditAccountReturn {
+    newValue : string;
+}
+
 export interface ChangePasswordData {
     oldPassword : string;
     newPassword : string;

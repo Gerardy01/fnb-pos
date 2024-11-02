@@ -4,6 +4,7 @@ import { ArrowLeftOutlined, LockOutlined } from "@ant-design/icons";
 
 import { useNavigate } from "react-router-dom";
 import useProfile, { useChangeName, useChangeUsername, useChangeEmail } from "../hooks/accounts/useProfile";
+import { useTranslation } from "react-i18next";
 
 // components
 import Container from "../components/global/Container";
@@ -26,6 +27,7 @@ interface FormModal<T> {
     handleSubmit : (data : T) => void;
     children : JSX.Element;
     btnDisabled? : boolean;
+    btnLoad? : boolean;
 }
 
 
@@ -33,14 +35,17 @@ const { Title, Text } = Typography;
 
 
 function ProfileForm({ label, value, onBtnClick } : ProfileFormProps) {
+
+    const  { t } = useTranslation(["global"]);
+
     return (
         <Form.Item
             label={label}
         >
             <Space direction="vertical" style={{ width: '100%' }}>
                 <Space.Compact style={{ width: '100%' }}>
-                    <Input value={value} disabled />
-                    <Button type="link" onClick={onBtnClick}>Change</Button>
+                    <Input value={value} readOnly />
+                    <Button type="link" onClick={onBtnClick}>{t("change")}</Button>
                 </Space.Compact>
             </Space>
         </Form.Item>
@@ -54,8 +59,11 @@ function FormModal<T>({
     btnDisabled = false,
     onCancel,
     handleSubmit,
-    children
+    children,
+    btnLoad = false,
 } : FormModal<T>) {
+
+    const  { t } = useTranslation(["global"]);
 
     const onSubmit : FormProps<T>['onFinish']= (values) => {
         handleSubmit(values);
@@ -85,8 +93,9 @@ function FormModal<T>({
                         style={styles.formModalBtn}
                         htmlType="submit"
                         disabled={btnDisabled}
+                        loading={btnLoad}
                     >
-                        Submit
+                        {t("submit")}
                     </Button>
                 </Form.Item>
             </Form>
@@ -100,12 +109,15 @@ export default function Profile() {
 
     const { userInfo } = useProfile();
 
+    const  { t } = useTranslation(["global", "account"]);
+
     const {
         changeUsernameValue,
         openChangeUsernameModal,
         changeUsernameBtnDisabled,
         checkUsernameLoad,
         usernameValidated,
+        changeUsernameLoad,
         handleChangeUsernameValue,
         handleOpenChangeUsername,
         handleChangeUsername
@@ -115,6 +127,7 @@ export default function Profile() {
         openChangeNameModal,
         changeNameValue,
         changeNameBtnDisabled,
+        changeNameLoad,
         handleSetChangeNameValue,
         handleOpenChangeName,
         handleChangeName
@@ -126,6 +139,7 @@ export default function Profile() {
         changeEmailBtnDisabled,
         checkEmailLoad,
         emailValidated,
+        changeEmailLoad,
         handleChangeEmailValue,
         handleOpenChangeEmail,
         handleChangeEmail
@@ -157,12 +171,12 @@ export default function Profile() {
                                 icon={<LockOutlined />}
                                 onClick={() => navigate("/dashboard/change-password")}
                             >
-                                Change Password
+                                {t("account:changePassword")}
                             </Button>
                         </div>
                         <div style={styles.rightSide}>
-                            <Title level={2}>My Profile</Title>
-                            <Text type="secondary">Manage your profile</Text>
+                            <Title level={2}>{t("account:myProfile")}</Title>
+                            <Text type="secondary">{t("account:myProfileDesc")}</Text>
                             <Form
                                 style={styles.form}
                                 layout="vertical"
@@ -198,28 +212,29 @@ export default function Profile() {
             </Container>
 
             <FormModal<ChangeUsernameForm>
-                title="Change Username"
-                description="Change your username"
+                title={t("account:changeUsername")}
+                description={t("account:changeUsernameDesc")}
                 open={openChangeUsernameModal}
                 onCancel={() => handleOpenChangeUsername(false)}
                 handleSubmit={handleChangeUsername}
                 btnDisabled={changeUsernameBtnDisabled}
+                btnLoad={changeUsernameLoad}
             >
                 <Form.Item
                     name="username"
                     rules={[
-                        { required: true, message: 'This field is required' },
+                        { required: true, message: t("global:fieldRequired") },
                         {
                             pattern: /^[a-zA-Z0-9_]+$/,
-                            message: 'Username must contain only letters, numbers, and underscores.',
+                            message: t("account:USERNAME03"),
                         },
                         {
                             max: 20,
-                            message: 'Username cannot be longer than 20 characters.',
+                            message: t("account:USERNAME02"),
                         },
                         {
                             min: 4,
-                            message: 'Username must be at least 4 characters long.',
+                            message: t("account:USERNAME01"),
                         }
                     ]}
                     validateFirst
@@ -230,11 +245,11 @@ export default function Profile() {
                         usernameValidated === undefined ? "" :
                         !usernameValidated ? "error" : "success"
                     }
-                    extra={!usernameValidated && usernameValidated !== undefined ? "Username already exist" : ""}
+                    extra={!usernameValidated && usernameValidated !== undefined ? t("account:ACCOUNT409-1") : ""}
                 >
                     <Input
                         size="large"
-                        placeholder="new name"
+                        placeholder={t("account:newUsername")}
                         value={changeUsernameValue}
                         onChange={e => handleChangeUsernameValue(e.target.value)}
                         disabled={checkUsernameLoad}
@@ -243,22 +258,23 @@ export default function Profile() {
             </FormModal>
 
             <FormModal<ChangeNameForm>
-                title="Change Name"
-                description="Change your name"
+                title={t("account:changeName")}
+                description={t("account:changeNameDesc")}
                 open={openChangeNameModal}
                 onCancel={() => handleOpenChangeName(false)}
                 handleSubmit={handleChangeName}
                 btnDisabled={changeNameBtnDisabled}
+                btnLoad={changeNameLoad}
             >
                 <Form.Item
                     name="name"
                     validateTrigger="onSubmit"
-                    rules={[{ required: true, message: 'This field is required' }]}
+                    rules={[{ required: true, message: t("global:fieldRequired") }]}
                     initialValue={changeNameValue}
                 >
                     <Input
                         size="large"
-                        placeholder="new name"
+                        placeholder={t("account:newName")}
                         value={changeNameValue}
                         onChange={e => handleSetChangeNameValue(e.target.value)}
                     />
@@ -266,20 +282,25 @@ export default function Profile() {
             </FormModal>
 
             <FormModal<ChangeEmailForm>
-                title="Change Email"
-                description="Change your email"
+                title={t("account:changeEmail")}
+                description={t("account:changeEmailDesc")}
                 open={openChangeEmailModal}
                 onCancel={() => handleOpenChangeEmail(false)}
                 handleSubmit={handleChangeEmail}
                 btnDisabled={changeEmailBtnDisabled}
+                btnLoad={changeEmailLoad}
             >
                 <Form.Item
                     name="email"
                     rules={[
-                        { required: true, message: 'This field is required' },
+                        { required: true, message: t("global:fieldRequired") },
                         {
                             max: 50,
-                            message: 'Username cannot be longer than 50 characters.',
+                            message: t("account:EMAIL02"),
+                        },
+                        { 
+                            type: 'email', 
+                            message: t("account:EMAIL01") 
                         },
                     ]}
                     validateFirst
@@ -290,11 +311,11 @@ export default function Profile() {
                         emailValidated === undefined ? "" :
                         !emailValidated ? "error" : "success"
                     }
-                    extra={!emailValidated && emailValidated !== undefined ? "Username already exist" : ""}
+                    extra={!emailValidated && emailValidated !== undefined ? t("account:ACCOUNT409-2") : ""}
                 >
                     <Input
                         size="large"
-                        placeholder="new name"
+                        placeholder={t("account:newEmail")}
                         value={changeUsernameValue}
                         onChange={e => handleChangeEmailValue(e.target.value)}
                         disabled={checkEmailLoad}
@@ -317,6 +338,7 @@ const styles : { [key: string]: React.CSSProperties } = {
     leftSide : {
         display: 'flex',
         flexDirection: 'column',
+        alignItems: 'center',
         padding: '1rem 2rem',
         marginRight: '1.5rem',
         backgroundColor: 'white',

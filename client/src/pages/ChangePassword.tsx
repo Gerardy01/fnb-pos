@@ -75,7 +75,7 @@ export default function ChangePassword() {
                     <Divider orientation="left">{t("account:newPassword")}</Divider>
                     <Form.Item
                         name="newPassword"
-                        validateDebounce={1000}
+                        validateDebounce={500}
                         hasFeedback
                         rules={[
                             { required: true, message: t("global:fieldRequired") },

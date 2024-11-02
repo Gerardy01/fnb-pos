@@ -235,7 +235,7 @@ class AccountController {
                 return res.status(422).json({
                     "status" : "failed",
                     "message" : e.message,
-                    "userMessage" : "",
+                    "userMessage" : e.message,
                 });
             }
 

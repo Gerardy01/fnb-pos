@@ -4,12 +4,17 @@
 {
     "ACCOUNT404" : "Account info not found.",
     "ACCOUNT403-1" : "Password incorrect. Make sure you input correct password.",
+    "ACCOUNT403-2" : "You dont have permission to do this action",
+    "ACCOUNT409-1" : "Username already exist",
+    "ACCOUNT409-2" : "Email already exist",
     "USERNAME01" : "Username must be at least 4 characters long",
     "USERNAME02" : "Username must be no more than 20 characters long",
     "USERNAME03" : "Username can only contain letters, numbers, and underscores",
     "PASS01" : "Password must be at least 8 characters long",
     "PASS02" : "Password must contain at least one uppercase letter",
     "PASS03" : "Password must contain at least one number",
+    "EMAIL01" : "Please enter a valid email address",
+    "EMAIL02" : "Email cannot be longer than 50 characters",
 
     "changePassword" : "Change Password",
     "createNewPassword" : "Create new password for account",
@@ -20,5 +25,17 @@
     "passwordNotChanged" : "If you exit now, the password you change will not be saved.",
     "wrongPassFormat" : "Wrong Password Format",
     "passwordChanged" : "Password Changed",
-    "passwordChangedAskLogout" : "Your password has been changed successfully. Do you want to logout your session in all device?"
+    "passwordChangedAskLogout" : "Your password has been changed successfully. Do you want to logout your session in all device?",
+
+    "myProfile" : "My Profile",
+    "myProfileDesc" : "Manage your profile",
+    "changeUsername" : "Change Username",
+    "changeUsernameDesc" : "Change your username",
+    "newUsername" : "New Username",
+    "changeName" : "Change Name",
+    "changeNameDesc" : "Change your name",
+    "newName" : "New Name",
+    "changeEmail" : "Change Email",
+    "changeEmailDesc" : "Change your email",
+    "newEmail" : "New Email"
 }

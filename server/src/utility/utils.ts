@@ -38,7 +38,7 @@ export function validateUsername(username : string) : { valid : boolean; message
     return {valid: true, message: ""}
 }
 
-export function validatePassword(password : string) : { valid : boolean; message : string; }  {
+export function validatePassword(password : string) : { valid : boolean; message : string; } {
     const uppercaseRegex = /[A-Z]/;
     const numberRegex = /\d/;
 
@@ -55,6 +55,20 @@ export function validatePassword(password : string) : { valid : boolean; message
     // Check for number
     if (!numberRegex.test(password)) {
         return { valid: false, message: "PASS03" }; // Password must contain at least one number.
+    }
+    return {valid: true, message: ""}
+}
+
+export function validateEmail(email : string) : { valid : boolean, message : string } {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!emailRegex.test(email)) {
+        return { valid: false, message: "EMAIL01" } // Email must be a valid email.
+    }
+
+    // check maximum length
+    if (email.length > 50) {
+        return { valid: false, message: "EMAIL02" } //Email cannot be longer than 50 characters
     }
     return {valid: true, message: ""}
 }

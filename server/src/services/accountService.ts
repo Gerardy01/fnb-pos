@@ -4,7 +4,7 @@ import { Account } from "../models";
 
 // utils
 import { DefaultRoleEnum, EditAccountProcessEnum } from "../utility/enums";
-import { validatePassword, validateUsername } from "../utility/utils";
+import { validateEmail, validatePassword, validateUsername } from "../utility/utils";
 
 // exceptions
 import { ExistData, DataNotFound, WrongFormat, NotValid, Forbidden } from "../utility/exceptions";
@@ -62,7 +62,7 @@ export class AccountService implements IAccountService {
 
         // get page access permission
         const pageAccessPermissions = await this.pageAccessPermissionRepository.findPageAccessPermissionByRole(account.role.role_id);
-        const pageAccessPermissionIds = pageAccessPermissions.map(item => item.id);
+        const pageAccessPermissionIds = pageAccessPermissions.map(item => item.permission_id);
         
         return {
             accountId: account.account_id,
@@ -93,6 +93,11 @@ export class AccountService implements IAccountService {
         const existUsername = await this.accountRepository.findAccountByUsername(data.username);
         if (existUsername) {
             throw new ExistData("Username already exist");
+        }
+
+        if (data.email) {
+            const emailValid = validateEmail(data.email);
+            if (!emailValid.valid) throw new WrongFormat(emailValid.message);
         }
 
         // check duplicate email
@@ -158,6 +163,11 @@ export class AccountService implements IAccountService {
         const existUsername = await this.accountRepository.findAccountByUsername(data.username);
         if (existUsername) {
             throw new ExistData("Username already exist");
+        }
+
+        if (data.email) {
+            const emailValid = validateEmail(data.email);
+            if (!emailValid.valid) throw new WrongFormat(emailValid.message);
         }
 
         // check duplicate email
@@ -250,6 +260,10 @@ export class AccountService implements IAccountService {
 
     async changeUsername(data: IChangeUsername, userAccountId: string, userRole : string): Promise<string> {
 
+        // check if username valid
+        const usernameValid = validateUsername(data.newUsername);
+        if (!usernameValid.valid) throw new WrongFormat(usernameValid.message);
+
         // check if username is available
         const isAvailable = await this.checkUsernameAvailable(data.newUsername);
         if (!isAvailable) throw new ExistData("ACCOUNT409-1"); // Username already used.
@@ -271,6 +285,10 @@ export class AccountService implements IAccountService {
     }
 
     async changeEmail(data: IChangeEmail, userAccountId: string, userRole : string): Promise<string> {
+
+        // check if email valid
+        const emailValid = validateEmail(data.newEmail);
+        if (!emailValid.valid) throw new WrongFormat(emailValid.message);
 
         // check if email is available
         const isAvailable = await this.checkEmailAvailable(data.newEmail);

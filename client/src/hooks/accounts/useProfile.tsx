@@ -3,10 +3,12 @@ import { useEffect, useState } from "react";
 import { accountApi } from "../../api";
 
 import useStaticModal from "../useStaticModal";
+import { useTranslation } from "react-i18next";
 
 // redux
-import { useSelector } from "react-redux"
+import { useSelector, useDispatch } from "react-redux"
 import { RootState } from "../../redux/store"
+import { setUserEmail, setUserName, setUserUsername } from "../../redux/account/userInfoSlice";
 
 // types and interfaces
 export type ChangeNameForm = {
@@ -24,12 +26,17 @@ export type ChangeEmailForm = {
 
 export function useChangeUsername() {
 
-    const { serverErrorModal } = useStaticModal();
+    const { serverErrorModal, errorModal } = useStaticModal();
+
+    const dispatch = useDispatch();
+
+    const { t } = useTranslation("account");
 
     const userInfo = useSelector((state : RootState) => state.userInfo);
 
     const [changeUsernameValue, setChangeUsernameValue] = useState<string>(userInfo.username);
     const [checkUsernameLoad, setCheckUsernameLoad] = useState<boolean>(false);
+    const [changeUsernameLoad, setChangeUsernameLoad] = useState<boolean>(false);
     const [validated, setValidated] = useState<boolean | undefined>(undefined);
     const [openChangeUsernameModal, setOpenChangeUsernameModal] = useState<boolean>(false);
     const [changeUsernameBtnDisabled, setChangeUsernameBtnDisabled] = useState<boolean>(true);
@@ -72,7 +79,7 @@ export function useChangeUsername() {
                 return;
             }
 
-            if (data.available) return setValidated(false);
+            if (!data.available) return setValidated(false);
 
             setValidated(true);
             setChangeUsernameBtnDisabled(false);
@@ -82,8 +89,54 @@ export function useChangeUsername() {
         }
     }
 
-    const handleChangeUsername = (data : ChangeUsernameForm) => {
-        console.log(data);
+    const handleChangeUsername = async (data : ChangeUsernameForm) => {
+        
+        setChangeUsernameLoad(true);
+
+        try {
+
+            const [err, res] = await accountApi.editAccount({
+                accountId: userInfo.accountId,
+                process: "username",
+                value: data.username
+            });
+
+            if (err) {
+                if (err.status === 400) {
+                    const error = err.response.data.schemaErrors ? err.response.data.schemaErrors[0] : undefined;
+                    if (!error) return;
+                    errorModal(undefined, `${error.field} is ${error.message}`);
+                    return;
+                }
+    
+                if (err.status === 409) {
+                    errorModal(t(err.response.data.message));
+                    return;
+                }
+    
+                if (err.status === 403) {
+                    errorModal(t(err.response.data.message));
+                    return;
+                }
+    
+                if (err.status === 422) {
+                    errorModal(t(err.response.data.message));
+                    return;
+                }
+    
+                serverErrorModal();
+                return;
+            }
+
+            dispatch(setUserUsername(res.newValue));
+            setOpenChangeUsernameModal(false);
+            setChangeUsernameValue(res.newValue);
+
+        } finally {
+            setChangeUsernameLoad(false);
+            setChangeUsernameBtnDisabled(true);
+            setValidated(undefined);
+        }
     }
 
     return {
@@ -92,6 +145,7 @@ export function useChangeUsername() {
         changeUsernameBtnDisabled,
         checkUsernameLoad,
         usernameValidated : validated,
+        changeUsernameLoad,
         handleChangeUsernameValue,
         handleOpenChangeUsername,
         handleChangeUsername,
@@ -103,7 +157,14 @@ export function useChangeName() {
 
     const userInfo = useSelector((state : RootState) => state.userInfo);
 
+    const { serverErrorModal, errorModal } = useStaticModal();
+
+    const dispatch = useDispatch();
+
+    const { t } = useTranslation("account");
+
     const [changeNameValue, setChangeNameValue] = useState<string>(userInfo.name);
+    const [changeNameLoad, setChangeNameLoad] = useState<boolean>(false);
     const [openChangeNameModal, setOpenChangeNameModal] = useState<boolean>(false);
     const [changeNameBtnDisabled, setChangeNameBtnDisabled] = useState<boolean>(false);
 
@@ -130,14 +191,60 @@ export function useChangeName() {
         setChangeNameBtnDisabled(false);
     }
 
-    const handleChangeName = (data : ChangeNameForm) : void => {
-        console.log(data.name)
+    const handleChangeName = async (data : ChangeNameForm) : Promise<void> => {
+        
+        setChangeNameLoad(true);
+
+        try {
+            const [err, res] = await accountApi.editAccount({
+                accountId: userInfo.accountId,
+                process: "name",
+                value: data.name
+            });
+
+            if (err) {
+                if (err.status === 400) {
+                    const error = err.response.data.schemaErrors ? err.response.data.schemaErrors[0] : undefined;
+                    if (!error) return;
+                    errorModal(undefined, `${error.field} is ${error.message}`);
+                    return;
+                }
+    
+                if (err.status === 409) {
+                    errorModal(t(err.response.data.message));
+                    return;
+                }
+    
+                if (err.status === 403) {
+                    errorModal(t(err.response.data.message));
+                    return;
+                }
+    
+                if (err.status === 422) {
+                    errorModal(t(err.response.data.message));
+                    return;
+                }
+    
+                serverErrorModal();
+                return;
+            }
+
+            setChangeNameValue(res.newValue);
+            dispatch(setUserName(res.newValue));
+            setOpenChangeNameModal(false);
+            
+            
+        } finally {
+            setChangeNameLoad(false);
+            setChangeNameBtnDisabled(true);
+        }
     }
 
     return {
         openChangeNameModal,
         changeNameValue,
         changeNameBtnDisabled,
+        changeNameLoad,
         handleSetChangeNameValue,
         handleOpenChangeName,
         handleChangeName
@@ -146,12 +253,16 @@ export function useChangeName() {
 
 export function useChangeEmail() {
 
-    const { serverErrorModal } = useStaticModal();
+    const { serverErrorModal, errorModal } = useStaticModal();
+
+    const dispatch = useDispatch();
 
     const userInfo = useSelector((state : RootState) => state.userInfo);
+    const { t } = useTranslation("account");
 
     const [changeEmailValue, setChangeEmailValue] = useState<string>(userInfo.email);
     const [checkEmailLoad, setCheckEmailLoad] = useState<boolean>(false);
+    const [changeEmailLoad, setChangeEmailLoad] = useState<boolean>(false);
     const [validated, setValidated] = useState<boolean | undefined>(undefined);
     const [openChangeEmailModal, setOpenChangeEmailModal] = useState<boolean>(false);
     const [changeEmailBtnDisabled, setChangeEmailBtnDisabled] = useState<boolean>(true);
@@ -180,6 +291,9 @@ export function useChangeEmail() {
         if (changeEmailValue.length > 50) return;
         if (changeEmailValue === userInfo.email) return;
 
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(changeEmailValue)) return;
+
         setCheckEmailLoad(true);
 
         try {
@@ -200,8 +314,53 @@ export function useChangeEmail() {
         }
     }
 
-    const handleChangeEmail = (data : ChangeEmailForm) => {
-        console.log(data);
+    const handleChangeEmail = async (data : ChangeEmailForm) => {
+        
+        setChangeEmailLoad(true);
+        
+        try {
+            const [err, res] = await accountApi.editAccount({
+                accountId: userInfo.accountId,
+                process: "email",
+                value: data.email
+            });
+    
+            if (err) {
+                if (err.status === 400) {
+                    const error = err.response.data.schemaErrors ? err.response.data.schemaErrors[0] : undefined;
+                    if (!error) return;
+                    errorModal(undefined, `${error.field} is ${error.message}`);
+                    return;
+                }
+    
+                if (err.status === 409) {
+                    errorModal(undefined, t(err.response.data.message));
+                    return;
+                }
+    
+                if (err.status === 403) {
+                    errorModal(undefined, t(err.response.data.message));
+                    return;
+                }
+    
+                if (err.status === 422) {
+                    errorModal(undefined, t(err.response.data.message));
+                    return;
+                }
+    
+                serverErrorModal();
+                return;
+            }
+    
+            setOpenChangeEmailModal(false);
+            dispatch(setUserEmail(res.newValue));
+            setChangeEmailValue(res.newValue);
+
+        } finally {
+            setChangeEmailLoad(false);
+            setChangeEmailBtnDisabled(true);
+            setValidated(undefined);
+        }
     }
 
     return {
@@ -210,6 +369,7 @@ export function useChangeEmail() {
         changeEmailBtnDisabled,
         checkEmailLoad,
         emailValidated : validated,
+        changeEmailLoad,
         handleChangeEmailValue,
         handleOpenChangeEmail,
         handleChangeEmail,

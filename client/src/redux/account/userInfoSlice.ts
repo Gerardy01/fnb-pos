@@ -34,9 +34,18 @@ export const userInfoSlice = createSlice({
             state.roleId = action.payload.roleId;
             state.roleName = action.payload.roleName;
             state.pageAccessPermissions = action.payload.pageAccessPermissions;
-        }
+        },
+        setUserUsername : (state, action : PayloadAction<string>) => {
+            state.username = action.payload;
+        },
+        setUserName : (state, action : PayloadAction<string>) => {
+            state.name = action.payload;
+        },
+        setUserEmail : (state, action : PayloadAction<string>) => {
+            state.email = action.payload;
+        },
     }
 });
 
-export const { setUserInfo } = userInfoSlice.actions;
+export const { setUserInfo, setUserUsername, setUserName, setUserEmail } = userInfoSlice.actions;
 export default userInfoSlice.reducer;
