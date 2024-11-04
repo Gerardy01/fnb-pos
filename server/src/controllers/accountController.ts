@@ -199,14 +199,6 @@ class AccountController {
             
         } catch(e) {
 
-            if (e instanceof NotValid) {
-                return res.status(400).json({
-                    "status" : "failed",
-                    "message" : "bad request",
-                    "userMessage" : e.message,
-                });
-            }
-
             if (e instanceof ExistData) {
                 return res.status(409).json({
                     "status" : "failed",
@@ -223,11 +215,11 @@ class AccountController {
                 });
             }
 
-            if (e instanceof Forbidden) {
+            if (e instanceof Forbidden || e instanceof NotValid) {
                 return res.status(403).json({
                     "status" : "failed",
                     "message" : e.message,
-                    "userMessage" : "ACCOUNT403-2", // You dont have permission to do this action
+                    "userMessage" : e.message,
                 });
             }
 

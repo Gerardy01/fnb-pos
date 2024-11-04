@@ -226,7 +226,10 @@ export class AccountService implements IAccountService {
 
         if (process === EditAccountProcessEnum.USERNAME) {
             if (data.value.length > 20) {
-                throw new NotValid("ACCOUNT400-1"); // Username cannot be more than 20 characters.
+                throw new NotValid("ACCOUNT403-2"); // Username cannot be more than 20 characters.
+            }
+            if (data.value.length === 0) {
+                throw new NotValid("ACCOUNT403-4"); // This field is required.
             }
             newValue = await this.changeUsername({
                 accountId: data.accountId,
@@ -235,7 +238,7 @@ export class AccountService implements IAccountService {
             message = "username changed";
         } else if (process === EditAccountProcessEnum.EMAIL) {
             if (data.value.length > 50) {
-                throw new NotValid("ACCOUNT400-2"); // Email cannot be more than 50 characters.
+                throw new NotValid("ACCOUNT403-3"); // Email cannot be more than 50 characters.
             }
             newValue = await this.changeEmail({
                 accountId: data.accountId,
@@ -243,6 +246,9 @@ export class AccountService implements IAccountService {
             }, userAccountId, userRole);
             message = "email changed";
         } else if (process === EditAccountProcessEnum.NAME) {
+            if (data.value.length === 0) {
+                throw new NotValid("ACCOUNT403-4"); // This field is required.
+            }
             newValue = await this.changeName({
                 accountId: data.accountId,
                 newName: data.value
@@ -275,7 +281,7 @@ export class AccountService implements IAccountService {
         // Check if user allowed to change account with specific role's username
         if (account.account_id !== userAccountId) {
             const isAllowed = this.checkRoleEligibility(userRole, account.role.role_name);
-            if (!isAllowed) throw new Forbidden("you dont have permission to do this action");
+            if (!isAllowed) throw new Forbidden("ACCOUNT403-5"); // You dont have permission to do this action
         }
 
         account.username = data.newUsername;
@@ -286,13 +292,16 @@ export class AccountService implements IAccountService {
 
     async changeEmail(data: IChangeEmail, userAccountId: string, userRole : string): Promise<string> {
 
-        // check if email valid
-        const emailValid = validateEmail(data.newEmail);
-        if (!emailValid.valid) throw new WrongFormat(emailValid.message);
+        if (data.newEmail) {
+            // check if email valid
+            const emailValid = validateEmail(data.newEmail);
+            if (!emailValid.valid) throw new WrongFormat(emailValid.message);
+            
+            // check if email is available
+            const isAvailable = await this.checkEmailAvailable(data.newEmail);
+            if (!isAvailable) throw new ExistData("ACCOUNT409-2"); // Email already used.
+        }
 
-        // check if email is available
-        const isAvailable = await this.checkEmailAvailable(data.newEmail);
-        if (!isAvailable) throw new ExistData("ACCOUNT409-2"); // Email already used.
 
         const account = await this.accountRepository.findAccountById(data.accountId);
         if (!account) throw new DataNotFound("account not found");
@@ -301,7 +310,7 @@ export class AccountService implements IAccountService {
         // Check if user allowed to change account with specific role's email
         if (account.account_id !== userAccountId) {
             const isAllowed = this.checkRoleEligibility(userRole, account.role.role_name);
-            if (!isAllowed) throw new Forbidden("you dont have permission to do this action");
+            if (!isAllowed) throw new Forbidden("ACCOUNT403-5"); // You dont have permission to do this action
         }
 
         account.email = data.newEmail;
@@ -319,7 +328,7 @@ export class AccountService implements IAccountService {
         // Check if user allowed to change account with specific role's email
         if (account.account_id !== userAccountId) {
             const isAllowed = this.checkRoleEligibility(userRole, account.role.role_name);
-            if (!isAllowed) throw new Forbidden("you dont have permission to do this action");
+            if (!isAllowed) throw new Forbidden("ACCOUNT403-5"); // You dont have permission to do this action
         }
 
         account.name = data.newName;

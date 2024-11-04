@@ -4,7 +4,10 @@
 {
     "ACCOUNT404" : "Account info not found.",
     "ACCOUNT403-1" : "Password incorrect. Make sure you input correct password.",
-    "ACCOUNT403-2" : "You dont have permission to do this action",
+    "ACCOUNT403-5" : "You dont have permission to do this action",
+    "ACCOUNT403-2" : "Username cannot be more than 20 characters.",
+    "ACCOUNT403-3" : "Email cannot be more than 50 characters.",
+    "ACCOUNT403-4" : "This field is required.",
     "ACCOUNT409-1" : "Username already exist",
     "ACCOUNT409-2" : "Email already exist",
     "USERNAME01" : "Username must be at least 4 characters long",

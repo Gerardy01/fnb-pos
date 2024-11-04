@@ -110,17 +110,17 @@ export function useChangeUsername() {
                 }
     
                 if (err.status === 409) {
-                    errorModal(t(err.response.data.message));
+                    errorModal(undefined, t(err.response.data.message));
                     return;
                 }
     
                 if (err.status === 403) {
-                    errorModal(t(err.response.data.message));
+                    errorModal(undefined, t(err.response.data.message));
                     return;
                 }
     
                 if (err.status === 422) {
-                    errorModal(t(err.response.data.message));
+                    errorModal(undefined, t(err.response.data.message));
                     return;
                 }
     
@@ -131,10 +131,10 @@ export function useChangeUsername() {
             dispatch(setUserUsername(res.newValue));
             setOpenChangeUsernameModal(false);
             setChangeUsernameValue(res.newValue);
+            setChangeUsernameBtnDisabled(true);
 
         } finally {
             setChangeUsernameLoad(false);
-            setChangeUsernameBtnDisabled(true);
             setValidated(undefined);
         }
     }
@@ -211,17 +211,17 @@ export function useChangeName() {
                 }
     
                 if (err.status === 409) {
-                    errorModal(t(err.response.data.message));
+                    errorModal(undefined, t(err.response.data.message));
                     return;
                 }
     
                 if (err.status === 403) {
-                    errorModal(t(err.response.data.message));
+                    errorModal(undefined, t(err.response.data.message));
                     return;
                 }
     
                 if (err.status === 422) {
-                    errorModal(t(err.response.data.message));
+                    errorModal(undefined, t(err.response.data.message));
                     return;
                 }
     
@@ -232,11 +232,11 @@ export function useChangeName() {
             setChangeNameValue(res.newValue);
             dispatch(setUserName(res.newValue));
             setOpenChangeNameModal(false);
+            setChangeNameBtnDisabled(true);
             
             
         } finally {
             setChangeNameLoad(false);
-            setChangeNameBtnDisabled(true);
         }
     }
 
@@ -268,7 +268,8 @@ export function useChangeEmail() {
     const [changeEmailBtnDisabled, setChangeEmailBtnDisabled] = useState<boolean>(true);
 
     useEffect(() => {
-        setChangeEmailBtnDisabled(true);
+        if (changeEmailValue) setChangeEmailBtnDisabled(true);
+        if (!changeEmailValue) setChangeEmailBtnDisabled(false);
         setValidated(undefined);
         const timeoutId = setTimeout(() => {
             handleCheckEmailExist();
@@ -355,10 +356,10 @@ export function useChangeEmail() {
             setOpenChangeEmailModal(false);
             dispatch(setUserEmail(res.newValue));
             setChangeEmailValue(res.newValue);
+            setChangeEmailBtnDisabled(true);
 
         } finally {
             setChangeEmailLoad(false);
-            setChangeEmailBtnDisabled(true);
             setValidated(undefined);
         }
     }

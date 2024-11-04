@@ -18,7 +18,7 @@ export const CreateSuperadminSchema = z.object({
 export const EditAccountSchema = z.object({
     accountId : z.string().min(1),
     process : z.string().min(1),
-    value : z.string().min(1),
+    value : z.string(),
 });
 
 export const ResetPasswordSchema = z.object({

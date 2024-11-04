@@ -293,7 +293,6 @@ export default function Profile() {
                 <Form.Item
                     name="email"
                     rules={[
-                        { required: true, message: t("global:fieldRequired") },
                         {
                             max: 50,
                             message: t("account:EMAIL02"),
