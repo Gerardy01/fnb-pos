@@ -39,7 +39,8 @@ export class RoleService implements IRoleService {
         allRole.forEach(item => {
             roleList.push({
                 roleId: item.role_id,
-                roleName: item.role_name
+                roleName: item.role_name,
+                description: item.description,
             });
         });
         
@@ -60,7 +61,8 @@ export class RoleService implements IRoleService {
         defaultRoles.forEach(item => {
             roleList.push({
                 roleId: item.role_id,
-                roleName: item.role_name
+                roleName: item.role_name,
+                description: item.description
             });
         });
 
@@ -105,6 +107,7 @@ export class RoleService implements IRoleService {
         return {
             roleId: roleData.role_id,
             roleName: roleData.role_name,
+            description: roleData.description,
             permissions: permissionData,
             pageAccessPermissionIds: pageAccessPermissionIds
         }
@@ -154,7 +157,8 @@ export class RoleService implements IRoleService {
         // create role
         const newRole = await this.roleRepository.createRole({
             role_name: data.roleName,
-            organization_id: organizationId
+            organization_id: organizationId,
+            description: data.description ? data.description : ""
         }, transaction);
 
         const rolePermissionData : Partial<RolePermissions>[] = [];
@@ -192,6 +196,7 @@ export class RoleService implements IRoleService {
         return {
             roleId : newRole.role_id,
             roleName : newRole.role_name,
+            description : newRole.description,
             permissions : createdPermissionList,
             pageAccessPermissionIds : newRolePageAccessPermissionIds
         }
