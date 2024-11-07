@@ -29,7 +29,8 @@ import { IRoleRepository } from "../repositories/roleRepository";
 import { IHashProvider } from "../providers/hashProvider";
 import { IPageAccessPermissionRepository } from "../repositories/pageAccessPermissionRepository";
 export interface IAccountService {
-    getUserAccount(accountId : string) : Promise<AccountInfoReturn>
+    getAllAccount(organizationId : string, userRole : string, userAccountId : string) : Promise<AccountDataReturn[]>
+    getUserAccountInfo(accountId : string) : Promise<AccountInfoReturn>
     createAccount(data : ICreateAccountData, organizationId : string, userRole : string, transaction? : Transaction) : Promise<AccountDataReturn>
     createAccountForManagement(data : ICreateAccountForManagementData, transaction? : Transaction, forSuperAdmin? : boolean) : Promise<AccountDataReturn>
     checkUsernameAvailable(username : string) : Promise<boolean>
@@ -52,10 +53,42 @@ export class AccountService implements IAccountService {
         private hashProvider : IHashProvider,
     ) {}
 
-    async getUserAccount(accountId: string): Promise<AccountInfoReturn> {
+    async getAllAccount(organizationId: string, userRole: string, userAccountId: string): Promise<AccountDataReturn[]> {
+
+        let accounts = await this.accountRepository.findAllAccountByOrganization(organizationId);
+
+        if (accounts.length === 0) throw new DataNotFound("no account found");
+
+        // exclude user own account
+        accounts = accounts.filter(item => item.account_id !== userAccountId);
+
+        // exclude ADMIN if user not SUPER ADMIN
+        if (userRole !== DefaultRoleEnum.SUPER_ADMIN) {
+            accounts = accounts.filter(item => item.role?.role_name !== DefaultRoleEnum.ADMIN);
+        }
+
+        // map account data to return
+        const accountReturnList : AccountDataReturn[] = [];
+        accounts.forEach(item => {
+            accountReturnList.push({
+                accountId : item.account_id,
+                username : item.username,
+                name : item.name,
+                email : item.email,
+                organizationId : item.organization_id,
+                roleId : item.role_id,
+                roleName : item.role ? item.role.role_name : "",
+                archived : item.archived
+            });
+        });
+
+        return accountReturnList;
+    }
+
+    async getUserAccountInfo(accountId: string): Promise<AccountInfoReturn> {
 
         // get account
-        const account = await this.accountRepository.findAccountWithRoleAndOrganization(accountId);
+        const account = await this.accountRepository.findAccountById(accountId);
         if (!account) throw new DataNotFound("ACCOUNT404");
         if (!account.role) throw Error("Error in getting role from this account");
         if (!account.organization) throw Error("Error in getting organization from this account");

@@ -21,6 +21,11 @@ import AccountController from '../../controllers/accountController';
 const accountRoutes = Router();
 
 
+accountRoutes.get("/",
+    authenticate,
+    validatePermission(PermissionEnum.ACCOUNT_MANAGEMENT, 'read'),
+    AccountController.getAllAccount
+);
 accountRoutes.get("/action/user-info",
     authenticate,
     AccountController.getUserAccountInfo
