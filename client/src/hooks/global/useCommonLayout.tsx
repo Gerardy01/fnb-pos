@@ -114,8 +114,8 @@ export default function useCommonLayout() {
             onClick: () => handleClick("/pos"),
         },
         {
-            key: 'accountConfig',
-            label: t('accountConfig'),
+            key: 'accountManagement',
+            label: t('accountManagement'),
             icon: <UserSwitchOutlined />,
             permissions: [
                 PageAccessPermissionEnum.ACCOUNT_MANAGEMENT,
