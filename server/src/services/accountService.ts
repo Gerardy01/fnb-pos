@@ -70,6 +70,7 @@ export class AccountService implements IAccountService {
         // map account data to return
         const accountReturnList : AccountDataReturn[] = [];
         accounts.forEach(item => {
+            if (userRole !== DefaultRoleEnum.SUPER_ADMIN && item.archived) return;
             accountReturnList.push({
                 accountId : item.account_id,
                 username : item.username,
@@ -89,7 +90,7 @@ export class AccountService implements IAccountService {
 
         // get account
         const account = await this.accountRepository.findAccountById(accountId);
-        if (!account) throw new DataNotFound("ACCOUNT404");
+        if (!account || account.archived) throw new DataNotFound("ACCOUNT404");
         if (!account.role) throw Error("Error in getting role from this account");
         if (!account.organization) throw Error("Error in getting organization from this account");
 
@@ -123,8 +124,8 @@ export class AccountService implements IAccountService {
         }
 
         // check duplicate username
-        const existUsername = await this.accountRepository.findAccountByUsername(data.username);
-        if (existUsername) {
+        const usernameAvailable = await this.checkUsernameAvailable(data.username);
+        if (!usernameAvailable) {
             throw new ExistData("Username already exist");
         }
 
@@ -135,8 +136,8 @@ export class AccountService implements IAccountService {
 
         // check duplicate email
         const inputedEmail = data.email ? data.email : "";
-        const existEmail = await this.accountRepository.findAccountByEmail(inputedEmail);
-        if (inputedEmail !== "" && existEmail) {
+        const emailAvailable = await this.checkEmailAvailable(inputedEmail);
+        if (inputedEmail !== "" && !emailAvailable) {
             throw new ExistData("Email already exist");
         }
 
@@ -193,8 +194,8 @@ export class AccountService implements IAccountService {
         }
         
         // check duplicate username
-        const existUsername = await this.accountRepository.findAccountByUsername(data.username);
-        if (existUsername) {
+        const usernameAvailable = await this.checkUsernameAvailable(data.username);
+        if (!usernameAvailable) {
             throw new ExistData("Username already exist");
         }
 
@@ -205,8 +206,8 @@ export class AccountService implements IAccountService {
 
         // check duplicate email
         const inputedEmail = data.email ? data.email : "";
-        const existEmail = await this.accountRepository.findAccountByEmail(inputedEmail);
-        if (inputedEmail !== "" && existEmail) {
+        const emailAvailable = await this.checkEmailAvailable(inputedEmail);
+        if (inputedEmail !== "" && !emailAvailable) {
             throw new ExistData("Email already exist");
         }
 
@@ -240,13 +241,13 @@ export class AccountService implements IAccountService {
 
     async checkUsernameAvailable(username: string): Promise<boolean> {
         const usernameExist = await this.accountRepository.findAccountByUsername(username);
-        if (usernameExist) return false;
+        if (usernameExist && !usernameExist.archived) return false;
         return true;
     }
 
     async checkEmailAvailable(email: string): Promise<boolean> {
         const emailExist = await this.accountRepository.findAccountByEmail(email);
-        if (emailExist) return false;
+        if (emailExist && !emailExist.archived) return false;
         return true;
     }
 
@@ -308,7 +309,7 @@ export class AccountService implements IAccountService {
         if (!isAvailable) throw new ExistData("ACCOUNT409-1"); // Username already used.
 
         const account = await this.accountRepository.findAccountById(data.accountId);
-        if (!account) throw new DataNotFound("account not found");
+        if (!account || account.archived) throw new DataNotFound("account not found");
         if (!account.role) throw new Error("something wrong when getting role data");
 
         // Check if user allowed to change account with specific role's username
@@ -337,7 +338,7 @@ export class AccountService implements IAccountService {
 
 
         const account = await this.accountRepository.findAccountById(data.accountId);
-        if (!account) throw new DataNotFound("account not found");
+        if (!account || account.archived) throw new DataNotFound("account not found");
         if (!account.role) throw new Error("something wrong when getting role data");
 
         // Check if user allowed to change account with specific role's email
@@ -355,7 +356,7 @@ export class AccountService implements IAccountService {
     async changeName(data: IChangeName, userAccountId: string, userRole : string): Promise<string> {
 
         const account = await this.accountRepository.findAccountById(data.accountId);
-        if (!account) throw new DataNotFound("account not found");
+        if (!account || account.archived) throw new DataNotFound("account not found");
         if (!account.role) throw new Error("something wrong when getting role data");
 
         // Check if user allowed to change account with specific role's email
@@ -372,7 +373,7 @@ export class AccountService implements IAccountService {
 
     async resetPassword(data: IResetPassword, userRole : string): Promise<boolean> {
         const account = await this.accountRepository.findAccountById(data.accountId);
-        if (!account) throw new DataNotFound("account not found");
+        if (!account || account.archived) throw new DataNotFound("account not found");
         if (!account.role) throw new Error("something wrong when getting role data");
         
         // Check if user allowed to change account with specific role's password
@@ -385,7 +386,7 @@ export class AccountService implements IAccountService {
 
     async changePaassword(data: IChangePassword, accountId : string): Promise<boolean> {
         const account = await this.accountRepository.findAccountById(accountId);
-        if (!account) throw new Error("something wrong when getting account");
+        if (!account || account.archived) throw new Error("something wrong when getting account");
 
         // compare password
         const isMatch = await this.hashProvider.compareHash(data.currentPassword, account.password);
