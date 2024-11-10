@@ -24,7 +24,7 @@ export default function AccountManagement() {
 
     return (
         <div>
-            <Title level={3}>Account</Title>
+            <Title level={3}>Account Management</Title>
             {contentLoad ? (
                 <div style={styles.controlSection}>
                     <div style={styles.skeletonInput}>
@@ -42,14 +42,14 @@ export default function AccountManagement() {
                         style={styles.searchInput}
                         size='large'
                         allowClear
-                        placeholder='Find Username/Name/Email'
+                        placeholder='Find by Username/Name/Email'
                         onChange={(e) => handleSearch(e.target.value)}
                     />
                     <div style={styles.rightSide}>
                         <Select
                             style={styles.selectionInput}
                             size='large'
-                            placeholder='Select Role'
+                            placeholder='Select Role Filter'
                             mode="multiple"
                             allowClear
                             options={roleOptions}
@@ -84,7 +84,6 @@ const styles : { [key: string]: React.CSSProperties } = {
     },
     searchInput : {
         maxWidth: '40%',
-        // width: '350px'
     },
     rightSide : {
         display: 'flex',

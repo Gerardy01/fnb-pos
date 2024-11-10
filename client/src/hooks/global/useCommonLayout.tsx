@@ -114,8 +114,8 @@ export default function useCommonLayout() {
             onClick: () => handleClick("/pos"),
         },
         {
-            key: 'accountManagement',
-            label: t('accountManagement'),
+            key: 'accountSettings',
+            label: t('accountSettings'),
             icon: <UserSwitchOutlined />,
             permissions: [
                 PageAccessPermissionEnum.ACCOUNT_MANAGEMENT,
@@ -124,7 +124,7 @@ export default function useCommonLayout() {
             children: [
                 {
                     key: '/account-management',
-                    label: t('account'),
+                    label: t('accountManagement'),
                     permissions: [PageAccessPermissionEnum.ACCOUNT_MANAGEMENT],
                     onClick: () => handleClick("/account-management"),
                 },

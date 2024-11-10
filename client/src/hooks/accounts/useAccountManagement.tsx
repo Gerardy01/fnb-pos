@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 
-import { SelectProps, TableColumnsType, Space, Button, Tooltip } from 'antd';
+import { SelectProps, TableColumnsType, Space, Button } from 'antd';
 
 
 import { accountApi, roleApi } from '../../api';
 import useStaticModal from '../useStaticModal';
-import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
+import { EditOutlined } from '@ant-design/icons';
 
 // types and interfaces
 export interface AccountTableData {
@@ -69,12 +69,9 @@ export default function useAccountManagement() {
             render: () => {
                 return (
                     <Space size="middle">
-                        <Tooltip title="Edit">
-                            <Button size='small' icon={<EditOutlined />} shape="circle" color="default" variant='text' />
-                        </Tooltip>
-                        <Tooltip title="Delete">
-                            <Button size='small' icon={<DeleteOutlined />} shape="circle" color='danger' variant='solid' />
-                        </Tooltip>
+                        <Button icon={<EditOutlined />} color="default" variant='outlined'>
+                            Edit
+                        </Button>
                     </Space>
                 )
             }
