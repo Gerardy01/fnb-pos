@@ -10,6 +10,7 @@ import {
 } from '@ant-design/icons';
 
 import { useTranslation } from 'react-i18next';
+import useCache from '../useCache';
 
 // utils
 import { PageAccessPermissionEnum } from '../../utils/enums';
@@ -35,6 +36,7 @@ export default function useCommonLayout() {
     const userInfo = useSelector((state : RootState) => state.userInfo);
 
     const { t } = useTranslation('global');
+    const { getSidebarCollapsedInfo, setSidebarCollapsedInfo } = useCache();
 
     const [collapsed, setCollapsed] = useState<boolean>(true);
     const [activeMenuItem, setActiveMenuItem] = useState<string>("");
@@ -43,6 +45,7 @@ export default function useCommonLayout() {
 
     useEffect(() => {
         filterSidebarItem();
+        handleGetCollapseInfo();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
@@ -56,11 +59,21 @@ export default function useCommonLayout() {
     // }, [activeMenuItem]);
 
     const handleCollapse = () : void => {
+        handleSetCollapseInfo();
         setCollapsed(prev => !prev);
     }
 
     const handleClick = (url : string) : void => {
         navigate(url);
+    }
+
+    const handleGetCollapseInfo = () : void => {
+        const collapsedInfo = getSidebarCollapsedInfo();
+        setCollapsed(collapsedInfo);
+    }
+
+    const handleSetCollapseInfo = () : void => {
+        setSidebarCollapsedInfo(!collapsed);
     }
 
     const filterSidebarItem = () => {
