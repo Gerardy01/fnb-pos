@@ -245,7 +245,7 @@ export default function Profile() {
                         usernameValidated === undefined ? "" :
                         !usernameValidated ? "error" : "success"
                     }
-                    extra={!usernameValidated && usernameValidated !== undefined ? t("account:ACCOUNT409-1") : ""}
+                    help={!usernameValidated && usernameValidated !== undefined ? t("account:ACCOUNT409-1") : ""}
                 >
                     <Input
                         size="large"
@@ -310,7 +310,7 @@ export default function Profile() {
                         emailValidated === undefined ? "" :
                         !emailValidated ? "error" : "success"
                     }
-                    extra={!emailValidated && emailValidated !== undefined ? t("account:ACCOUNT409-2") : ""}
+                    help={!emailValidated && emailValidated !== undefined ? t("account:ACCOUNT409-2") : ""}
                 >
                     <Input
                         size="large"

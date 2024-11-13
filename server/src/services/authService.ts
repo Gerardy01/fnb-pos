@@ -51,7 +51,7 @@ export class AuthService implements IAuthService {
 
         // find account
         const account = await this.accountRepository.findAccountByEmailOrUsername(data.identifier);
-        if (!account || account.archived) throw new DataNotFound("AUTH001");
+        if (!account) throw new DataNotFound("AUTH001");
         if (!account.organization) throw new Error("something wrong when getting account's organization");
 
         // check if organization still valid
@@ -118,7 +118,7 @@ export class AuthService implements IAuthService {
         
         // find account
         const account = await this.accountRepository.findAccountByEmailOrUsername(data.identifier);
-        if (!account || account.archived) throw new DataNotFound("AUTH001");
+        if (!account) throw new DataNotFound("AUTH001");
 
         // check password
         const isMatch = await this.hashProvider.compareHash(data.password, account.password);
@@ -201,7 +201,7 @@ export class AuthService implements IAuthService {
         if (refreshTokenSession.token_expiry_date < currentDate) throw new NotValid("Refresh token is not valid");
 
         const account = await this.accountRepository.findAccountById(refreshTokenSession.account_id);
-        if (!account || account.archived) throw new Error("something wrong on getting account");
+        if (!account) throw new Error("something wrong on getting account");
         if (!account.organization) throw new Error("something wrong when getting account's organization");
         if (!account.role) throw new Error("something wrong when getting account's role");
 

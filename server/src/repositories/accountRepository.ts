@@ -18,7 +18,8 @@ export class AccountRepository implements IAccountRepository {
     findAccountById(id: string): Promise<Account | null> {
         return Account.findOne({
             where: {
-                account_id : id
+                account_id : id,
+                archived : false
             },
             include: [
                 {
@@ -36,9 +37,10 @@ export class AccountRepository implements IAccountRepository {
     findAllAccountByOrganization(organizationId: string): Promise<Account[]> {
         return Account.findAll({
             where: {
-                organization_id : organizationId
+                organization_id : organizationId,
+                archived : false
             },
-             include: [
+            include: [
                 {
                     model: Role,
                     as: 'role'
@@ -50,7 +52,8 @@ export class AccountRepository implements IAccountRepository {
     findAccountByUsername(username: string): Promise<Account | null> {
         return Account.findOne({
             where: {
-                username : username
+                username : username,
+                archived : false
             }
         });
     }
@@ -60,7 +63,8 @@ export class AccountRepository implements IAccountRepository {
             where: {
                 email : {
                     [Op.iLike] : email
-                }
+                },
+                archived : false
             }
         });
     }
@@ -73,7 +77,8 @@ export class AccountRepository implements IAccountRepository {
                     { email: {
                         [Op.iLike] : identifier
                     }}
-                ]
+                ],
+                archived : false
             },
             include: [
                 {
