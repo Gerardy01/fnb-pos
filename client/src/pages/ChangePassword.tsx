@@ -87,7 +87,11 @@ export default function ChangePassword() {
                             {
                                 pattern: /^(?=.*\d).*$/,
                                 message:t("account:PASS03")
-                            }
+                            },
+                            {
+                                max: 100,
+                                message: t("account:PASS04"),
+                            },
                         ]}
                     >
                         <Input.Password
