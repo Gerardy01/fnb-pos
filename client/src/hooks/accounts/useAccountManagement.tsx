@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
 
 import { SelectProps, TableColumnsType, Space, Button } from 'antd';
+import { EditOutlined } from '@ant-design/icons';
 
+import useStaticModal from '../useStaticModal';
+import { useTranslation } from 'react-i18next';
 
 import { accountApi, roleApi } from '../../api';
-import useStaticModal from '../useStaticModal';
-import { EditOutlined } from '@ant-design/icons';
 
 // types and interfaces
 export interface AccountTableData {
@@ -21,6 +22,8 @@ export interface AccountTableData {
 export default function useAccountManagement() {
 
     const { serverErrorModal, errorModal } = useStaticModal();
+
+    const { t } = useTranslation(["global", "account", "role"]);
 
     const [accounts, setAccounts] = useState<AccountTableData[]>([]);
     const [filteredAccounts, setFilteredAccounts] = useState<AccountTableData[]>([]);
@@ -43,34 +46,34 @@ export default function useAccountManagement() {
 
     const columns: TableColumnsType<AccountTableData> = [
         {
-            title: 'Name',
+            title: t("account:name"),
             dataIndex: 'name',
             sorter: (a, b) => a.name.localeCompare(b.name),
         },
         {
-            title: 'Username',
+            title: t("account:username"),
             dataIndex: 'username',
             sorter: (a, b) => a.username.localeCompare(b.username),
         },
         {
-            title: 'Email',
+            title: t("account:email"),
             dataIndex: 'email',
             sorter: (a, b) => a.email.localeCompare(b.email),
         },
         {
-            title: 'Role',
+            title: t("account:role"),
             dataIndex: 'roleName',
             sorter: (a, b) => a.roleName.localeCompare(b.roleName),
         },
         {
-            title: 'Action',
+            title: t("global:action"),
             key: 'action',
             align: 'center',
             render: () => {
                 return (
                     <Space size="middle">
                         <Button icon={<EditOutlined />} color="default" variant='outlined'>
-                            Edit
+                            {t("global:edit")}
                         </Button>
                     </Space>
                 )
@@ -84,7 +87,7 @@ export default function useAccountManagement() {
         try {
             if (err) {
                 if (err.status === 500) {
-                    errorModal(undefined, "Something wrong when getting role data.");
+                    errorModal(undefined, t("role:getRoleDataWrong"));
                 }
                 return;
             }

@@ -16,6 +16,7 @@
     "PASS01" : "Password must be at least 8 characters long",
     "PASS02" : "Password must contain at least one uppercase letter",
     "PASS03" : "Password must contain at least one number",
+    "PASS04" : "Password cannot be more than 100 characters",
     "EMAIL01" : "Please enter a valid email address",
     "EMAIL02" : "Email cannot be longer than 50 characters",
 
@@ -40,5 +41,14 @@
     "newName" : "New Name",
     "changeEmail" : "Change Email",
     "changeEmailDesc" : "Change your email",
-    "newEmail" : "New Email"
+    "newEmail" : "New Email",
+
+    "accountManagement" : "Account Management",
+    "accountSearchPlaceholder" : "Find by Username/Name/Email",
+    "selectRoleFilter" : "Select Role Filter",
+    "newAccount" : "New Account",
+    "name" : "Name",
+    "username" : "Username",
+    "email" : "Email",
+    "role" : "Role"
 }

@@ -27,5 +27,6 @@
     "profile" : "Profile",
     "yes" : "Yes",
     "no" : "No",
-    "change" : "Change"
+    "change" : "Change",
+    "action" : "Action"
 }

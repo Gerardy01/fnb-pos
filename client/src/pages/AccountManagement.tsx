@@ -3,6 +3,7 @@ import { Typography, Input, Button, Select, Table, Skeleton } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 
 import useAccountManagement from '../hooks/accounts/useAccountManagement';
+import { useTranslation } from 'react-i18next';
 
 // types and interfaces
 import { AccountTableData } from '../hooks/accounts/useAccountManagement';
@@ -12,6 +13,8 @@ const { Search } = Input;
 
 
 export default function AccountManagement() {
+
+    const { t } = useTranslation("account");
 
     const {
         roleOptions,
@@ -24,7 +27,7 @@ export default function AccountManagement() {
 
     return (
         <div>
-            <Title level={3}>Account Management</Title>
+            <Title level={3}>{t("accountManagement")}</Title>
             {contentLoad ? (
                 <div style={styles.controlSection}>
                     <div style={styles.skeletonInput}>
@@ -42,14 +45,14 @@ export default function AccountManagement() {
                         style={styles.searchInput}
                         size='large'
                         allowClear
-                        placeholder='Find by Username/Name/Email'
+                        placeholder={t("accountSearchPlaceholder")}
                         onChange={(e) => handleSearch(e.target.value)}
                     />
                     <div style={styles.rightSide}>
                         <Select
                             style={styles.selectionInput}
                             size='large'
-                            placeholder='Select Role Filter'
+                            placeholder={t("selectRoleFilter")}
                             mode="multiple"
                             allowClear
                             options={roleOptions}
@@ -63,7 +66,7 @@ export default function AccountManagement() {
                             size='large'
                             icon={<PlusOutlined />}
                         >
-                            New Account
+                            {t("newAccount")}
                         </Button>
                     </div>
                 </div>
