@@ -69,6 +69,7 @@ export default function ChangePassword() {
                         <Input.Password
                             placeholder={t("account:oldPassword")}
                             type="password"
+                            maxLength={100}
                         />
                     </Form.Item>
 
@@ -97,6 +98,7 @@ export default function ChangePassword() {
                         <Input.Password
                             placeholder={t("account:newPassword")}
                             type="password"
+                            maxLength={100}
                         />
                     </Form.Item>
                     <Form.Item

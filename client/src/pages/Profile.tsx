@@ -254,7 +254,6 @@ export default function Profile() {
                         onChange={e => handleChangeUsernameValue(e.target.value)}
                         disabled={checkUsernameLoad}
                         maxLength={20}
-                        showCount
                     />
                 </Form.Item>
             </FormModal>
@@ -280,7 +279,6 @@ export default function Profile() {
                         value={changeNameValue}
                         onChange={e => handleSetChangeNameValue(e.target.value)}
                         maxLength={50}
-                        showCount
                     />
                 </Form.Item>
             </FormModal>
@@ -323,7 +321,6 @@ export default function Profile() {
                         onChange={e => handleChangeEmailValue(e.target.value)}
                         disabled={checkEmailLoad}
                         maxLength={50}
-                        showCount
                     />
                 </Form.Item>
             </FormModal>
