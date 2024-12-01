@@ -40,10 +40,12 @@ export function useChangeUsername() {
     const [validated, setValidated] = useState<boolean | undefined>(undefined);
     const [openChangeUsernameModal, setOpenChangeUsernameModal] = useState<boolean>(false);
     const [changeUsernameBtnDisabled, setChangeUsernameBtnDisabled] = useState<boolean>(true);
+    const [changeUsernameErrorMsg, setChangeUsernameErrorMsg] = useState<string>("");
 
     useEffect(() => {
         setChangeUsernameBtnDisabled(true);
         setValidated(undefined);
+        setChangeUsernameErrorMsg("");
         const timeoutId = setTimeout(() => {
             handleCheckUsernameExist();
         }, 1000);
@@ -110,17 +112,17 @@ export function useChangeUsername() {
                 }
     
                 if (err.status === 409) {
-                    errorModal(undefined, t(err.response.data.message));
+                    setChangeUsernameErrorMsg(t(err.response.data.message));
                     return;
                 }
     
                 if (err.status === 403) {
-                    errorModal(undefined, t(err.response.data.message));
+                    setChangeUsernameErrorMsg(t(err.response.data.message));
                     return;
                 }
     
                 if (err.status === 422) {
-                    errorModal(undefined, t(err.response.data.message));
+                    setChangeUsernameErrorMsg(t(err.response.data.message));
                     return;
                 }
     
@@ -146,6 +148,7 @@ export function useChangeUsername() {
         checkUsernameLoad,
         usernameValidated : validated,
         changeUsernameLoad,
+        changeUsernameErrorMsg,
         handleChangeUsernameValue,
         handleOpenChangeUsername,
         handleChangeUsername,
@@ -266,11 +269,13 @@ export function useChangeEmail() {
     const [validated, setValidated] = useState<boolean | undefined>(undefined);
     const [openChangeEmailModal, setOpenChangeEmailModal] = useState<boolean>(false);
     const [changeEmailBtnDisabled, setChangeEmailBtnDisabled] = useState<boolean>(true);
+    const [changeEmailErrorMsg, setChangeEmailErrorMsg] = useState<string>("");
 
     useEffect(() => {
         if (changeEmailValue) setChangeEmailBtnDisabled(true);
         if (!changeEmailValue) setChangeEmailBtnDisabled(false);
         setValidated(undefined);
+        setChangeEmailErrorMsg("");
         const timeoutId = setTimeout(() => {
             handleCheckEmailExist();
         }, 1000)
@@ -335,17 +340,17 @@ export function useChangeEmail() {
                 }
     
                 if (err.status === 409) {
-                    errorModal(undefined, t(err.response.data.message));
+                    setChangeEmailErrorMsg(t(err.response.data.message))
                     return;
                 }
     
                 if (err.status === 403) {
-                    errorModal(undefined, t(err.response.data.message));
+                    setChangeEmailErrorMsg(t(err.response.data.message))
                     return;
                 }
     
                 if (err.status === 422) {
-                    errorModal(undefined, t(err.response.data.message));
+                    setChangeEmailErrorMsg(t(err.response.data.message))
                     return;
                 }
     
@@ -371,6 +376,7 @@ export function useChangeEmail() {
         checkEmailLoad,
         emailValidated : validated,
         changeEmailLoad,
+        changeEmailErrorMsg,
         handleChangeEmailValue,
         handleOpenChangeEmail,
         handleChangeEmail,

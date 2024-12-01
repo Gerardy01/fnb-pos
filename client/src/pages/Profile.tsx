@@ -118,6 +118,7 @@ export default function Profile() {
         checkUsernameLoad,
         usernameValidated,
         changeUsernameLoad,
+        changeUsernameErrorMsg,
         handleChangeUsernameValue,
         handleOpenChangeUsername,
         handleChangeUsername
@@ -140,6 +141,7 @@ export default function Profile() {
         checkEmailLoad,
         emailValidated,
         changeEmailLoad,
+        changeEmailErrorMsg,
         handleChangeEmailValue,
         handleOpenChangeEmail,
         handleChangeEmail
@@ -241,11 +243,15 @@ export default function Profile() {
                     initialValue={changeUsernameValue}
                     hasFeedback
                     validateStatus={
+                        changeUsernameErrorMsg ? "error" :
                         checkUsernameLoad ? "validating" :
                         usernameValidated === undefined ? "" :
                         !usernameValidated ? "error" : "success"
                     }
-                    help={!usernameValidated && usernameValidated !== undefined ? t("account:ACCOUNT409-1") : ""}
+                    help={
+                        !usernameValidated && usernameValidated !== undefined ? t("account:ACCOUNT409-1") :
+                        changeUsernameErrorMsg ? changeUsernameErrorMsg : undefined // undefined = using form rules msg
+                    }
                 >
                     <Input
                         size="large"
@@ -308,11 +314,15 @@ export default function Profile() {
                     initialValue={changeEmailValue}
                     hasFeedback 
                     validateStatus={
+                        changeEmailErrorMsg ? "error" :
                         checkEmailLoad ? "validating" :
                         emailValidated === undefined ? "" :
                         !emailValidated ? "error" : "success"
                     }
-                    help={!emailValidated && emailValidated !== undefined ? t("account:ACCOUNT409-2") : ""}
+                    help={
+                        !emailValidated && emailValidated !== undefined ? t("account:ACCOUNT409-2") :
+                        changeEmailErrorMsg ? changeEmailErrorMsg : undefined // undefined = using form rules msg
+                    }
                 >
                     <Input
                         size="large"
