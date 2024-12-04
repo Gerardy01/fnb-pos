@@ -27,9 +27,23 @@ export default function useCache() {
         localStorage.removeItem('loginCreds');
     }
 
+    const setSidebarCollapsedInfo = (collapsed : boolean) => {
+        localStorage.setItem('collapsed', JSON.stringify(collapsed));
+    }
+
+    const getSidebarCollapsedInfo = () : boolean => {
+        const storedData = localStorage.getItem('collapsed');
+        const parsedData = storedData ? JSON.parse(storedData) : undefined;
+
+        if (parsedData === undefined) return true;
+        return parsedData;
+    }
+
     return {
         setRememberMeData,
         getRememberMeData,
         removeRememberMeData,
+        getSidebarCollapsedInfo,
+        setSidebarCollapsedInfo,
     }
 }

@@ -12,11 +12,47 @@ import { CheckAvailabilityQueryParams } from '../interfaces/IAccount';
 
 
 class AccountController {
+    static async getAllAccount(req : Request, res : Response) {
+
+        try {
+
+            const organizationId = req.user ? req.user.organizationId : "";
+            const userRole = req.user ? req.user.accountRoleName : "";
+            const accountId = req.user ? req.user.accountId : "";
+
+            const accounts = await accountService.getAllAccount(organizationId, userRole, accountId);
+
+            return res.status(200).json({
+                "status" : "success",
+                "message" : "account list retrived",
+                "userMessage" : "",
+                "data" : accounts,
+            });
+
+        } catch(e) {
+
+            if (e instanceof DataNotFound) {
+                return res.status(404).json({
+                    "status" : "failed",
+                    "message" : "no account found",
+                    "userMessage" : "",
+                });
+            }
+
+            return res.status(500).json({
+                "status" : "failed",
+                "message" : "server error",
+                "userMessage" : "500",
+                "errors" : e
+            });
+        }
+    }
+    
     static async getUserAccountInfo(req : Request, res : Response) {
 
         try {
             const accountId = req.user ? req.user.accountId : "";
-            const accountInfo = await accountService.getUserAccount(accountId);
+            const accountInfo = await accountService.getUserAccountInfo(accountId);
 
             return res.status(200).json({
                 "status" : "success",
@@ -199,14 +235,6 @@ class AccountController {
             
         } catch(e) {
 
-            if (e instanceof NotValid) {
-                return res.status(400).json({
-                    "status" : "failed",
-                    "message" : "bad request",
-                    "userMessage" : e.message,
-                });
-            }
-
             if (e instanceof ExistData) {
                 return res.status(409).json({
                     "status" : "failed",
@@ -223,11 +251,11 @@ class AccountController {
                 });
             }
 
-            if (e instanceof Forbidden) {
+            if (e instanceof Forbidden || e instanceof NotValid) {
                 return res.status(403).json({
                     "status" : "failed",
                     "message" : e.message,
-                    "userMessage" : "ACCOUNT403-2", // You dont have permission to do this action
+                    "userMessage" : e.message,
                 });
             }
 

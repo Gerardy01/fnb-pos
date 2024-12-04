@@ -4,7 +4,10 @@
 {
     "ACCOUNT404" : "Account info not found.",
     "ACCOUNT403-1" : "Password incorrect. Make sure you input correct password.",
-    "ACCOUNT403-2" : "You dont have permission to do this action",
+    "ACCOUNT403-5" : "You dont have permission to do this action",
+    "ACCOUNT403-2" : "Username cannot be more than 20 characters.",
+    "ACCOUNT403-3" : "Email cannot be more than 50 characters.",
+    "ACCOUNT403-4" : "This field is required.",
     "ACCOUNT409-1" : "Username already exist",
     "ACCOUNT409-2" : "Email already exist",
     "USERNAME01" : "Username must be at least 4 characters long",
@@ -13,6 +16,7 @@
     "PASS01" : "Password must be at least 8 characters long",
     "PASS02" : "Password must contain at least one uppercase letter",
     "PASS03" : "Password must contain at least one number",
+    "PASS04" : "Password cannot be more than 100 characters",
     "EMAIL01" : "Please enter a valid email address",
     "EMAIL02" : "Email cannot be longer than 50 characters",
 
@@ -37,5 +41,14 @@
     "newName" : "New Name",
     "changeEmail" : "Change Email",
     "changeEmailDesc" : "Change your email",
-    "newEmail" : "New Email"
+    "newEmail" : "New Email",
+
+    "accountManagement" : "Account Management",
+    "accountSearchPlaceholder" : "Find by Username/Name/Email",
+    "selectRoleFilter" : "Select Role Filter",
+    "newAccount" : "New Account",
+    "name" : "Name",
+    "username" : "Username",
+    "email" : "Email",
+    "role" : "Role"
 }

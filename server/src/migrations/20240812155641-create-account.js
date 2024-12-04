@@ -13,7 +13,6 @@ module.exports = {
       },
       username: {
         type: Sequelize.STRING(20),
-        unique: true,
         allowNull: false,
       },
       name: {
@@ -40,6 +39,11 @@ module.exports = {
       role_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
+        references: {
+          model: 'roles',
+          key: 'role_id',
+        },
+        onDelete: 'CASCADE',
       },
       archived: {
         type: Sequelize.BOOLEAN,

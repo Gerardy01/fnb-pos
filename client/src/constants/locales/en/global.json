@@ -12,8 +12,8 @@
     "goBack" : "Go Back",
     "dashboard" : "Dashboard",
     "pos" : "POS",
-    "accountConfig" : "Account Config",
-    "account" : "Account",
+    "accountSettings" : "Account Settings",
+    "accountManagement" : "Account Management",
     "role" : "Role",
     "configuration" : "Configuration",
     "organization" : "Organization",
@@ -27,5 +27,6 @@
     "profile" : "Profile",
     "yes" : "Yes",
     "no" : "No",
-    "change" : "Change"
+    "change" : "Change",
+    "action" : "Action"
 }

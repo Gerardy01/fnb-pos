@@ -11,6 +11,7 @@ class Role extends Model {
     public role_name! : string;
     public is_default! : boolean;
     public organization_id! : string;
+    public description! : string;
 
     public permissions? : Permission[];
 }
@@ -41,6 +42,11 @@ Role.init({
         },
         onDelete: 'CASCADE'
     },
+    description: {
+        type: DataTypes.STRING(200),
+        allowNull: true,
+        defaultValue: ""
+    }
 }, {
     sequelize,
     modelName: 'Role',

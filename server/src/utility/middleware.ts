@@ -112,3 +112,27 @@ export function validatePermission(permission : number, action : 'read' | 'write
         }
     }
 }
+
+// temp middleware
+export function checkPassword(req : Request, res : Response, next : NextFunction) {
+    const { password } = req.query;
+
+    try {
+        if (!password || password !== process.env.CHECK_PASSWORD_PASS) {
+            return res.status(401).json({
+                "status" : "failed",
+                "message" : "bad request, not authenticated",
+                "userMessage" : "",
+            });
+        }
+
+        next();
+    } catch(e) {
+        return res.status(500).json({
+            "status" : "failed",
+            "message" : "server error",
+            "userMessage" : "Something wrong. Try again later.",
+            "errors" : e
+        });
+    }
+}

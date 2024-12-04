@@ -7,12 +7,14 @@ module.exports = {
       {
         role_name: 'Super Admin',
         is_default: true,
-        organization_id : null
+        organization_id : null,
+        description : ""
       },
       {
         role_name: 'Admin',
         is_default: true,
-        organization_id : null
+        organization_id : null,
+        description : ""
       },
     ]);
     await queryInterface.bulkInsert('role_permission', [

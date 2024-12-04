@@ -32,7 +32,6 @@ Account.init({
     },
     username: {
         type: DataTypes.STRING(20),
-        unique: true,
         allowNull: false,
     },
     name: {

@@ -1,8 +1,7 @@
 import axios from "axios";
 
-// redux
-import { store } from "../redux/store";
-import { setAccessToken } from "../redux/authentication/tokenSlice";
+// utils
+import { getAccessToken, storeAccessToken } from "../utils/intermediaryService";
 
 
 
@@ -19,7 +18,7 @@ export const axiosPrivate = axios.create({
 
 axiosPrivate.interceptors.request.use(
     config => {
-        const accessToken = store.getState().token.accessToken;
+        const accessToken = getAccessToken();
 
         if (accessToken) {
             config.headers.Authorization = `Bearer ${accessToken}`;
@@ -45,7 +44,7 @@ axiosPrivate.interceptors.response.use(
             const res = await axiosPrivate.get('/token');
             const newAccessToken = res.data.data.accessToken ? res.data.data.accessToken : "";
 
-            store.dispatch(setAccessToken(newAccessToken));
+            storeAccessToken(newAccessToken);
             originalRequest.headers["Authorization"] = `Bearer ${newAccessToken}`;
             
             return axiosPrivate(originalRequest);

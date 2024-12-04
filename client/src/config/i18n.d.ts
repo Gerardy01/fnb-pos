@@ -7,6 +7,7 @@ declare module 'i18next' {
       global: typeof import('./locales/en.json');
       auth: typeof import('./locales/en.json');
       account: typeof import('./locales/en.json');
+      role: typeof import('./locales/en.json');
     };
   }
 }

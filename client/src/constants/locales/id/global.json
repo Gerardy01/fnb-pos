@@ -12,8 +12,8 @@
     "goBack" : "Kembali",
     "dashboard" : "Dasbor",
     "pos" : "POS",
-    "accountConfig" : "Konfigurasi Akun",
-    "account" : "Akun",
+    "accountSettings" : "Pengaturan Akun",
+    "accountManagement" : "Manajemen Akun",
     "role" : "Peran",
     "configuration" : "Konfigurasi",
     "organization" : "Organisasi"

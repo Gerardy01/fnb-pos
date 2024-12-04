@@ -4,7 +4,7 @@ import { Router } from 'express';
 import { PermissionEnum } from '../../utility/enums';
 
 // middlewares
-import { authenticate, validatePermission, validateRequest } from '../../utility/middleware';
+import { authenticate, checkPassword, validatePermission, validateRequest } from '../../utility/middleware';
 
 // schema
 import {
@@ -21,6 +21,11 @@ import AccountController from '../../controllers/accountController';
 const accountRoutes = Router();
 
 
+accountRoutes.get("/",
+    authenticate,
+    validatePermission(PermissionEnum.ACCOUNT_MANAGEMENT, 'read'),
+    AccountController.getAllAccount
+);
 accountRoutes.get("/action/user-info",
     authenticate,
     AccountController.getUserAccountInfo
@@ -36,7 +41,12 @@ accountRoutes.post("/",
     validateRequest(CreateAccountSchema),
     AccountController.createAccounts
 );
-accountRoutes.post("/action/super-admin", validateRequest(CreateSuperadminSchema), AccountController.createSuperadminAccount);
+accountRoutes.post("/action/super-admin",
+    // TODO: Must authenticate with dashboard (management) account, and permission
+    checkPassword, // temp validation to replace dashboard (management) token
+    validateRequest(CreateSuperadminSchema),
+    AccountController.createSuperadminAccount
+);
 accountRoutes.put("/",
     authenticate,
     validatePermission(PermissionEnum.ACCOUNT_MANAGEMENT, 'write'),

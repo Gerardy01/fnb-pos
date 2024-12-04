@@ -29,7 +29,8 @@ import { IHashProvider } from "../providers/hashProvider";
 import { IPageAccessPermissionRepository } from "../repositories/pageAccessPermissionRepository";
 import { IRoleService } from "./roleService";
 export interface IAccountService {
-    getUserAccount(accountId : string) : Promise<AccountInfoReturn>
+    getAllAccount(organizationId : string, userRole : string, userAccountId : string) : Promise<AccountDataReturn[]>
+    getUserAccountInfo(accountId : string) : Promise<AccountInfoReturn>
     createAccount(data : ICreateAccountData, organizationId : string, userRole : string, transaction? : Transaction) : Promise<AccountDataReturn>
     createAccountForManagement(data : ICreateAccountForManagementData, transaction? : Transaction, forSuperAdmin? : boolean) : Promise<AccountDataReturn>
     checkUsernameAvailable(username : string) : Promise<boolean>
@@ -52,10 +53,43 @@ export class AccountService implements IAccountService {
         private hashProvider : IHashProvider,
     ) {}
 
-    async getUserAccount(accountId: string): Promise<AccountInfoReturn> {
+    async getAllAccount(organizationId: string, userRole: string, userAccountId: string): Promise<AccountDataReturn[]> {
+
+        let accounts = await this.accountRepository.findAllAccountByOrganization(organizationId);
+
+        if (accounts.length === 0) throw new DataNotFound("no account found");
+
+        // exclude user own account
+        accounts = accounts.filter(item => item.account_id !== userAccountId);
+
+        // exclude ADMIN if user not SUPER ADMIN
+        if (userRole !== DefaultRoleEnum.SUPER_ADMIN) {
+            accounts = accounts.filter(item => item.role?.role_name !== DefaultRoleEnum.ADMIN);
+        }
+
+        // map account data to return
+        const accountReturnList : AccountDataReturn[] = [];
+        accounts.forEach(item => {
+            if (userRole !== DefaultRoleEnum.SUPER_ADMIN && item.archived) return;
+            accountReturnList.push({
+                accountId : item.account_id,
+                username : item.username,
+                name : item.name,
+                email : item.email,
+                organizationId : item.organization_id,
+                roleId : item.role_id,
+                roleName : item.role ? item.role.role_name : "",
+                archived : item.archived
+            });
+        });
+
+        return accountReturnList;
+    }
+
+    async getUserAccountInfo(accountId: string): Promise<AccountInfoReturn> {
 
         // get account
-        const account = await this.accountRepository.findAccountWithRoleAndOrganization(accountId);
+        const account = await this.accountRepository.findAccountById(accountId);
         if (!account) throw new DataNotFound("ACCOUNT404");
         if (!account.role) throw Error("Error in getting role from this account");
         if (!account.organization) throw Error("Error in getting organization from this account");
@@ -90,8 +124,8 @@ export class AccountService implements IAccountService {
         }
 
         // check duplicate username
-        const existUsername = await this.accountRepository.findAccountByUsername(data.username);
-        if (existUsername) {
+        const usernameAvailable = await this.checkUsernameAvailable(data.username);
+        if (!usernameAvailable) {
             throw new ExistData("Username already exist");
         }
 
@@ -102,8 +136,8 @@ export class AccountService implements IAccountService {
 
         // check duplicate email
         const inputedEmail = data.email ? data.email : "";
-        const existEmail = await this.accountRepository.findAccountByEmail(inputedEmail);
-        if (inputedEmail !== "" && existEmail) {
+        const emailAvailable = await this.checkEmailAvailable(inputedEmail);
+        if (inputedEmail !== "" && !emailAvailable) {
             throw new ExistData("Email already exist");
         }
 
@@ -150,8 +184,8 @@ export class AccountService implements IAccountService {
         }
         
         // check duplicate username
-        const existUsername = await this.accountRepository.findAccountByUsername(data.username);
-        if (existUsername) {
+        const usernameAvailable = await this.checkUsernameAvailable(data.username);
+        if (!usernameAvailable) {
             throw new ExistData("Username already exist");
         }
 
@@ -162,8 +196,8 @@ export class AccountService implements IAccountService {
 
         // check duplicate email
         const inputedEmail = data.email ? data.email : "";
-        const existEmail = await this.accountRepository.findAccountByEmail(inputedEmail);
-        if (inputedEmail !== "" && existEmail) {
+        const emailAvailable = await this.checkEmailAvailable(inputedEmail);
+        if (inputedEmail !== "" && !emailAvailable) {
             throw new ExistData("Email already exist");
         }
         
@@ -216,7 +250,10 @@ export class AccountService implements IAccountService {
 
         if (process === EditAccountProcessEnum.USERNAME) {
             if (data.value.length > 20) {
-                throw new NotValid("ACCOUNT400-1"); // Username cannot be more than 20 characters.
+                throw new NotValid("ACCOUNT403-2"); // Username cannot be more than 20 characters.
+            }
+            if (data.value.length === 0) {
+                throw new NotValid("ACCOUNT403-4"); // This field is required.
             }
             newValue = await this.changeUsername({
                 accountId: data.accountId,
@@ -225,7 +262,7 @@ export class AccountService implements IAccountService {
             message = "username changed";
         } else if (process === EditAccountProcessEnum.EMAIL) {
             if (data.value.length > 50) {
-                throw new NotValid("ACCOUNT400-2"); // Email cannot be more than 50 characters.
+                throw new NotValid("ACCOUNT403-3"); // Email cannot be more than 50 characters.
             }
             newValue = await this.changeEmail({
                 accountId: data.accountId,
@@ -233,6 +270,9 @@ export class AccountService implements IAccountService {
             }, userAccountId, userRole);
             message = "email changed";
         } else if (process === EditAccountProcessEnum.NAME) {
+            if (data.value.length === 0) {
+                throw new NotValid("ACCOUNT403-4"); // This field is required.
+            }
             newValue = await this.changeName({
                 accountId: data.accountId,
                 newName: data.value
@@ -265,7 +305,7 @@ export class AccountService implements IAccountService {
         // Check if user allowed to change account with specific role's username
         if (account.account_id !== userAccountId) {
             const isAllowed = this.checkRoleEligibility(userRole, account.role.role_name);
-            if (!isAllowed) throw new Forbidden("you dont have permission to do this action");
+            if (!isAllowed) throw new Forbidden("ACCOUNT403-5"); // You dont have permission to do this action
         }
 
         account.username = data.newUsername;
@@ -276,13 +316,16 @@ export class AccountService implements IAccountService {
 
     async changeEmail(data: IChangeEmail, userAccountId: string, userRole : string): Promise<string> {
 
-        // check if email valid
-        const emailValid = validateEmail(data.newEmail);
-        if (!emailValid.valid) throw new WrongFormat(emailValid.message);
+        if (data.newEmail) {
+            // check if email valid
+            const emailValid = validateEmail(data.newEmail);
+            if (!emailValid.valid) throw new WrongFormat(emailValid.message);
+            
+            // check if email is available
+            const isAvailable = await this.checkEmailAvailable(data.newEmail);
+            if (!isAvailable) throw new ExistData("ACCOUNT409-2"); // Email already used.
+        }
 
-        // check if email is available
-        const isAvailable = await this.checkEmailAvailable(data.newEmail);
-        if (!isAvailable) throw new ExistData("ACCOUNT409-2"); // Email already used.
 
         const account = await this.accountRepository.findAccountById(data.accountId);
         if (!account) throw new DataNotFound("account not found");
@@ -291,7 +334,7 @@ export class AccountService implements IAccountService {
         // Check if user allowed to change account with specific role's email
         if (account.account_id !== userAccountId) {
             const isAllowed = this.checkRoleEligibility(userRole, account.role.role_name);
-            if (!isAllowed) throw new Forbidden("you dont have permission to do this action");
+            if (!isAllowed) throw new Forbidden("ACCOUNT403-5"); // You dont have permission to do this action
         }
 
         account.email = data.newEmail;
@@ -309,7 +352,7 @@ export class AccountService implements IAccountService {
         // Check if user allowed to change account with specific role's email
         if (account.account_id !== userAccountId) {
             const isAllowed = this.checkRoleEligibility(userRole, account.role.role_name);
-            if (!isAllowed) throw new Forbidden("you dont have permission to do this action");
+            if (!isAllowed) throw new Forbidden("ACCOUNT403-5"); // You dont have permission to do this action
         }
 
         account.name = data.newName;

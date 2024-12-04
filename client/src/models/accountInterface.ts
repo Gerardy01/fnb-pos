@@ -11,6 +11,17 @@ export interface AccountInfoReturn {
     pageAccessPermissions : number[];
 }
 
+export interface AccountDataReturn {
+    accountId : string;
+    username : string;
+    name : string;
+    email : string;
+    organizationId : string;
+    roleId : number;
+    roleName : string;
+    archived : boolean;
+}
+
 export interface CheckAvailabilityReturn {
     available : boolean;
 }

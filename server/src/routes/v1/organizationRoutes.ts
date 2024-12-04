@@ -4,7 +4,7 @@ import { Router } from 'express';
 import { PermissionEnum } from '../../utility/enums';
 
 // middlewares
-import { validateRequest, authenticate, validatePermission } from '../../utility/middleware';
+import { validateRequest, authenticate, validatePermission, checkPassword } from '../../utility/middleware';
 
 // Schema
 import {
@@ -29,6 +29,7 @@ organizationRoutes.post("/",
 );
 organizationRoutes.post("/action/create-with-account",
     // TODO: Must authenticate with dashboard (management) account, and permission
+    checkPassword, // temp validation to replace dashboard (management) token
     validateRequest(CreateOrganizationWithAccountSchema),
     OrganizationController.createOrganizationWithAccount
 );

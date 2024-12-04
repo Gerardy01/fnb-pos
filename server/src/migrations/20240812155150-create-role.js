@@ -29,6 +29,11 @@ module.exports = {
         },
         onDelete: 'CASCADE',
       },
+      description: {
+        type: Sequelize.STRING(200),
+        defaultValue: "",
+        allowNull: true,
+      }
     });
   },
 

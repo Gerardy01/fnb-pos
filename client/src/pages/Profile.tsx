@@ -118,6 +118,7 @@ export default function Profile() {
         checkUsernameLoad,
         usernameValidated,
         changeUsernameLoad,
+        changeUsernameErrorMsg,
         handleChangeUsernameValue,
         handleOpenChangeUsername,
         handleChangeUsername
@@ -140,6 +141,7 @@ export default function Profile() {
         checkEmailLoad,
         emailValidated,
         changeEmailLoad,
+        changeEmailErrorMsg,
         handleChangeEmailValue,
         handleOpenChangeEmail,
         handleChangeEmail
@@ -241,11 +243,15 @@ export default function Profile() {
                     initialValue={changeUsernameValue}
                     hasFeedback
                     validateStatus={
+                        changeUsernameErrorMsg ? "error" :
                         checkUsernameLoad ? "validating" :
                         usernameValidated === undefined ? "" :
                         !usernameValidated ? "error" : "success"
                     }
-                    extra={!usernameValidated && usernameValidated !== undefined ? t("account:ACCOUNT409-1") : ""}
+                    help={
+                        !usernameValidated && usernameValidated !== undefined ? t("account:ACCOUNT409-1") :
+                        changeUsernameErrorMsg ? changeUsernameErrorMsg : undefined // undefined = using form rules msg
+                    }
                 >
                     <Input
                         size="large"
@@ -253,6 +259,7 @@ export default function Profile() {
                         value={changeUsernameValue}
                         onChange={e => handleChangeUsernameValue(e.target.value)}
                         disabled={checkUsernameLoad}
+                        maxLength={20}
                     />
                 </Form.Item>
             </FormModal>
@@ -277,6 +284,7 @@ export default function Profile() {
                         placeholder={t("account:newName")}
                         value={changeNameValue}
                         onChange={e => handleSetChangeNameValue(e.target.value)}
+                        maxLength={50}
                     />
                 </Form.Item>
             </FormModal>
@@ -293,7 +301,6 @@ export default function Profile() {
                 <Form.Item
                     name="email"
                     rules={[
-                        { required: true, message: t("global:fieldRequired") },
                         {
                             max: 50,
                             message: t("account:EMAIL02"),
@@ -307,11 +314,15 @@ export default function Profile() {
                     initialValue={changeEmailValue}
                     hasFeedback 
                     validateStatus={
+                        changeEmailErrorMsg ? "error" :
                         checkEmailLoad ? "validating" :
                         emailValidated === undefined ? "" :
                         !emailValidated ? "error" : "success"
                     }
-                    extra={!emailValidated && emailValidated !== undefined ? t("account:ACCOUNT409-2") : ""}
+                    help={
+                        !emailValidated && emailValidated !== undefined ? t("account:ACCOUNT409-2") :
+                        changeEmailErrorMsg ? changeEmailErrorMsg : undefined // undefined = using form rules msg
+                    }
                 >
                     <Input
                         size="large"
@@ -319,6 +330,7 @@ export default function Profile() {
                         value={changeUsernameValue}
                         onChange={e => handleChangeEmailValue(e.target.value)}
                         disabled={checkEmailLoad}
+                        maxLength={50}
                     />
                 </Form.Item>
             </FormModal>
