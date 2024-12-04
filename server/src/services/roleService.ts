@@ -18,7 +18,9 @@ import { IPageAccessPermissionRepository, PageAccessPermissionRepository } from 
 export interface IRoleService {
     getAllRole(organizationId : string) : Promise<RoleReturnData[]>
     getDefaultRole(userRole : string) : Promise<RoleReturnData[]>
-    getOneRole(roleId : number, organizationId : string, userRole : string) : Promise<RoleWithPermissionReturnData>
+    getOneRole(roleId : number, organizationId : string, userRole : string) : Promise<RoleReturnData>
+    getOneRoleWithPermission(roleId : number, organizationId : string, userRole : string) : Promise<RoleWithPermissionReturnData>
+    getDefaultRoleByName(roleName : string) : Promise<RoleReturnData>
     createRole(data : ICreateRoleData, organizationId : string, transaction? : Transaction) : Promise<RoleWithPermissionReturnData>
 }
 
@@ -67,8 +69,8 @@ export class RoleService implements IRoleService {
         return roleList;
     }
 
-    async getOneRole(roleId: number, organizationId: string, userRole : string): Promise<RoleWithPermissionReturnData> {
-        
+    async getOneRole(roleId: number, organizationId: string, userRole: string): Promise<RoleReturnData> {
+
         const roleData = await this.roleRepository.findOneRole(roleId);
         
         if (!roleData) {
@@ -78,12 +80,24 @@ export class RoleService implements IRoleService {
         let roleNotFound : boolean = false;
         if (roleData.organization_id !== organizationId && !roleData.is_default) roleNotFound = true;
         if (roleData.role_name === DefaultRoleEnum.SUPER_ADMIN) roleNotFound = true;
+
+        // check if user not superadmin, prevent to get role
         if (
             roleData.role_name === DefaultRoleEnum.ADMIN &&
-            (userRole !== DefaultRoleEnum.ADMIN && userRole !== DefaultRoleEnum.SUPER_ADMIN)
+            userRole !== DefaultRoleEnum.SUPER_ADMIN
         ) roleNotFound = true;
 
         if (roleNotFound) throw new DataNotFound(`Role with id ${roleId} not found`);
+
+        return {
+            roleId : roleData.role_id,
+            roleName : roleData.role_name
+        }
+    }
+
+    async getOneRoleWithPermission(roleId: number, organizationId: string, userRole : string): Promise<RoleWithPermissionReturnData> {
+        
+        const roleData = await this.getOneRole(roleId, organizationId, userRole);
 
         const permissions = await this.permissionRepository.findPermissionByRole(roleId);
 
@@ -103,10 +117,23 @@ export class RoleService implements IRoleService {
         const pageAccessPermissionIds : number[] = pageAccessPermission.map(item => item.id);
 
         return {
-            roleId: roleData.role_id,
-            roleName: roleData.role_name,
+            roleId: roleData.roleId,
+            roleName: roleData.roleName,
             permissions: permissionData,
             pageAccessPermissionIds: pageAccessPermissionIds
+        }
+    }
+
+    async getDefaultRoleByName(roleName: string): Promise<RoleReturnData> {
+
+        const role = await this.roleRepository.findDefaultRoleByName(roleName);
+        if (!role) {
+            throw new DataNotFound("Role not found");
+        }
+
+        return {
+            roleId: 0,
+            roleName : ""
         }
     }
 

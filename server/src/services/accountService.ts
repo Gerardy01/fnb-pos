@@ -25,9 +25,9 @@ import {
     EditAccountReturn
 } from "../interfaces/IAccount";
 import { IAccountRepository } from "../repositories/accountRepository";
-import { IRoleRepository } from "../repositories/roleRepository";
 import { IHashProvider } from "../providers/hashProvider";
 import { IPageAccessPermissionRepository } from "../repositories/pageAccessPermissionRepository";
+import { IRoleService } from "./roleService";
 export interface IAccountService {
     getUserAccount(accountId : string) : Promise<AccountInfoReturn>
     createAccount(data : ICreateAccountData, organizationId : string, userRole : string, transaction? : Transaction) : Promise<AccountDataReturn>
@@ -46,8 +46,8 @@ export interface IAccountService {
 
 export class AccountService implements IAccountService {
     constructor(
+        private roleService : IRoleService,
         private accountRepository : IAccountRepository,
-        private roleRepository : IRoleRepository,
         private pageAccessPermissionRepository : IPageAccessPermissionRepository,
         private hashProvider : IHashProvider,
     ) {}
@@ -109,18 +109,8 @@ export class AccountService implements IAccountService {
 
         // check if role exist
         let isNotFound = false;
-        const role = await this.roleRepository.findOneRole(data.roleId);
-        if (!role) isNotFound = true;
-        if (role && role.is_default && role.role_name == DefaultRoleEnum.SUPER_ADMIN) isNotFound = true;
-        if (role && !role.is_default && role.organization_id !== organizationId) isNotFound = true;
-        if (isNotFound) {
-            throw new DataNotFound("Role not found");
-        }
-
-        // check if not admin, prevent create admin account
-        if (userRole !== DefaultRoleEnum.ADMIN && role?.role_name == DefaultRoleEnum.ADMIN) {
-            throw new DataNotFound("Role not found");
-        }
+        const role = await this.roleService.getOneRole(data.roleId, organizationId, userRole);
+        
 
         const hashedPassword = await this.hashProvider.hashString(data.password);
 
@@ -130,7 +120,7 @@ export class AccountService implements IAccountService {
             email : inputedEmail,
             password : hashedPassword,
             organization_id : organizationId,
-            role_id: role?.role_id,
+            role_id: role.roleId,
         }, transaction);
 
         return {
@@ -140,7 +130,7 @@ export class AccountService implements IAccountService {
             email : account.email,
             organizationId : account.organization_id,
             roleId : account.role_id,
-            roleName : role ? role.role_name : "",
+            roleName : role.roleName,
             archived : account.archived,
         }
     }
@@ -176,8 +166,8 @@ export class AccountService implements IAccountService {
         if (inputedEmail !== "" && existEmail) {
             throw new ExistData("Email already exist");
         }
-
-        const role = await this.roleRepository.findDefaultRoleByName(forSuperAdmin ? DefaultRoleEnum.SUPER_ADMIN : DefaultRoleEnum.ADMIN);
+        
+        const role = await this.roleService.getDefaultRoleByName(forSuperAdmin ? DefaultRoleEnum.SUPER_ADMIN : DefaultRoleEnum.ADMIN)
         if (!role) {
             throw new DataNotFound("Role not found");
         }
@@ -190,7 +180,7 @@ export class AccountService implements IAccountService {
             email : inputedEmail,
             password : hashedPassword,
             organization_id : data.organizationId,
-            role_id: role.role_id,
+            role_id: role.roleId,
         }, transaction);
 
         return {
@@ -200,7 +190,7 @@ export class AccountService implements IAccountService {
             email : account.email,
             organizationId : account.organization_id,
             roleId : account.role_id,
-            roleName : role.role_name,
+            roleName : role.roleName,
             archived : account.archived,
         }
     }

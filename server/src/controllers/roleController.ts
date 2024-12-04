@@ -78,7 +78,7 @@ class RoleController {
             const organizationId = req.user ? req.user.organizationId : "";
             const userRole = req.user ? req.user.accountRoleName : "";
     
-            const roleData = await roleService.getOneRole(roleId, organizationId, userRole);
+            const roleData = await roleService.getOneRoleWithPermission(roleId, organizationId, userRole);
 
             return res.status(200).json({
                 "status" : "success",

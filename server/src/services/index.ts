@@ -46,7 +46,8 @@ const adminOrganizationService = new AdminOrganizationService(adminOrganizationR
 
 // main service
 export const organizationService = new OrganizationService(organizationRepository, counterService);
-export const accountService = new AccountService(accountRepository, roleRepository, pageAccessPermissionRepository, bcryptHashProvider);
+export const roleService = new RoleService(roleRepository, permissionRepository, pageAccessPermissionRepository);
+export const accountService = new AccountService(roleService, accountRepository, pageAccessPermissionRepository, bcryptHashProvider);
 export const authService = new AuthService(
     accountRepository,
     roleRepository,
@@ -60,8 +61,7 @@ export const authService = new AuthService(
     uaParserJsUaParserProvider,
     envData
 );
-export const roleService = new RoleService(roleRepository, permissionRepository, pageAccessPermissionRepository);
 
 
-// combined service
+// combined service (orchestration)
 export const organizationAccountService = new OrganizationAccountSerivice(organizationService, accountService, organizationRepository);
