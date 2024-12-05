@@ -29,3 +29,9 @@ export type OrganizationInfoDataReturn = {
     organizationLogo : string | null;
     organizationNo : string;
 }
+
+export type AdminOrganizationReturnData = {
+    id : number;
+    accountId : string;
+    organizationId : string;
+}

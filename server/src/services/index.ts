@@ -4,7 +4,7 @@ import { CounterService } from "./counterService";
 import { OrganizationAccountSerivice } from "./organizationAccountService";
 import { AccountService } from "./accountService";
 import { AuthService } from "./authService";
-import { RoleService } from "./roleService";
+import { RolePermissionService } from "./rolePermissionService";
 
 // repository
 import { OrganizationRepository } from "../repositories/organizationRepository";
@@ -23,7 +23,6 @@ import { UAParserJsUaParserProvider } from "../providers/uaParserProvider";
 
 // config
 import envData from "../config/envData";
-import { AdminOrganizationService } from "./adminOrganizationService";
 
 
 const organizationRepository = new OrganizationRepository();
@@ -41,21 +40,17 @@ const uaParserJsUaParserProvider = new UAParserJsUaParserProvider();
 
 // unexposed service
 const counterService = new CounterService(counterRepository);
-const adminOrganizationService = new AdminOrganizationService(adminOrganizationRepository);
 
 
 // main service
-export const organizationService = new OrganizationService(organizationRepository, counterService);
-export const roleService = new RoleService(roleRepository, permissionRepository, pageAccessPermissionRepository);
-export const accountService = new AccountService(roleService, accountRepository, pageAccessPermissionRepository, bcryptHashProvider);
+export const organizationService = new OrganizationService(counterService, organizationRepository, adminOrganizationRepository);
+export const rolePermissionService = new RolePermissionService(roleRepository, permissionRepository, pageAccessPermissionRepository);
+export const accountService = new AccountService(rolePermissionService, accountRepository, bcryptHashProvider);
 export const authService = new AuthService(
-    accountRepository,
-    roleRepository,
-    permissionRepository,
+    organizationService,
+    rolePermissionService,
+    accountService,
     refreshTokenRepository,
-    organizationRepository,
-    adminOrganizationRepository,
-    adminOrganizationService,
     bcryptHashProvider,
     jsonWebTokenJwtProvider,
     uaParserJsUaParserProvider,

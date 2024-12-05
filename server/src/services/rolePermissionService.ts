@@ -11,20 +11,23 @@ import RolePageAccessPermission from "../models/rolePageAccessPermission.model";
 
 // types and interfaces
 import { Transaction } from "sequelize";
-import { ICreateRoleData, RoleWithPermissionReturnData, IRolePermissionData, RoleReturnData } from "../interfaces/IRole";
+import { ICreateRoleData, RoleWithPermissionReturnData, IRolePermissionData, RoleReturnData, PageAccessPermissionReturnData } from "../interfaces/IRolePermission";
 import { IRoleRepository } from "../repositories/roleRepository";
 import { IPermissionRepository } from "../repositories/permissionRepository";
 import { IPageAccessPermissionRepository, PageAccessPermissionRepository } from "../repositories/pageAccessPermissionRepository";
-export interface IRoleService {
+export interface IRolePermissionService {
     getAllRole(organizationId : string) : Promise<RoleReturnData[]>
     getDefaultRole(userRole : string) : Promise<RoleReturnData[]>
     getOneRole(roleId : number, organizationId : string, userRole : string) : Promise<RoleReturnData>
+    getRoleById(roleId : number) : Promise<RoleReturnData>
     getOneRoleWithPermission(roleId : number, organizationId : string, userRole : string) : Promise<RoleWithPermissionReturnData>
     getDefaultRoleByName(roleName : string) : Promise<RoleReturnData>
+    getPermissionByRole(roleId : number) : Promise<IRolePermissionData[]>
+    getPageAccessPermissionByRole(roleId : number) : Promise<PageAccessPermissionReturnData[]>
     createRole(data : ICreateRoleData, organizationId : string, transaction? : Transaction) : Promise<RoleWithPermissionReturnData>
 }
 
-export class RoleService implements IRoleService {
+export class RolePermissionService implements IRolePermissionService {
     constructor(
         private roleRepository : IRoleRepository,
         private permissionRepository : IPermissionRepository,
@@ -98,6 +101,19 @@ export class RoleService implements IRoleService {
         }
     }
 
+    // only use to get role with certain condition (ex : get role from account)
+    async getRoleById(roleId: number): Promise<RoleReturnData> {
+
+        const role = await this.roleRepository.findOneRole(roleId);
+        if (!role) throw new Error("something wrong on getting role detail")
+
+        return {
+            roleId : role.role_id,
+            roleName : role.role_name,
+            description : role.description,
+        }
+    }
+
     async getOneRoleWithPermission(roleId: number, organizationId: string, userRole : string): Promise<RoleWithPermissionReturnData> {
         
         const roleData = await this.getOneRole(roleId, organizationId, userRole);
@@ -140,6 +156,39 @@ export class RoleService implements IRoleService {
             roleName : role.role_name,
             description : role.description,
         }
+    }
+
+    async getPermissionByRole(roleId: number): Promise<IRolePermissionData[]> {
+        const permissions = await this.permissionRepository.findPermissionByRole(roleId);
+
+        const returnData : IRolePermissionData[] = [];
+        permissions.forEach(item => {
+            returnData.push({
+                permissionId : item.permission_id,
+                permissionName : item.permission?.permission_name,
+                write : item.write,
+                read : item.read,
+            });
+        });
+
+        return returnData;
+    }
+
+    async getPageAccessPermissionByRole(roleId: number): Promise<PageAccessPermissionReturnData[]> {
+        const pageAccessPermissions = await this.pageAccessPermissionRepository.findPageAccessPermissionByRole(roleId);
+
+        const returnData : PageAccessPermissionReturnData[] = []
+        pageAccessPermissions.forEach(item => {
+            if (!item.page_access_permission) throw new Error("something wrong when getting page access permission data");
+
+            returnData.push({
+                permissionId : item.permission_id,
+                permissionName : item.page_access_permission?.permission_name,
+                description : item.page_access_permission?.description
+            });
+        });
+
+        return returnData;
     }
 
     async createRole(data: ICreateRoleData, organizationId: string, transaction? : Transaction): Promise<RoleWithPermissionReturnData> {

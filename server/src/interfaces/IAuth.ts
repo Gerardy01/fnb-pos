@@ -1,4 +1,4 @@
-import { IRolePermissionData } from "./IRole";
+import { IRolePermissionData } from "./IRolePermission";
 
 
 export interface ILoginData {

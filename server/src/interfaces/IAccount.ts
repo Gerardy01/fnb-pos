@@ -71,6 +71,10 @@ export type AccountDataReturn = {
     archived : boolean;
 }
 
+export type AccountDataReturnExtended = AccountDataReturn & {
+    password : string;
+}
+
 export type AccountInfoReturn = {
     accountId : string;
     username : string;

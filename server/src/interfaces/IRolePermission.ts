@@ -26,3 +26,9 @@ export type RoleWithPermissionReturnData = {
     permissions : IRolePermissionData[];
     pageAccessPermissionIds : number[];
 }
+
+export type PageAccessPermissionReturnData = {
+    permissionId : number;
+    permissionName : string;
+    description : string;
+}

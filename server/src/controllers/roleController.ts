@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import sequelize from "../config/database";
 
 // services
-import { roleService } from '../services';
+import { rolePermissionService } from '../services';
 
 // exceptions
 import { ExistData, DataNotFound } from '../utility/exceptions';
@@ -15,7 +15,7 @@ class RoleController {
     static async getAllRole(req : Request, res : Response) {
         try {
             const organizationId = req.user ? req.user.organizationId : "";
-            const allRoleData = await roleService.getAllRole(organizationId);
+            const allRoleData = await rolePermissionService.getAllRole(organizationId);
 
             return res.status(200).json({
                 "status" : "success",
@@ -45,7 +45,7 @@ class RoleController {
 
         try {
             const userRole = req.user ? req.user.accountRoleName : "";
-            const defaultRoles = await roleService.getDefaultRole(userRole);
+            const defaultRoles = await rolePermissionService.getDefaultRole(userRole);
 
             return res.status(200).json({
                 "status" : "success",
@@ -78,7 +78,7 @@ class RoleController {
             const organizationId = req.user ? req.user.organizationId : "";
             const userRole = req.user ? req.user.accountRoleName : "";
     
-            const roleData = await roleService.getOneRoleWithPermission(roleId, organizationId, userRole);
+            const roleData = await rolePermissionService.getOneRoleWithPermission(roleId, organizationId, userRole);
 
             return res.status(200).json({
                 "status" : "success",
@@ -109,7 +109,7 @@ class RoleController {
 
         try {
             const organizationId = req.user ? req.user.organizationId : "";
-            const newRole = await roleService.createRole(req.body, organizationId, transaction);
+            const newRole = await rolePermissionService.createRole(req.body, organizationId, transaction);
             
             transaction.commit();
 

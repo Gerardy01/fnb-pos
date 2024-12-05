@@ -5,7 +5,7 @@ import { authService } from '../services';
 
 // types and interfaces
 import { IZodErrorMessage } from '../interfaces/IUtility';
-import { IRolePermissionData } from '../interfaces/IRole';
+import { IRolePermissionData } from '../interfaces/IRolePermission';
 
 export function validateRequest(Schema : any) {
     return async (req : Request, res : Response, next : NextFunction) => {

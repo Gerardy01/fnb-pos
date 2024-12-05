@@ -22,15 +22,17 @@ import {
     IChangeEmail,
     IChangeName,
     IEditAccount,
-    EditAccountReturn
+    EditAccountReturn,
+    AccountDataReturnExtended
 } from "../interfaces/IAccount";
 import { IAccountRepository } from "../repositories/accountRepository";
 import { IHashProvider } from "../providers/hashProvider";
-import { IPageAccessPermissionRepository } from "../repositories/pageAccessPermissionRepository";
-import { IRoleService } from "./roleService";
+import { IRolePermissionService } from "./rolePermissionService";
 export interface IAccountService {
     getAllAccount(organizationId : string, userRole : string, userAccountId : string) : Promise<AccountDataReturn[]>
+    getAccountById(accountId : string) : Promise<AccountDataReturn>
     getUserAccountInfo(accountId : string) : Promise<AccountInfoReturn>
+    getAccountForLogin(identifier : string) : Promise<AccountDataReturnExtended>
     createAccount(data : ICreateAccountData, organizationId : string, userRole : string, transaction? : Transaction) : Promise<AccountDataReturn>
     createAccountForManagement(data : ICreateAccountForManagementData, transaction? : Transaction, forSuperAdmin? : boolean) : Promise<AccountDataReturn>
     checkUsernameAvailable(username : string) : Promise<boolean>
@@ -47,9 +49,8 @@ export interface IAccountService {
 
 export class AccountService implements IAccountService {
     constructor(
-        private roleService : IRoleService,
+        private rolePermissionService : IRolePermissionService,
         private accountRepository : IAccountRepository,
-        private pageAccessPermissionRepository : IPageAccessPermissionRepository,
         private hashProvider : IHashProvider,
     ) {}
 
@@ -86,6 +87,24 @@ export class AccountService implements IAccountService {
         return accountReturnList;
     }
 
+    // only use between services
+    async getAccountById(accountId: string) {
+
+        const account = await this.accountRepository.findAccountById(accountId);
+        if (!account) throw new Error("something wrong on getting account. make sure this service not exposed to api");
+
+        return {
+            accountId : account.account_id,
+            username : account.username,
+            name : account.name,
+            email : account.email,
+            organizationId : account.organization_id,
+            roleId : account.role_id,
+            roleName : account.role ? account.role.role_name : "",
+            archived : account.archived
+        }
+    }
+
     async getUserAccountInfo(accountId: string): Promise<AccountInfoReturn> {
 
         // get account
@@ -95,8 +114,8 @@ export class AccountService implements IAccountService {
         if (!account.organization) throw Error("Error in getting organization from this account");
 
         // get page access permission
-        const pageAccessPermissions = await this.pageAccessPermissionRepository.findPageAccessPermissionByRole(account.role.role_id);
-        const pageAccessPermissionIds = pageAccessPermissions.map(item => item.permission_id);
+        const pageAccessPermissions = await this.rolePermissionService.getPageAccessPermissionByRole(account.role.role_id);
+        const pageAccessPermissionIds = pageAccessPermissions.map(item => item.permissionId);
         
         return {
             accountId: account.account_id,
@@ -106,6 +125,24 @@ export class AccountService implements IAccountService {
             roleId: account.role.role_id,
             roleName: account.role.role_name,
             pageAccessPermissions: pageAccessPermissionIds
+        }
+    }
+
+    async getAccountForLogin(identifier: string): Promise<AccountDataReturnExtended> {
+
+        const account = await this.accountRepository.findAccountByEmailOrUsername(identifier);
+        if (!account) throw new DataNotFound("AUTH001");
+
+        return {
+            accountId : account.account_id,
+            username : account.username,
+            name : account.name,
+            email : account.email,
+            organizationId : account.organization_id,
+            roleId : account.role_id,
+            roleName : account.role ? account.role.role_name : "",
+            archived : account.archived,
+            password : account.password,
         }
     }
 
@@ -143,7 +180,7 @@ export class AccountService implements IAccountService {
 
         // check if role exist
         let isNotFound = false;
-        const role = await this.roleService.getOneRole(data.roleId, organizationId, userRole);
+        const role = await this.rolePermissionService.getOneRole(data.roleId, organizationId, userRole);
         
 
         const hashedPassword = await this.hashProvider.hashString(data.password);
@@ -201,7 +238,7 @@ export class AccountService implements IAccountService {
             throw new ExistData("Email already exist");
         }
         
-        const role = await this.roleService.getDefaultRoleByName(forSuperAdmin ? DefaultRoleEnum.SUPER_ADMIN : DefaultRoleEnum.ADMIN)
+        const role = await this.rolePermissionService.getDefaultRoleByName(forSuperAdmin ? DefaultRoleEnum.SUPER_ADMIN : DefaultRoleEnum.ADMIN)
         if (!role) {
             throw new DataNotFound("Role not found");
         }

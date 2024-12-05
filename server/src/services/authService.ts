@@ -7,19 +7,16 @@ import { DefaultRoleEnum, PermissionEnum } from "../utility/enums";
 
 // types and interfaces
 import { IAccessTokenBody, ILoginData, ISuperAdminLoginData, LoginReturnData } from "../interfaces/IAuth"
-import { IAccountRepository } from "../repositories/accountRepository";
 import { IHashProvider } from "../providers/hashProvider";
 import { IJwtProvider } from "../providers/jwtProvider";
 import { IEnvData } from "../interfaces/IConfig";
-import { IPermissionRepository } from "../repositories/permissionRepository";
-import { IRolePermissionData } from "../interfaces/IRole";
+import { IRolePermissionData } from "../interfaces/IRolePermission";
 import { IRefreshTokenRepository } from "../repositories/refreshTokenRepository";
 import { Transaction } from "sequelize";
-import { IOrganizationRepository } from "../repositories/organizationRepository";
-import { IAdminOrganizationRepository } from "../repositories/adminOrganizationRepository";
-import { IAdminOrganizationService } from "./adminOrganizationService";
-import { IRoleRepository } from "../repositories/roleRepository";
 import { IuaParserProvider } from "../providers/uaParserProvider";
+import { IOrganizationService } from "./organizationService";
+import { IRolePermissionService } from "./rolePermissionService";
+import { IAccountService } from "./accountService";
 export interface IAuthService {
     login(data : ILoginData, userAgent : string, transaction : Transaction) : Promise<LoginReturnData>;
     superAdminLogin(data : ISuperAdminLoginData, userAgent : string, transaction? : Transaction) : Promise<LoginReturnData>;
@@ -34,13 +31,10 @@ export interface IAuthService {
 export class AuthService implements IAuthService {
 
     constructor(
-        private accountRepository : IAccountRepository,
-        private roleRepoitory : IRoleRepository,
-        private permissionRepository : IPermissionRepository,
+        private organizationService : IOrganizationService,
+        private rolePermissionService : IRolePermissionService,
+        private accountService : IAccountService,
         private refreshTokenRepository : IRefreshTokenRepository,
-        private organizationRepository : IOrganizationRepository,
-        private adminOrganizationRepository : IAdminOrganizationRepository,
-        private adminOrganizationService : IAdminOrganizationService,
         private hashProvider : IHashProvider,
         private jwtProvider : IJwtProvider,
         private uaParserProvider : IuaParserProvider,
@@ -50,33 +44,32 @@ export class AuthService implements IAuthService {
     async login(data: ILoginData, userAgent : string, transaction : Transaction): Promise<LoginReturnData> {
 
         // find account
-        const account = await this.accountRepository.findAccountByEmailOrUsername(data.identifier);
-        if (!account) throw new DataNotFound("AUTH001");
-        if (!account.organization) throw new Error("something wrong when getting account's organization");
-
-        // check if organization still valid
-        const currentDate = new Date();
-        if (account.organization.end_valid_datetime < currentDate) {
-            throw new NotValid("Organization is no longer valid (expired)");
-        }
+        const account = await this.accountService.getAccountForLogin(data.identifier);
 
         // check password
         const isMatch = await this.hashProvider.compareHash(data.password, account.password);
-        if (!isMatch) throw new DataNotFound("Account not found. Make sure you input correct credentials");
+        if (!isMatch) throw new DataNotFound("AUTH001");
+
+        const organization = await this.organizationService.getOrganization(account.organizationId);
+
+        // check if organization still valid
+        const currentDate = new Date();
+        if (organization.endValidDatetime < currentDate) {
+            throw new NotValid("Organization is no longer valid (expired)");
+        }
         
         // check and revoke sesion if > 3 session detected
-        await this.checkAndRevokeSession(account.account_id, 3, transaction);
+        await this.checkAndRevokeSession(account.accountId, 3, transaction);
 
         // get role data
-        const roleData = await this.roleRepoitory.findOneRole(account.role_id);
-        if (!roleData) throw new Error("something wrong on getting role detail")
+        const roleData = await this.rolePermissionService.getRoleById(account.roleId);
 
         // get permission data
-        const permissions = await this.permissionRepository.findPermissionByRole(account.role_id);
+        const permissions = await this.rolePermissionService.getPermissionByRole(account.roleId);
         const permissionDataTransformed : IRolePermissionData[] = [];
         permissions.forEach(item => {
             permissionDataTransformed.push({
-                permissionId : item.permission_id,
+                permissionId : item.permissionId,
                 read : item.read,
                 write : item.write
             });
@@ -85,11 +78,11 @@ export class AuthService implements IAuthService {
         // create access token
         const accessToken = await this.jwtProvider.generateAccessToken({
             username: account.username,
-            organizationId: account.organization_id,
-            organizationExpiryDate: account.organization.end_valid_datetime,
-            accountId: account.account_id,
-            accountRoleId: roleData.role_id,
-            accountRoleName: roleData.role_name,
+            organizationId: account.organizationId,
+            organizationExpiryDate: organization.endValidDatetime,
+            accountId: account.accountId,
+            accountRoleId: roleData.roleId,
+            accountRoleName: roleData.roleName,
             permissions: permissionDataTransformed
         }, this.envData.accessTokenSignature, "10m");
 
@@ -102,7 +95,7 @@ export class AuthService implements IAuthService {
         const cleanUserAgent =  this.uaParserProvider.getCleanUserAgent(userAgent);
         const hashedUserAgent = await this.hashProvider.hashString(cleanUserAgent);
         await this.refreshTokenRepository.recordRefreshToken({
-            account_id: account.account_id,
+            account_id: account.accountId,
             token_expiry_date: refreshExpDate,
             user_agent : hashedUserAgent,
             identifier : refreshToken
@@ -117,47 +110,44 @@ export class AuthService implements IAuthService {
     async superAdminLogin(data: ISuperAdminLoginData, userAgent : string, transaction?: Transaction): Promise<LoginReturnData> {
         
         // find account
-        const account = await this.accountRepository.findAccountByEmailOrUsername(data.identifier);
-        if (!account) throw new DataNotFound("AUTH001");
+        const account = await this.accountService.getAccountForLogin(data.identifier);
 
         // check password
         const isMatch = await this.hashProvider.compareHash(data.password, account.password);
-        if (!isMatch) throw new DataNotFound("Account not found. Make sure you input correct credentials");
+        if (!isMatch) throw new DataNotFound("AUTH001");
         
         // check and revoke sesion if > 3 session detected
-        await this.checkAndRevokeSession(account.account_id, 3, transaction);
+        await this.checkAndRevokeSession(account.accountId, 3, transaction);
 
-        // check if organization exist
-        const organization = await this.organizationRepository.findOrganizationByNo(data.organizationNo);
-        if (!organization) throw new DataNotFound("Organization not found")
+        // get organization
+        const organization = await this.organizationService.getOrganizationByNo(data.organizationNo);
 
         // get role data
-        const roleData = await this.roleRepoitory.findOneRole(account.role_id);
-        if (!roleData) throw new Error("something wrong on getting role detail")
+        const roleData = await this.rolePermissionService.getRoleById(account.roleId);
 
         // get permission data
-        const permissions = await this.permissionRepository.findPermissionByRole(account.role_id);
+        const permissions = await this.rolePermissionService.getPermissionByRole(account.roleId);
         const permissionDataTransformed : IRolePermissionData[] = [];
         permissions.forEach(item => {
             permissionDataTransformed.push({
-                permissionId : item.permission_id,
+                permissionId : item.permissionId,
                 read : item.read,
                 write : item.write
             });
         });
 
         // check if account is super admin (have super permission)
-        const superPermission = permissions.find(item => item.permission_id === PermissionEnum.SUPER_PERMISSION);
+        const superPermission = permissions.find(item => item.permissionId === PermissionEnum.SUPER_PERMISSION);
         if (!superPermission) throw new DataNotFound("Account not found. Make sure you input correct credentials");
 
         // create access token
         const accessToken = await this.jwtProvider.generateAccessToken({
             username: account.username,
-            organizationId: organization.organization_id,
-            organizationExpiryDate: organization.end_valid_datetime,
-            accountId: account.account_id,
-            accountRoleId: roleData.role_id,
-            accountRoleName: roleData.role_name,
+            organizationId: organization.organizationId,
+            organizationExpiryDate: organization.endValidDatetime,
+            accountId: account.accountId,
+            accountRoleId: roleData.roleId,
+            accountRoleName: roleData.roleName,
             permissions: permissionDataTransformed
         }, this.envData.accessTokenSignature, "10m");
 
@@ -170,14 +160,14 @@ export class AuthService implements IAuthService {
         const cleanUserAgent =  this.uaParserProvider.getCleanUserAgent(userAgent);
         const hashedUserAgent = await this.hashProvider.hashString(cleanUserAgent);
         await this.refreshTokenRepository.recordRefreshToken({
-            account_id: account.account_id,
+            account_id: account.accountId,
             token_expiry_date: refreshExpDate,
             user_agent : hashedUserAgent,
             identifier : refreshToken
         }, transaction);
 
         // update user organization
-        await this.adminOrganizationService.updateOrCreateAdminOrganization(account.account_id, organization.organization_id)
+        await this.organizationService.updateOrCreateAdminOrganization(account.accountId, organization.organizationId)
 
         return {
             accessToken: accessToken,
@@ -200,47 +190,44 @@ export class AuthService implements IAuthService {
         const currentDate = new Date();
         if (refreshTokenSession.token_expiry_date < currentDate) throw new NotValid("Refresh token is not valid");
 
-        const account = await this.accountRepository.findAccountById(refreshTokenSession.account_id);
-        if (!account) throw new Error("something wrong on getting account");
-        if (!account.organization) throw new Error("something wrong when getting account's organization");
-        if (!account.role) throw new Error("something wrong when getting account's role");
+        const account = await this.accountService.getAccountById(refreshTokenSession.account_id);
 
-        // check if organization still valid
-        if (account.organization.end_valid_datetime < currentDate && account.role.role_name !== DefaultRoleEnum.SUPER_ADMIN) {
-            throw new NotValid("Organization is no longer valid (expired)");
-        }
+        const organization = await this.organizationService.getOrganization(account.organizationId);
 
         // get role data
-        const roleData = await this.roleRepoitory.findOneRole(account.role_id);
-        if (!roleData) throw new Error("something wrong on getting role detail")
+        const roleData = await this.rolePermissionService.getRoleById(account.roleId);
 
-        const permissions = await this.permissionRepository.findPermissionByRole(account.role_id);
+        // check if organization still valid
+        if (organization.endValidDatetime < currentDate && roleData.roleName !== DefaultRoleEnum.SUPER_ADMIN) {
+            throw new NotValid("Organization is no longer valid (expired)");
+        }
+        
+        const permissions = await this.rolePermissionService.getPermissionByRole(roleData.roleId);
         const permissionDataTransformed : IRolePermissionData[] = [];
         permissions.forEach(item => {
             permissionDataTransformed.push({
-                permissionId : item.permission_id,
+                permissionId : item.permissionId,
                 read : item.read,
                 write : item.write
             });
         });
 
-        let organizationId = account.organization_id;
+        let organizationId = account.organizationId;
 
         // check if user superadmin
-        const superPermission = permissions.find(item => item.permission_id === PermissionEnum.SUPER_PERMISSION);
+        const superPermission = permissions.find(item => item.permissionId === PermissionEnum.SUPER_PERMISSION);
         if (superPermission) {
-            const adminOrganization = await this.adminOrganizationRepository.findByAccountId(account.account_id);
-            if (!adminOrganization) throw new Error("something wrong on getting admin organization");
-            organizationId = adminOrganization.organization_id;
+            const adminOrganization = await this.organizationService.getAdminOrganizationByAccount(account.accountId);
+            organizationId = adminOrganization.organizationId;
         }
 
         const accessToken = await this.jwtProvider.generateAccessToken({
             username: account.username,
             organizationId: organizationId,
-            organizationExpiryDate: account.organization.end_valid_datetime,
-            accountId: account.account_id,
-            accountRoleId: roleData.role_id,
-            accountRoleName: roleData.role_name,
+            organizationExpiryDate: organization.endValidDatetime,
+            accountId: account.accountId,
+            accountRoleId: roleData.roleId,
+            accountRoleName: roleData.roleName,
             permissions: permissionDataTransformed
         }, this.envData.accessTokenSignature, "10m");
 
