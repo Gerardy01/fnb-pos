@@ -19,7 +19,7 @@ export interface AccountTableData {
 }
 
 
-export default function useAccountManagement() {
+export default function useAccountManagement(getData : boolean = false) {
 
     const { serverErrorModal, errorModal } = useStaticModal();
 
@@ -29,11 +29,14 @@ export default function useAccountManagement() {
     const [filteredAccounts, setFilteredAccounts] = useState<AccountTableData[]>([]);
     const [roleOptions, setRoleOptions] = useState<SelectProps['options']>([]);
 
+    const [addAccountModal, setAddAccountModal] = useState<boolean>(false);
+
     const [getRoleLoad, setGetRoleLoad] = useState<boolean>(true);
     const [getAccountLoad, setGetAccountLoad] = useState<boolean>(true);
     const [contentLoad, setContentLoad] = useState<boolean>(true);
 
     useEffect(() => {
+        if (!getData) return;
         getRoleData();
         getAccountList();
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -155,12 +158,23 @@ export default function useAccountManagement() {
         setFilteredAccounts(filtered);
     }
 
+    const openAddAccount = (open : boolean) => {
+        setAddAccountModal(open);
+    }
+
+    const submitAddAccount = () => {
+        console.log("test");
+    }
+
     return {
         roleOptions,
         contentLoad,
         columns,
         accounts : filteredAccounts,
+        addAccountModal,
         handleChangeRoleFilter,
-        handleSearch
+        handleSearch,
+        openAddAccount,
+        submitAddAccount,
     }
 }

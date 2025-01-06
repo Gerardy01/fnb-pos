@@ -5,6 +5,9 @@ import { PlusOutlined } from '@ant-design/icons';
 import useAccountManagement from '../hooks/accounts/useAccountManagement';
 import { useTranslation } from 'react-i18next';
 
+// components
+import AddAccountModal from '../components/account/AddAccountModal';
+
 // types and interfaces
 import { AccountTableData } from '../hooks/accounts/useAccountManagement';
 
@@ -21,9 +24,11 @@ export default function AccountManagement() {
         contentLoad,
         columns,
         accounts,
+        addAccountModal,
         handleChangeRoleFilter,
-        handleSearch
-    } = useAccountManagement();
+        handleSearch,
+        openAddAccount,
+    } = useAccountManagement(true);
 
     return (
         <div>
@@ -65,6 +70,7 @@ export default function AccountManagement() {
                             type="primary"
                             size='large'
                             icon={<PlusOutlined />}
+                            onClick={() => openAddAccount(true)}
                         >
                             {t("newAccount")}
                         </Button>
@@ -72,6 +78,10 @@ export default function AccountManagement() {
                 </div>
             )}
             <Table<AccountTableData> columns={columns} dataSource={accounts} size='middle' loading={contentLoad} />
+            <AddAccountModal
+                open={addAccountModal}
+                onClose={() => openAddAccount(false)}
+            />
         </div>
     )
 }
