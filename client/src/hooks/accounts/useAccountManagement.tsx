@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import { SelectProps, TableColumnsType, Space, Button } from 'antd';
+import { SelectProps, TableColumnsType, Space, Button, Form } from 'antd';
 import { EditOutlined } from '@ant-design/icons';
 
 import useStaticModal from '../useStaticModal';
@@ -9,6 +9,7 @@ import { useTranslation } from 'react-i18next';
 import { accountApi, roleApi } from '../../api';
 
 // types and interfaces
+import { CreateAccountData } from '../../models/accountInterface';
 export interface AccountTableData {
     key: string;
     name: string;
@@ -19,7 +20,7 @@ export interface AccountTableData {
 }
 
 
-export default function useAccountManagement(getData : boolean = false) {
+export default function useAccountManagement() {
 
     const { serverErrorModal, errorModal } = useStaticModal();
 
@@ -35,8 +36,9 @@ export default function useAccountManagement(getData : boolean = false) {
     const [getAccountLoad, setGetAccountLoad] = useState<boolean>(true);
     const [contentLoad, setContentLoad] = useState<boolean>(true);
 
+    const [addAccountForm] = Form.useForm();
+
     useEffect(() => {
-        if (!getData) return;
         getRoleData();
         getAccountList();
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -160,10 +162,11 @@ export default function useAccountManagement(getData : boolean = false) {
 
     const openAddAccount = (open : boolean) => {
         setAddAccountModal(open);
+        addAccountForm.resetFields();
     }
 
-    const submitAddAccount = () => {
-        console.log("test");
+    const submitAddAccount = async (data : CreateAccountData) => {
+        console.log(data);
     }
 
     return {
@@ -172,6 +175,7 @@ export default function useAccountManagement(getData : boolean = false) {
         columns,
         accounts : filteredAccounts,
         addAccountModal,
+        addAccountForm,
         handleChangeRoleFilter,
         handleSearch,
         openAddAccount,

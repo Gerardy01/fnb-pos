@@ -19,6 +19,7 @@
     "PASS04" : "Password cannot be more than 100 characters",
     "EMAIL01" : "Please enter a valid email address",
     "EMAIL02" : "Email cannot be longer than 50 characters",
+    "NAME01" : "Name cannot be longer than 50 characters",
 
     "changePassword" : "Change Password",
     "createNewPassword" : "Create new password for account",

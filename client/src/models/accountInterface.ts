@@ -50,3 +50,12 @@ export interface ChangePasswordData {
     oldPassword : string;
     newPassword : string;
 }
+
+export interface CreateAccountData {
+    username : string;
+    name : string;
+    email : string | null;
+    role : number;
+    password : string;
+    confirmPassword : string;
+}

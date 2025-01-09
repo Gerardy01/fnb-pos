@@ -25,10 +25,12 @@ export default function AccountManagement() {
         columns,
         accounts,
         addAccountModal,
+        addAccountForm,
         handleChangeRoleFilter,
         handleSearch,
         openAddAccount,
-    } = useAccountManagement(true);
+        submitAddAccount,
+    } = useAccountManagement();
 
     return (
         <div>
@@ -79,8 +81,11 @@ export default function AccountManagement() {
             )}
             <Table<AccountTableData> columns={columns} dataSource={accounts} size='middle' loading={contentLoad} />
             <AddAccountModal
+                form={addAccountForm}
+                roleOptions={roleOptions}
                 open={addAccountModal}
                 onClose={() => openAddAccount(false)}
+                onSubmit={submitAddAccount}
             />
         </div>
     )
