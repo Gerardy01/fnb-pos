@@ -28,5 +28,6 @@
     "yes" : "Yes",
     "no" : "No",
     "change" : "Change",
-    "action" : "Action"
+    "action" : "Action",
+    "conflict" : "Conflict"
 }

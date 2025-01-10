@@ -31,6 +31,14 @@ export interface CheckAvailabilityQueryParams {
     email? : string;
 }
 
+export interface CreateAccountBodyData {
+    username : string;
+    name : string;
+    email : string | null;
+    roleId : number;
+    password : string;
+}
+
 export interface ChangePasswordBodyData {
     currentPassword : string;
     newPassword : string;

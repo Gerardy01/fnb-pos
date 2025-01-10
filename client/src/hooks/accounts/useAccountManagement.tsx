@@ -49,6 +49,10 @@ export default function useAccountManagement() {
         setContentLoad(false);
     }, [getRoleLoad, getAccountLoad]);
 
+    useEffect(() => {
+        setFilteredAccounts(accounts);
+    }, [accounts]);
+
     const columns: TableColumnsType<AccountTableData> = [
         {
             title: t("account:name"),
@@ -165,8 +169,42 @@ export default function useAccountManagement() {
         addAccountForm.resetFields();
     }
 
-    const submitAddAccount = async (data : CreateAccountData) => {
-        console.log(data);
+    const submitAddAccount = async (value : CreateAccountData) => {
+        const [err, data] = await accountApi.createAccount({
+            username : value.username,
+            name : value.name,
+            email : value.email !== undefined ? value.email : null,
+            roleId : value.role,
+            password : value.password
+        });
+
+        if (err) {
+            if (err.status == 409) {
+                errorModal(t('global:conflict'), t(`account:${err.response.data.message}`));
+                return;
+            }
+
+            if (err.status === 422) {
+                errorModal(
+                    t(`account:wrongPassFormat`),
+                    t(`account:${err.response.data.userMessage}`)
+                );
+                return;
+            }
+
+            serverErrorModal();
+            return;
+        }
+
+        setAccounts([...accounts, {
+            key : data.accountId,
+            name: data.name,
+            username : data.username,
+            email : data.email,
+            roleName : data.roleName,
+            roleId : data.roleId
+        }]);
+        openAddAccount(false);
     }
 
     return {

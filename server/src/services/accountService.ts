@@ -163,7 +163,7 @@ export class AccountService implements IAccountService {
         // check duplicate username
         const usernameAvailable = await this.checkUsernameAvailable(data.username);
         if (!usernameAvailable) {
-            throw new ExistData("Username already exist");
+            throw new ExistData("ACCOUNT409-1");
         }
 
         if (data.email) {
@@ -175,11 +175,10 @@ export class AccountService implements IAccountService {
         const inputedEmail = data.email ? data.email : "";
         const emailAvailable = await this.checkEmailAvailable(inputedEmail);
         if (inputedEmail !== "" && !emailAvailable) {
-            throw new ExistData("Email already exist");
+            throw new ExistData("ACCOUNT409-2");
         }
 
         // check if role exist
-        let isNotFound = false;
         const role = await this.rolePermissionService.getOneRole(data.roleId, organizationId, userRole);
         
 

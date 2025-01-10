@@ -26,7 +26,6 @@ export default function AddAccountModal({ form, roleOptions, open, onClose, onSu
 
     const onSubmit : FormProps<AddAccountForm>['onFinish'] = (values) => {
         submitAddAccount(values);
-        onClose();
     }
 
     return (
