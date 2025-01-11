@@ -9,6 +9,14 @@ export interface ICreateAccountData {
     roleId : number;
 }
 
+export interface IEditAccountManagementData {
+    accountId : string;
+    username : string;
+    name : string;
+    email : string;
+    roleId : number;
+}
+
 export interface ICreateAccountForManagementData {
     username : string;
     name : string;

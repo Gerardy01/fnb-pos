@@ -13,6 +13,7 @@ import {
     ChangePasswordSchema,
     EditAccountSchema,
     ResetPasswordSchema,
+    EditAccountManagementSchema,
 } from '../../schema/accountSchema';
 
 // controllers
@@ -41,6 +42,12 @@ accountRoutes.post("/",
     validateRequest(CreateAccountSchema),
     AccountController.createAccounts
 );
+accountRoutes.put("/",
+    authenticate,
+    validatePermission(PermissionEnum.ACCOUNT_MANAGEMENT, 'write'),
+    validateRequest(EditAccountManagementSchema),
+    AccountController.editAccountManagement
+)
 accountRoutes.post("/action/super-admin",
     // TODO: Must authenticate with dashboard (management) account, and permission
     checkPassword, // temp validation to replace dashboard (management) token

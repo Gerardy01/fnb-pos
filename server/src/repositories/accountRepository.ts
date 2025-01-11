@@ -53,7 +53,7 @@ export class AccountRepository implements IAccountRepository {
         return Account.findOne({
             where: {
                 username : username,
-                archived : false
+                // archived : false
             }
         });
     }

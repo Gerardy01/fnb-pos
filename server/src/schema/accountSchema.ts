@@ -8,6 +8,14 @@ export const CreateAccountSchema = z.object({
     roleId : z.number().min(1),
 });
 
+export const EditAccountManagementSchema = z.object({
+    accountId : z.string().min(1),
+    username : z.string().min(1).max(20),
+    name : z.string().min(1),
+    email : z.string().max(50).nullable(),
+    roleId : z.number().min(1),
+});
+
 export const CreateSuperadminSchema = z.object({
     username : z.string().min(1).max(20),
     name : z.string().min(1),

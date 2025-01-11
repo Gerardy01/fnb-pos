@@ -23,7 +23,8 @@ import {
     IChangeName,
     IEditAccount,
     EditAccountReturn,
-    AccountDataReturnExtended
+    AccountDataReturnExtended,
+    IEditAccountManagementData
 } from "../interfaces/IAccount";
 import { IAccountRepository } from "../repositories/accountRepository";
 import { IHashProvider } from "../providers/hashProvider";
@@ -43,6 +44,7 @@ export interface IAccountService {
     changeName(data : IChangeName, userAccountId : string, userRole : string) : Promise<string>
     resetPassword(data : IResetPassword, userRole : string) : Promise<boolean>
     changePaassword(data : IChangePassword, accountId : string) : Promise<boolean>
+    editAccountManagement(data : IEditAccountManagementData, organizationId : string, userRole : string) : Promise<AccountDataReturn>
 }
 
 
@@ -420,6 +422,59 @@ export class AccountService implements IAccountService {
 
         // change password
         return this.changePasswordHandler(account, data.newPassword);
+    }
+
+    async editAccountManagement(data : IEditAccountManagementData, organizationId : string, userRole : string) : Promise<AccountDataReturn> {
+        
+        const account = await this.accountRepository.findAccountById(data.accountId);
+        if (!account || account.archived) throw new DataNotFound("");
+
+        // check if username format is valid
+        const usernameValid = validateUsername(data.username);
+        if (!usernameValid.valid) {
+            throw new WrongFormat(usernameValid.message);
+        }
+
+        // check duplicate username
+        const usernameAvailable = await this.checkUsernameAvailable(data.username);
+        if (!usernameAvailable && (data.username !== account.username)) {
+            throw new ExistData("ACCOUNT409-1");
+        }
+
+        if (data.email) {
+            const emailValid = validateEmail(data.email);
+            if (!emailValid.valid) {
+                throw new WrongFormat(emailValid.message);
+            }
+        }
+
+        // check duplicate email
+        const inputedEmail = data.email ? data.email : "";
+        const emailAvailable = await this.checkEmailAvailable(inputedEmail);
+        if (inputedEmail !== "" && !emailAvailable && (data.email !== account.email)) {
+            throw new ExistData("ACCOUNT409-2");
+        }
+
+        // check if role exist
+        const role = await this.rolePermissionService.getOneRole(data.roleId, organizationId, userRole);
+        
+        account.username = data.username;
+        account.name = data.name;
+        account.email = data.email;
+        account.role_id = role.roleId;
+
+        const editedAccount = await account.save();
+
+        return {
+            accountId : editedAccount.account_id,
+            username : editedAccount.username,
+            name : editedAccount.name,
+            email : editedAccount.email,
+            organizationId : editedAccount.organization_id,
+            roleId : editedAccount.role_id,
+            roleName : role.roleName,
+            archived : editedAccount.archived,
+        }
     }
 
     private async changePasswordHandler(account : Account, newPassword : string) : Promise<boolean> {

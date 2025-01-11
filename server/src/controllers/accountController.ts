@@ -363,6 +363,53 @@ class AccountController {
             });
         }
     }
+
+    static async editAccountManagement(req : Request, res : Response) {
+        try {
+            const roleName = req.user ? req.user.accountRoleName : "";
+            const organizationId = req.user ? req.user.organizationId : "";
+            const editedAccount = await accountService.editAccountManagement(req.body, organizationId, roleName);
+
+            return res.status(200).json({
+                "status" : "success",
+                "message" : `account ${(await editedAccount).accountId} edited`,
+                "data" : editedAccount
+            })
+
+        } catch(e) {
+
+            if (e instanceof ExistData) {
+                return res.status(409).json({
+                    "status" : "failed",
+                    "message" : e.message,
+                    "userMessage" : e.message,
+                });
+            }
+
+            if (e instanceof DataNotFound) {
+                return res.status(404).json({
+                    "status" : "failed",
+                    "message" : e.message,
+                    "userMessage" : e.message,
+                });
+            }
+
+            if (e instanceof WrongFormat) {
+                return res.status(422).json({
+                    "status" : "failed",
+                    "message" : e.message,
+                    "userMessage" : e.message,
+                });
+            }
+            
+            return res.status(500).json({
+                "status" : "failed",
+                "message" : "server error",
+                "userMessage" : "500",
+                "errors" : e
+            });
+        }
+    }
 }
 
 
