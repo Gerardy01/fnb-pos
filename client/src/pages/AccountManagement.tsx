@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 
 // components
 import AddAccountModal from '../components/account/AddAccountModal';
+import EditAccountModal from '../components/account/EditAccountModal';
 
 // types and interfaces
 import { AccountTableData } from '../hooks/accounts/useAccountManagement';
@@ -25,11 +26,18 @@ export default function AccountManagement() {
         columns,
         accounts,
         addAccountModal,
+        editAccountModal,
         addAccountForm,
+        editAccountForm,
+        editAccountData,
+        addAccountSubmitLoad,
+        editAccountSubmitLoad,
         handleChangeRoleFilter,
         handleSearch,
         openAddAccount,
+        openEditAccount,
         submitAddAccount,
+        submitEditAccount,
     } = useAccountManagement();
 
     return (
@@ -84,8 +92,20 @@ export default function AccountManagement() {
                 form={addAccountForm}
                 roleOptions={roleOptions}
                 open={addAccountModal}
+                submitLoad={addAccountSubmitLoad}
                 onClose={() => openAddAccount(false)}
                 onSubmit={submitAddAccount}
+            />
+            
+            <EditAccountModal
+                form={editAccountForm}
+                roleOptions={roleOptions}
+                open={editAccountModal}
+                selectedAccountData={editAccountData}
+                submitLoad={editAccountSubmitLoad}
+                onClose={() => openEditAccount(false)}
+                onSubmit={submitEditAccount}
+
             />
         </div>
     )

@@ -9,7 +9,7 @@ import { useTranslation } from 'react-i18next';
 import { accountApi, roleApi } from '../../api';
 
 // types and interfaces
-import { CreateAccountData } from '../../models/accountInterface';
+import { CreateAccountData, EditAccountManagementBodyData } from '../../models/accountInterface';
 export interface AccountTableData {
     key: string;
     name: string;
@@ -31,12 +31,18 @@ export default function useAccountManagement() {
     const [roleOptions, setRoleOptions] = useState<SelectProps['options']>([]);
 
     const [addAccountModal, setAddAccountModal] = useState<boolean>(false);
+    const [editAccountModal, setEditAccountModal] = useState<boolean>(false);
+
+    const [editAccountData, setEditAccountData] = useState<EditAccountManagementBodyData | null>(null);
 
     const [getRoleLoad, setGetRoleLoad] = useState<boolean>(true);
     const [getAccountLoad, setGetAccountLoad] = useState<boolean>(true);
     const [contentLoad, setContentLoad] = useState<boolean>(true);
+    const [addAccountSubmitLoad, setAddAccountSubmitLoad] = useState<boolean>(false);
+    const [editAccountSubmitLoad, setEditAccountSubmitLoad] = useState<boolean>(false);
 
     const [addAccountForm] = Form.useForm();
+    const [editAccountForm] = Form.useForm();
 
     useEffect(() => {
         getRoleData();
@@ -78,10 +84,21 @@ export default function useAccountManagement() {
             title: t("global:action"),
             key: 'action',
             align: 'center',
-            render: () => {
+            render: (_, record) => {
                 return (
                     <Space size="middle">
-                        <Button icon={<EditOutlined />} color="default" variant='outlined'>
+                        <Button
+                            icon={<EditOutlined />}
+                            color="default"
+                            variant='outlined'
+                            onClick={() => handleSelectEdit({
+                                accountId : record.key,
+                                username : record.username,
+                                name : record.name,
+                                email : record.email,
+                                roleId : record.roleId
+                            })}
+                        >
                             {t("global:edit")}
                         </Button>
                     </Space>
@@ -89,6 +106,11 @@ export default function useAccountManagement() {
             }
         }
     ]
+
+    const handleSelectEdit = (data : EditAccountManagementBodyData) => {
+        openEditAccount(true);
+        setEditAccountData(data);
+    }
 
     const getRoleData = async () : Promise<void> => {
         const [err, data] = await roleApi.getRoleList();
@@ -169,42 +191,109 @@ export default function useAccountManagement() {
         addAccountForm.resetFields();
     }
 
-    const submitAddAccount = async (value : CreateAccountData) => {
-        const [err, data] = await accountApi.createAccount({
-            username : value.username,
-            name : value.name,
-            email : value.email !== undefined ? value.email : null,
-            roleId : value.role,
-            password : value.password
-        });
+    const openEditAccount = (open : boolean) => {
+        setEditAccountModal(open);
+        editAccountForm.resetFields();
 
-        if (err) {
-            if (err.status == 409) {
-                errorModal(t('global:conflict'), t(`account:${err.response.data.message}`));
-                return;
-            }
-
-            if (err.status === 422) {
-                errorModal(
-                    t(`account:wrongPassFormat`),
-                    t(`account:${err.response.data.userMessage}`)
-                );
-                return;
-            }
-
-            serverErrorModal();
-            return;
+        if (!open) {
+            setEditAccountData(null);
         }
+    }
 
-        setAccounts([...accounts, {
-            key : data.accountId,
-            name: data.name,
-            username : data.username,
-            email : data.email,
-            roleName : data.roleName,
-            roleId : data.roleId
-        }]);
-        openAddAccount(false);
+    const submitAddAccount = async (value : CreateAccountData) => {
+        setAddAccountSubmitLoad(true);
+
+        try {
+            const [err, data] = await accountApi.createAccount({
+                username : value.username,
+                name : value.name,
+                email : value.email !== undefined ? value.email : null,
+                roleId : value.role,
+                password : value.password
+            });
+    
+            if (err) {
+                if (err.status === 400) {
+                    const error = err.response.data.schemaErrors ? err.response.data.schemaErrors[0] : undefined;
+                    if (!error) return;
+                    errorModal(undefined, `${error.field} is ${error.message}`);
+                    return;
+                }
+    
+                if (err.status == 409) {
+                    errorModal(t('global:conflict'), t(`account:${err.response.data.message}`));
+                    return;
+                }
+    
+                if (err.status === 422) {
+                    errorModal(
+                        t(`account:wrongPassFormat`),
+                        t(`account:${err.response.data.userMessage}`)
+                    );
+                    return;
+                }
+    
+                serverErrorModal();
+                return;
+            }
+    
+            setAccounts([...accounts, {
+                key : data.accountId,
+                name: data.name,
+                username : data.username,
+                email : data.email,
+                roleName : data.roleName,
+                roleId : data.roleId
+            }]);
+            openAddAccount(false);
+        } finally {
+            setAddAccountSubmitLoad(false)
+        }
+    }
+
+    const submitEditAccount = async (values : EditAccountManagementBodyData) => {
+        setEditAccountSubmitLoad(true);
+
+        try {
+            const [err, data] = await accountApi.editAccountManagementApi(values);
+    
+            if (err) {
+                if (err.status === 400) {
+                    const error = err.response.data.schemaErrors ? err.response.data.schemaErrors[0] : undefined;
+                    if (!error) return;
+                    errorModal(undefined, `${error.field} is ${error.message}`);
+                    return;
+                }
+    
+                if (err.status == 409) {
+                    errorModal(t('global:conflict'), t(`account:${err.response.data.message}`));
+                    return;
+                }
+    
+                if (err.status === 422) {
+                    errorModal(undefined, t(`account:${err.response.data.message}`));
+                    return;
+                }
+    
+                serverErrorModal();
+                return;
+            }
+    
+            const accountsFiltered = accounts.filter(item => item.key !== data.accountId);
+    
+            setAccounts([...accountsFiltered, {
+                key : data.accountId,
+                name: data.name,
+                username : data.username,
+                email : data.email,
+                roleName : data.roleName,
+                roleId : data.roleId
+            }]);
+    
+            openEditAccount(false);
+        } finally {
+            setEditAccountSubmitLoad(false);
+        }
     }
 
     return {
@@ -213,10 +302,17 @@ export default function useAccountManagement() {
         columns,
         accounts : filteredAccounts,
         addAccountModal,
+        editAccountModal,
         addAccountForm,
+        editAccountForm,
+        editAccountData,
+        addAccountSubmitLoad,
+        editAccountSubmitLoad,
         handleChangeRoleFilter,
         handleSearch,
         openAddAccount,
+        openEditAccount,
         submitAddAccount,
+        submitEditAccount,
     }
 }

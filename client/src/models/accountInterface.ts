@@ -39,6 +39,14 @@ export interface CreateAccountBodyData {
     password : string;
 }
 
+export interface EditAccountManagementBodyData {
+    accountId : string;
+    username : string;
+    name : string;
+    email : string | null;
+    roleId : number;
+}
+
 export interface ChangePasswordBodyData {
     currentPassword : string;
     newPassword : string;

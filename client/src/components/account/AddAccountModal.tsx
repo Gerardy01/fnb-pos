@@ -16,11 +16,12 @@ interface Props {
     form : FormInstance;
     roleOptions : SelectProps['options'];
     open : boolean;
+    submitLoad : boolean;
     onClose : () => void;
     onSubmit : (data : CreateAccountData) => void;
 }
 
-export default function AddAccountModal({ form, roleOptions, open, onClose, onSubmit : submitAddAccount } : Props) {
+export default function AddAccountModal({ form, roleOptions, open, submitLoad, onClose, onSubmit : submitAddAccount } : Props) {
 
     const { t } = useTranslation(["account", "global"]);
 
@@ -33,7 +34,6 @@ export default function AddAccountModal({ form, roleOptions, open, onClose, onSu
             title="Add New Account"
             centered
             open={open}
-            // confirmLoading={confirmLoading}
             onCancel={onClose}  
             footer={null}
             maskClosable={false}
@@ -182,6 +182,7 @@ export default function AddAccountModal({ form, roleOptions, open, onClose, onSu
                         type="primary"
                         htmlType="submit"
                         size="large"
+                        loading={submitLoad}
                     >
                         {t("global:submit")}
                     </Button>

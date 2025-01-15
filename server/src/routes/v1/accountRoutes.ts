@@ -42,12 +42,6 @@ accountRoutes.post("/",
     validateRequest(CreateAccountSchema),
     AccountController.createAccounts
 );
-accountRoutes.put("/",
-    authenticate,
-    validatePermission(PermissionEnum.ACCOUNT_MANAGEMENT, 'write'),
-    validateRequest(EditAccountManagementSchema),
-    AccountController.editAccountManagement
-)
 accountRoutes.post("/action/super-admin",
     // TODO: Must authenticate with dashboard (management) account, and permission
     checkPassword, // temp validation to replace dashboard (management) token
@@ -69,6 +63,12 @@ accountRoutes.put("/action/change-password",
     authenticate,
     validateRequest(ChangePasswordSchema),
     AccountController.changePassword
+);
+accountRoutes.put("/action/management",
+    authenticate,
+    validatePermission(PermissionEnum.ACCOUNT_MANAGEMENT, 'write'),
+    validateRequest(EditAccountManagementSchema),
+    AccountController.editAccountManagement
 );
 
 export default accountRoutes;
