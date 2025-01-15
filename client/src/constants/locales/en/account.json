@@ -26,6 +26,8 @@
     "oldPassword" : "Old Password",
     "newPassword" : "New Password",
     "retype" : "Retype New Password",
+    "repeatPassword" : "Repeat Password",
+    "enterPasswordAgain" : "Enter Password again",
     "passwordNotMatch" : "Password do not match",
     "passwordNotChanged" : "If you exit now, the password you change will not be saved.",
     "wrongPassFormat" : "Wrong Password Format",
@@ -47,9 +49,16 @@
     "accountManagement" : "Account Management",
     "accountSearchPlaceholder" : "Find by Username/Name/Email",
     "selectRoleFilter" : "Select Role Filter",
+    "selectRole" : "Select Role",
     "newAccount" : "New Account",
     "name" : "Name",
     "username" : "Username",
     "email" : "Email",
-    "role" : "Role"
+    "role" : "Role",
+    "password" : "Password",
+    "addNewAccount" : "Add New Account",
+    "staffName" : "Staff Name",
+    "emailOptional" : "Email (Optional)",
+    "enterPassword" : "Enter Password",
+    "editAccount" : "Edit Account"
 }

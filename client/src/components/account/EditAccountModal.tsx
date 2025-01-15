@@ -1,4 +1,5 @@
 import { Button, Form, FormInstance, FormProps, Input, Modal, Select, SelectProps } from "antd";
+import { LockOutlined } from "@ant-design/icons";
 
 import { useTranslation } from "react-i18next";
 
@@ -39,7 +40,7 @@ export default function EditAccountModal({ form, roleOptions, open, selectedAcco
         <>
             {selectedAccountData && (
                 <Modal
-                    title={`Edit Account ${selectedAccountData.name}`}
+                    title={`${t('account:editAccount')} ${selectedAccountData.name}`}
                     centered
                     open={open}
                     onCancel={onClose}
@@ -56,7 +57,7 @@ export default function EditAccountModal({ form, roleOptions, open, selectedAcco
                     >
                         <Form.Item
                             name="username"
-                            label="Username"
+                            label={t('account:username')}
                             initialValue={selectedAccountData.username}
                             required
                             rules={[
@@ -76,13 +77,13 @@ export default function EditAccountModal({ form, roleOptions, open, selectedAcco
                             ]}
                         >
                             <Input
-                                placeholder="Username"
+                                placeholder={t('account:username')}
                                 maxLength={20}
                             />
                         </Form.Item>
                         <Form.Item
                             name="name"
-                            label="Name"
+                            label={t('account:name')}
                             required
                             initialValue={selectedAccountData.name}
                             rules={[
@@ -94,13 +95,13 @@ export default function EditAccountModal({ form, roleOptions, open, selectedAcco
                             ]}
                         >
                             <Input
-                                placeholder="Staff name"
+                                placeholder={t('account:staffName')}
                                 maxLength={50}
                             />
                         </Form.Item>
                         <Form.Item
                             name="email"
-                            label="Email (Optional)"
+                            label={t('account:emailOptional')}
                             initialValue={selectedAccountData.email == "-" ? "" : selectedAccountData.email}
                             rules={[
                                 {
@@ -120,13 +121,13 @@ export default function EditAccountModal({ form, roleOptions, open, selectedAcco
                         </Form.Item>
                         <Form.Item
                             name="role"
-                            label="Role"
+                            label={t('account:role')}
                             required
                             initialValue={selectedAccountData.roleId}
                             rules={[{ required: true, message: t("global:fieldRequired") }]}
                         >
                             <Select
-                                placeholder="Select Role"
+                                placeholder={t('account:selectRole')}
                                 allowClear
                                 options={roleOptions}
                                 filterOption={(input, option) =>
@@ -151,6 +152,7 @@ export default function EditAccountModal({ form, roleOptions, open, selectedAcco
                                         type="default"
                                         size="large"
                                         disabled={submitLoad}
+                                        icon={<LockOutlined />}
                                     >
                                         {t("account:changePassword")}
                                     </Button>

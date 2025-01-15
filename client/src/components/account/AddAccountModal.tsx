@@ -31,7 +31,7 @@ export default function AddAccountModal({ form, roleOptions, open, submitLoad, o
 
     return (
         <Modal
-            title="Add New Account"
+            title={t('account:addNewAccount')}
             centered
             open={open}
             onCancel={onClose}  
@@ -48,7 +48,7 @@ export default function AddAccountModal({ form, roleOptions, open, submitLoad, o
             >
                 <Form.Item
                     name="username"
-                    label="Username"
+                    label={t('account:username')}
                     required
                     rules={[
                         { required: true, message: t("global:fieldRequired") },
@@ -67,13 +67,13 @@ export default function AddAccountModal({ form, roleOptions, open, submitLoad, o
                     ]}
                 >
                     <Input
-                        placeholder="Username"
+                        placeholder={t('account:username')}
                         maxLength={20}
                     />
                 </Form.Item>
                 <Form.Item
                     name="name"
-                    label="Name"
+                    label={t('account:name')}
                     required
                     rules={[
                         { required: true, message: t("global:fieldRequired") },
@@ -84,13 +84,13 @@ export default function AddAccountModal({ form, roleOptions, open, submitLoad, o
                     ]}
                 >
                     <Input
-                        placeholder="Staff name"
+                        placeholder={t('account:staffName')}
                         maxLength={50}
                     />
                 </Form.Item>
                 <Form.Item
                     name="email"
-                    label="Email (Optional)"
+                    label={t('account:emailOptional')}
                     rules={[
                         {
                             max: 50,
@@ -109,12 +109,12 @@ export default function AddAccountModal({ form, roleOptions, open, submitLoad, o
                 </Form.Item>
                 <Form.Item
                     name="role"
-                    label="Role"
+                    label={t('account:role')}
                     required
                     rules={[{ required: true, message: t("global:fieldRequired") }]}
                 >
                     <Select
-                        placeholder="Select Role"
+                        placeholder={t('account:selectRole')}
                         allowClear
                         options={roleOptions}
                         filterOption={(input, option) =>
@@ -124,7 +124,7 @@ export default function AddAccountModal({ form, roleOptions, open, submitLoad, o
                 </Form.Item>
                 <Form.Item
                     name="password"
-                    label="Password"
+                    label={t('account:password')}
                     required
                     validateDebounce={500}
                     hasFeedback
@@ -146,14 +146,14 @@ export default function AddAccountModal({ form, roleOptions, open, submitLoad, o
                     ]}
                 >
                     <Input.Password
-                        placeholder="Enter Password"
+                        placeholder={t('account:enterPassword')}
                         type="password"
                         maxLength={100}
                     />
                 </Form.Item>
                 <Form.Item
                     name="confirmPassword"
-                    label="Repeat Password"
+                    label={t('account:repeatPassword')}
                     required
                     dependencies={['password']}
                     validateTrigger="onSubmit"
@@ -170,7 +170,7 @@ export default function AddAccountModal({ form, roleOptions, open, submitLoad, o
                     ]}
                 >
                     <Input.Password
-                        placeholder="Enter Password again"
+                        placeholder={t('account:enterPasswordAgain')}
                         type="password"
                         maxLength={100}
                     />
