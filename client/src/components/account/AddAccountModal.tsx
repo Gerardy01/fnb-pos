@@ -2,6 +2,8 @@ import { Button, Form, FormInstance, FormProps, Input, Modal, Select, SelectProp
 
 import { useTranslation } from "react-i18next";
 
+import { useCheckUsernameAvailability } from "../../hooks/global/useCheckAvailability";
+
 // types and interfaces
 import { CreateAccountData } from "../../models/accountInterface";
 type AddAccountForm = {
@@ -25,6 +27,8 @@ export default function AddAccountModal({ form, roleOptions, open, submitLoad, o
 
     const { t } = useTranslation(["account", "global"]);
 
+    const { usernameValidated, handleChangeUsernameValue, clearUsernameValidated } = useCheckUsernameAvailability();
+
     const onSubmit : FormProps<AddAccountForm>['onFinish'] = (values) => {
         submitAddAccount(values);
     }
@@ -34,7 +38,10 @@ export default function AddAccountModal({ form, roleOptions, open, submitLoad, o
             title={t('account:addNewAccount')}
             centered
             open={open}
-            onCancel={onClose}  
+            onCancel={() => {
+                onClose();
+                clearUsernameValidated();
+            }}  
             footer={null}
             maskClosable={false}
         >
@@ -63,12 +70,29 @@ export default function AddAccountModal({ form, roleOptions, open, submitLoad, o
                         {
                             min: 4,
                             message: t("account:USERNAME01"),
+                        },
+                        {
+                            validator: async (_) => {
+                                if (usernameValidated === false) {
+                                    throw new Error();
+                                }
+                            }
                         }
                     ]}
+                    hasFeedback={usernameValidated === undefined ? false : true}
+                    validateStatus={
+                        usernameValidated === undefined ? undefined :
+                        !usernameValidated ? "error" : "success"
+                    }
+                    help={
+                        !usernameValidated && usernameValidated !== undefined ? t("account:ACCOUNT409-1") :
+                        usernameValidated === undefined ? undefined : ""
+                    }
                 >
                     <Input
                         placeholder={t('account:username')}
                         maxLength={20}
+                        onChange={(e) => handleChangeUsernameValue(e.target.value)}
                     />
                 </Form.Item>
                 <Form.Item
@@ -156,7 +180,7 @@ export default function AddAccountModal({ form, roleOptions, open, submitLoad, o
                     label={t('account:repeatPassword')}
                     required
                     dependencies={['password']}
-                    validateTrigger="onSubmit"
+                    validateTrigger="onBlur"
                     rules={[
                         { required: true, message: t("global:fieldRequired") },
                         ({ getFieldValue }) => ({
@@ -173,6 +197,7 @@ export default function AddAccountModal({ form, roleOptions, open, submitLoad, o
                         placeholder={t('account:enterPasswordAgain')}
                         type="password"
                         maxLength={100}
+                        onFocus={() => form.setFields([{ name: 'confirmPassword', errors: [] }])}
                     />
                 </Form.Item>
                 <Form.Item

@@ -1,0 +1,59 @@
+import { useEffect, useState } from "react"
+
+import { accountApi } from "../../api";
+
+import useStaticModal from "../useStaticModal";
+
+
+
+export function useCheckUsernameAvailability() {
+
+    const { serverErrorModal } = useStaticModal();
+
+    const [value, setValue] = useState<string>("");
+    const [validated, setValidated]= useState<boolean | undefined>(undefined);
+
+    useEffect(() => {
+        const timeoutId = setTimeout(() => {
+            setValidated(undefined);
+            handleCheckUsernameExist();
+        }, 1000);
+
+        return () => clearTimeout(timeoutId);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [value]);
+
+    const handleChangeValue = (value : string) => {
+        setValue(value);
+    }
+
+    const clearValidated = () => {
+        setValidated(undefined);
+    }
+
+
+    const handleCheckUsernameExist = async () => {
+        if (!value) return;
+        if (value.length > 20) return;
+        if (value.length < 4) return;
+
+        const pattern = /^[a-zA-Z0-9_]+$/;
+        if (!pattern.test(value)) return;
+
+        const [err, data] = await accountApi.checkAvailability({ username: value });
+        if (err) {
+            serverErrorModal();
+            return;
+        }
+
+        if (!data.available) return setValidated(false);
+
+        setValidated(true);
+    }
+
+    return {
+        usernameValidated : validated,
+        handleChangeUsernameValue : handleChangeValue,
+        clearUsernameValidated : clearValidated,
+    }
+}
