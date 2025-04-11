@@ -57,3 +57,54 @@ export function useCheckUsernameAvailability() {
         clearUsernameValidated : clearValidated,
     }
 }
+
+export function useCheckEmailAvailability() {
+
+    const { serverErrorModal } = useStaticModal();
+
+    const [value, setValue] = useState<string>("");
+    const [validated, setValidated]= useState<boolean | undefined>(undefined);
+
+    useEffect(() => {
+        const timeoutId = setTimeout(() => {
+            setValidated(undefined);
+            handleCheckEmailExist();
+        }, 1000);
+
+        return () => clearTimeout(timeoutId);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [value]);
+
+    const handleChangeValue = (value : string) => {
+        setValue(value);
+    }
+
+    const clearValidated = () => {
+        setValidated(undefined);
+    }
+
+    const handleCheckEmailExist = async () => {
+        if (!value) return;
+        if (value.length > 50) return;
+        
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(value)) return;
+
+        const [err, data] = await accountApi.checkAvailability({ email: value });
+
+        if (err) {
+            serverErrorModal();
+            return;
+        }
+
+        if (!data.available) return setValidated(false);
+
+        setValidated(true);
+    }
+
+    return {
+        emailValidated : validated,
+        handleChangeEmailValue : handleChangeValue,
+        clearEmailalidated : clearValidated,
+    }
+}
