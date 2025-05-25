@@ -2,6 +2,7 @@ import { Button, Form, FormInstance, FormProps, Input, Modal, Select, SelectProp
 import { LockOutlined } from "@ant-design/icons";
 
 import { useTranslation } from "react-i18next";
+import { useCheckEmailAvailability, useCheckUsernameAvailability } from "../../hooks/global/useCheckAvailability";
 
 // types and interfaces
 import { EditAccountManagementBodyData } from "../../models/accountInterface";
@@ -26,6 +27,9 @@ export default function EditAccountModal({ form, roleOptions, open, selectedAcco
 
     const { t } = useTranslation(["account", "global"]);
 
+    const { usernameCheckLoad, usernameValidated, handleChangeUsernameValue, clearUsernameValidated  } = useCheckUsernameAvailability(selectedAccountData?.username);
+    const { emailCheckLoad, emailValidated, handleChangeEmailValue, clearEmailalidated } = useCheckEmailAvailability(selectedAccountData?.email ? selectedAccountData?.email : "");
+
     const onSubmit : FormProps<EditAccountForm>['onFinish'] = (values) => {
         submitEditAccount({
             accountId : selectedAccountData ? selectedAccountData.accountId : "",
@@ -34,6 +38,8 @@ export default function EditAccountModal({ form, roleOptions, open, selectedAcco
             email : values.email,
             roleId : values.role
         });
+        clearUsernameValidated();
+        clearEmailalidated();
     }
 
     return (
@@ -43,7 +49,11 @@ export default function EditAccountModal({ form, roleOptions, open, selectedAcco
                     title={`${t('account:editAccount')} ${selectedAccountData.name}`}
                     centered
                     open={open}
-                    onCancel={onClose}
+                    onCancel={() => {
+                        onClose();
+                        clearUsernameValidated();
+                        clearEmailalidated();
+                    }}
                     footer={null}
                     maskClosable={false}
                 >
@@ -73,12 +83,30 @@ export default function EditAccountModal({ form, roleOptions, open, selectedAcco
                                 {
                                     min: 4,
                                     message: t("account:USERNAME01"),
+                                },
+                                {
+                                    validator: async () => {
+                                        if (usernameValidated === false) {
+                                            throw new Error();
+                                        }
+                                    }
                                 }
                             ]}
+                            hasFeedback={usernameValidated === undefined ? false : true}
+                            validateStatus={
+                                usernameValidated === undefined ? undefined :
+                                usernameCheckLoad ? "validating" :
+                                !usernameValidated ? "error" : "success"
+                            }
+                            help={
+                                !usernameValidated && usernameValidated !== undefined ? t("account:ACCOUNT409-1") :
+                                usernameValidated === undefined ? undefined : ""
+                            }
                         >
                             <Input
                                 placeholder={t('account:username')}
                                 maxLength={20}
+                                onChange={e => handleChangeUsernameValue(e.target.value)}
                             />
                         </Form.Item>
                         <Form.Item
@@ -112,11 +140,29 @@ export default function EditAccountModal({ form, roleOptions, open, selectedAcco
                                     type: 'email', 
                                     message: t("account:EMAIL01") 
                                 },
+                                {
+                                    validator: async () => {
+                                        if (emailValidated === false) {
+                                            throw new Error();
+                                        }
+                                    }
+                                }
                             ]}
+                            hasFeedback={emailValidated === undefined ? false : true}
+                            validateStatus={
+                                emailValidated === undefined ? undefined :
+                                emailCheckLoad ? "validating" :
+                                !emailValidated ? "error" : "success"
+                            }
+                            help={
+                                !emailValidated && emailValidated !== undefined ? t("account:ACCOUNT409-2") :
+                                emailValidated === undefined ? undefined : ""
+                            }
                         >
                             <Input
                                 placeholder="example.email@mail.com"
                                 maxLength={50}
+                                onChange={e => handleChangeEmailValue(e.target.value)}
                             />
                         </Form.Item>
                         <Form.Item

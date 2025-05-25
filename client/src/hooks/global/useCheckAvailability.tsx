@@ -6,14 +6,16 @@ import useStaticModal from "../useStaticModal";
 
 
 
-export function useCheckUsernameAvailability() {
+export function useCheckUsernameAvailability(defaultUsername : string = "") {
 
     const { serverErrorModal } = useStaticModal();
 
     const [value, setValue] = useState<string>("");
     const [validated, setValidated]= useState<boolean | undefined>(undefined);
+    const [onLoad, setOnLoad] = useState<boolean>(true);
 
     useEffect(() => {
+        setOnLoad(true);
         const timeoutId = setTimeout(() => {
             setValidated(undefined);
             handleCheckUsernameExist();
@@ -36,36 +38,45 @@ export function useCheckUsernameAvailability() {
         if (!value) return;
         if (value.length > 20) return;
         if (value.length < 4) return;
+        if (defaultUsername && value === defaultUsername) return;
 
         const pattern = /^[a-zA-Z0-9_]+$/;
         if (!pattern.test(value)) return;
 
-        const [err, data] = await accountApi.checkAvailability({ username: value });
-        if (err) {
-            serverErrorModal();
-            return;
+        try {
+            const [err, data] = await accountApi.checkAvailability({ username: value });
+            if (err) {
+                serverErrorModal();
+                return;
+            }
+    
+            if (!data.available) return setValidated(false);
+    
+            setValidated(true);
+
+        } finally {
+            setOnLoad(false);
         }
-
-        if (!data.available) return setValidated(false);
-
-        setValidated(true);
     }
 
     return {
+        usernameCheckLoad : onLoad,
         usernameValidated : validated,
         handleChangeUsernameValue : handleChangeValue,
         clearUsernameValidated : clearValidated,
     }
 }
 
-export function useCheckEmailAvailability() {
+export function useCheckEmailAvailability(defaultEmail : string = "") {
 
     const { serverErrorModal } = useStaticModal();
 
     const [value, setValue] = useState<string>("");
     const [validated, setValidated]= useState<boolean | undefined>(undefined);
+    const [onLoad, setOnLoad] = useState<boolean>(true);
 
     useEffect(() => {
+        setOnLoad(true);
         const timeoutId = setTimeout(() => {
             setValidated(undefined);
             handleCheckEmailExist();
@@ -86,23 +97,31 @@ export function useCheckEmailAvailability() {
     const handleCheckEmailExist = async () => {
         if (!value) return;
         if (value.length > 50) return;
-        
+        if (defaultEmail && value === defaultEmail) return;
+
+
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(value)) return;
 
-        const [err, data] = await accountApi.checkAvailability({ email: value });
+        try {
+            const [err, data] = await accountApi.checkAvailability({ email: value });
+    
+            if (err) {
+                serverErrorModal();
+                return;
+            }
+    
+            if (!data.available) return setValidated(false);
+    
+            setValidated(true);
 
-        if (err) {
-            serverErrorModal();
-            return;
+        } finally {
+            setOnLoad(false);
         }
-
-        if (!data.available) return setValidated(false);
-
-        setValidated(true);
     }
 
     return {
+        emailCheckLoad : onLoad,
         emailValidated : validated,
         handleChangeEmailValue : handleChangeValue,
         clearEmailalidated : clearValidated,

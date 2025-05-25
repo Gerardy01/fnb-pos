@@ -32,10 +32,8 @@ accountRoutes.get("/action/user-info",
     AccountController.getUserAccountInfo
 );
 accountRoutes.get("/action/check-availability",
-    authenticate,
-    validatePermission(PermissionEnum.ACCOUNT_MANAGEMENT, 'read'),
     AccountController.checkAvailability
-)
+);
 accountRoutes.post("/",
     authenticate,
     validatePermission(PermissionEnum.ACCOUNT_MANAGEMENT, 'write'),

@@ -34,61 +34,12 @@ export function useChangeUsername() {
 
     const userInfo = useSelector((state : RootState) => state.userInfo);
 
-    const [changeUsernameValue, setChangeUsernameValue] = useState<string>(userInfo.username);
-    const [checkUsernameLoad, setCheckUsernameLoad] = useState<boolean>(false);
     const [changeUsernameLoad, setChangeUsernameLoad] = useState<boolean>(false);
-    const [validated, setValidated] = useState<boolean | undefined>(undefined);
     const [openChangeUsernameModal, setOpenChangeUsernameModal] = useState<boolean>(false);
-    const [changeUsernameBtnDisabled, setChangeUsernameBtnDisabled] = useState<boolean>(true);
     const [changeUsernameErrorMsg, setChangeUsernameErrorMsg] = useState<string>("");
-
-    useEffect(() => {
-        setChangeUsernameBtnDisabled(true);
-        setValidated(undefined);
-        setChangeUsernameErrorMsg("");
-        const timeoutId = setTimeout(() => {
-            handleCheckUsernameExist();
-        }, 1000);
-      
-        return () => clearTimeout(timeoutId);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [changeUsernameValue]);
-
-    const handleChangeUsernameValue = (value : string) => {
-        setChangeUsernameValue(value);
-    }
 
     const handleOpenChangeUsername = (open : boolean) : void => {
         setOpenChangeUsernameModal(open);
-    }
-
-    const handleCheckUsernameExist = async () => {
-        if (!changeUsernameValue) return;
-        if (changeUsernameValue.length > 20) return;
-        if (changeUsernameValue.length < 4) return;
-        if (changeUsernameValue === userInfo.username) return;
-
-        const pattern = /^[a-zA-Z0-9_]+$/;
-        if (!pattern.test(changeUsernameValue)) return;
-
-        setCheckUsernameLoad(true);
-
-        try {
-            const [err, data] = await accountApi.checkAvailability({ username: changeUsernameValue });
-
-            if (err) {
-                serverErrorModal();
-                return;
-            }
-
-            if (!data.available) return setValidated(false);
-
-            setValidated(true);
-            setChangeUsernameBtnDisabled(false);
-
-        } finally {
-            setCheckUsernameLoad(false);
-        }
     }
 
     const handleChangeUsername = async (data : ChangeUsernameForm) => {
@@ -132,24 +83,16 @@ export function useChangeUsername() {
 
             dispatch(setUserUsername(res.newValue));
             setOpenChangeUsernameModal(false);
-            setChangeUsernameValue(res.newValue);
-            setChangeUsernameBtnDisabled(true);
 
         } finally {
             setChangeUsernameLoad(false);
-            setValidated(undefined);
         }
     }
 
     return {
-        changeUsernameValue,
         openChangeUsernameModal,
-        changeUsernameBtnDisabled,
-        checkUsernameLoad,
-        usernameValidated : validated,
         changeUsernameLoad,
         changeUsernameErrorMsg,
-        handleChangeUsernameValue,
         handleOpenChangeUsername,
         handleChangeUsername,
     }
@@ -237,7 +180,6 @@ export function useChangeName() {
             setOpenChangeNameModal(false);
             setChangeNameBtnDisabled(true);
             
-            
         } finally {
             setChangeNameLoad(false);
         }
@@ -263,61 +205,12 @@ export function useChangeEmail() {
     const userInfo = useSelector((state : RootState) => state.userInfo);
     const { t } = useTranslation("account");
 
-    const [changeEmailValue, setChangeEmailValue] = useState<string>(userInfo.email);
-    const [checkEmailLoad, setCheckEmailLoad] = useState<boolean>(false);
     const [changeEmailLoad, setChangeEmailLoad] = useState<boolean>(false);
-    const [validated, setValidated] = useState<boolean | undefined>(undefined);
     const [openChangeEmailModal, setOpenChangeEmailModal] = useState<boolean>(false);
-    const [changeEmailBtnDisabled, setChangeEmailBtnDisabled] = useState<boolean>(true);
     const [changeEmailErrorMsg, setChangeEmailErrorMsg] = useState<string>("");
-
-    useEffect(() => {
-        if (changeEmailValue) setChangeEmailBtnDisabled(true);
-        if (!changeEmailValue) setChangeEmailBtnDisabled(false);
-        setValidated(undefined);
-        setChangeEmailErrorMsg("");
-        const timeoutId = setTimeout(() => {
-            handleCheckEmailExist();
-        }, 1000)
-
-        return () => clearTimeout(timeoutId);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [changeEmailValue]);
-
-    const handleChangeEmailValue = (value : string) => {
-        setChangeEmailValue(value);
-    }
 
     const handleOpenChangeEmail = (open : boolean) : void => {
         setOpenChangeEmailModal(open);
-    }
-
-    const handleCheckEmailExist = async () => {
-        if (!changeEmailValue) return;
-        if (changeEmailValue.length > 50) return;
-        if (changeEmailValue === userInfo.email) return;
-
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(changeEmailValue)) return;
-
-        setCheckEmailLoad(true);
-
-        try {
-            const [err, data] = await accountApi.checkAvailability({ email : changeEmailValue });
-
-            if (err) {
-                serverErrorModal();
-                return;
-            }
-
-            if (!data.available) return setValidated(false);
-
-            setValidated(true);
-            setChangeEmailBtnDisabled(false);
-
-        } finally {
-            setCheckEmailLoad(false);
-        }
     }
 
     const handleChangeEmail = async (data : ChangeEmailForm) => {
@@ -360,24 +253,16 @@ export function useChangeEmail() {
     
             setOpenChangeEmailModal(false);
             dispatch(setUserEmail(res.newValue));
-            setChangeEmailValue(res.newValue);
-            setChangeEmailBtnDisabled(true);
 
         } finally {
             setChangeEmailLoad(false);
-            setValidated(undefined);
         }
     }
 
     return {
-        changeEmailValue,
         openChangeEmailModal,
-        changeEmailBtnDisabled,
-        checkEmailLoad,
-        emailValidated : validated,
         changeEmailLoad,
         changeEmailErrorMsg,
-        handleChangeEmailValue,
         handleOpenChangeEmail,
         handleChangeEmail,
     }

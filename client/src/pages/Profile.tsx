@@ -4,6 +4,7 @@ import { ArrowLeftOutlined, LockOutlined } from "@ant-design/icons";
 
 import { useNavigate } from "react-router-dom";
 import useProfile, { useChangeName, useChangeUsername, useChangeEmail } from "../hooks/accounts/useProfile";
+import { useCheckEmailAvailability, useCheckUsernameAvailability } from "../hooks/global/useCheckAvailability";
 import { useTranslation } from "react-i18next";
 
 // components
@@ -111,15 +112,13 @@ export default function Profile() {
 
     const  { t } = useTranslation(["global", "account"]);
 
+    const { usernameCheckLoad, usernameValidated, handleChangeUsernameValue } = useCheckUsernameAvailability(userInfo.username);
+    const { emailCheckLoad, emailValidated, handleChangeEmailValue } = useCheckEmailAvailability(userInfo.email);
+
     const {
-        changeUsernameValue,
         openChangeUsernameModal,
-        changeUsernameBtnDisabled,
-        checkUsernameLoad,
-        usernameValidated,
         changeUsernameLoad,
         changeUsernameErrorMsg,
-        handleChangeUsernameValue,
         handleOpenChangeUsername,
         handleChangeUsername
     } = useChangeUsername();
@@ -135,14 +134,9 @@ export default function Profile() {
     } = useChangeName();
 
     const {
-        changeEmailValue,
         openChangeEmailModal,
-        changeEmailBtnDisabled,
-        checkEmailLoad,
-        emailValidated,
         changeEmailLoad,
         changeEmailErrorMsg,
-        handleChangeEmailValue,
         handleOpenChangeEmail,
         handleChangeEmail
     } = useChangeEmail();
@@ -219,11 +213,12 @@ export default function Profile() {
                 open={openChangeUsernameModal}
                 onCancel={() => handleOpenChangeUsername(false)}
                 handleSubmit={handleChangeUsername}
-                btnDisabled={changeUsernameBtnDisabled}
+                btnDisabled={!usernameValidated || usernameCheckLoad}
                 btnLoad={changeUsernameLoad}
             >
                 <Form.Item
                     name="username"
+                    required
                     rules={[
                         { required: true, message: t("global:fieldRequired") },
                         {
@@ -237,29 +232,33 @@ export default function Profile() {
                         {
                             min: 4,
                             message: t("account:USERNAME01"),
+                        },
+                        {
+                            validator: async () => {
+                                if (usernameValidated === false) {
+                                    throw new Error();
+                                }
+                            }
                         }
                     ]}
-                    validateFirst
-                    initialValue={changeUsernameValue}
-                    hasFeedback
+                    hasFeedback={usernameValidated === undefined ? false : true}
                     validateStatus={
-                        changeUsernameErrorMsg ? "error" :
-                        checkUsernameLoad ? "validating" :
-                        usernameValidated === undefined ? "" :
+                        usernameValidated === undefined ? undefined :
+                        usernameCheckLoad ? "validating" :
                         !usernameValidated ? "error" : "success"
                     }
                     help={
                         !usernameValidated && usernameValidated !== undefined ? t("account:ACCOUNT409-1") :
-                        changeUsernameErrorMsg ? changeUsernameErrorMsg : undefined // undefined = using form rules msg
+                        changeUsernameErrorMsg ? changeEmailErrorMsg :
+                        usernameValidated === undefined ? undefined : ""
                     }
                 >
                     <Input
                         size="large"
                         placeholder={t("account:newUsername")}
-                        value={changeUsernameValue}
-                        onChange={e => handleChangeUsernameValue(e.target.value)}
-                        disabled={checkUsernameLoad}
                         maxLength={20}
+                        defaultValue={userInfo.username}
+                        onChange={e => handleChangeUsernameValue(e.target.value)}
                     />
                 </Form.Item>
             </FormModal>
@@ -295,11 +294,12 @@ export default function Profile() {
                 open={openChangeEmailModal}
                 onCancel={() => handleOpenChangeEmail(false)}
                 handleSubmit={handleChangeEmail}
-                btnDisabled={changeEmailBtnDisabled}
+                btnDisabled={!emailValidated || emailCheckLoad}
                 btnLoad={changeEmailLoad}
             >
                 <Form.Item
                     name="email"
+                    required
                     rules={[
                         {
                             max: 50,
@@ -309,28 +309,32 @@ export default function Profile() {
                             type: 'email', 
                             message: t("account:EMAIL01") 
                         },
+                        {
+                            validator: async () => {
+                                if (emailValidated === false) {
+                                    throw new Error();
+                                }
+                            }
+                        }
                     ]}
-                    validateFirst
-                    initialValue={changeEmailValue}
-                    hasFeedback 
+                    hasFeedback={emailValidated === undefined ? false : true}
                     validateStatus={
-                        changeEmailErrorMsg ? "error" :
-                        checkEmailLoad ? "validating" :
-                        emailValidated === undefined ? "" :
+                        emailValidated === undefined ? undefined :
+                        emailCheckLoad ? "validating" :
                         !emailValidated ? "error" : "success"
                     }
                     help={
                         !emailValidated && emailValidated !== undefined ? t("account:ACCOUNT409-2") :
-                        changeEmailErrorMsg ? changeEmailErrorMsg : undefined // undefined = using form rules msg
+                        changeEmailErrorMsg ? changeEmailErrorMsg :
+                        emailValidated === undefined ? undefined : ""
                     }
                 >
                     <Input
                         size="large"
                         placeholder={t("account:newEmail")}
-                        value={changeUsernameValue}
-                        onChange={e => handleChangeEmailValue(e.target.value)}
-                        disabled={checkEmailLoad}
                         maxLength={50}
+                        defaultValue={userInfo.email}
+                        onChange={e => handleChangeEmailValue(e.target.value)}
                     />
                 </Form.Item>
             </FormModal>

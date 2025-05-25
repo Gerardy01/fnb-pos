@@ -2,7 +2,7 @@ import { Button, Form, FormInstance, FormProps, Input, Modal, Select, SelectProp
 
 import { useTranslation } from "react-i18next";
 
-import { useCheckUsernameAvailability } from "../../hooks/global/useCheckAvailability";
+import { useCheckEmailAvailability, useCheckUsernameAvailability } from "../../hooks/global/useCheckAvailability";
 
 // types and interfaces
 import { CreateAccountData } from "../../models/accountInterface";
@@ -27,10 +27,13 @@ export default function AddAccountModal({ form, roleOptions, open, submitLoad, o
 
     const { t } = useTranslation(["account", "global"]);
 
-    const { usernameValidated, handleChangeUsernameValue, clearUsernameValidated } = useCheckUsernameAvailability();
+    const { usernameCheckLoad, usernameValidated, handleChangeUsernameValue, clearUsernameValidated } = useCheckUsernameAvailability();
+    const { emailCheckLoad, emailValidated, handleChangeEmailValue, clearEmailalidated } = useCheckEmailAvailability();
 
     const onSubmit : FormProps<AddAccountForm>['onFinish'] = (values) => {
         submitAddAccount(values);
+        clearUsernameValidated();
+        clearEmailalidated();
     }
 
     return (
@@ -41,6 +44,7 @@ export default function AddAccountModal({ form, roleOptions, open, submitLoad, o
             onCancel={() => {
                 onClose();
                 clearUsernameValidated();
+                clearEmailalidated();
             }}  
             footer={null}
             maskClosable={false}
@@ -72,7 +76,7 @@ export default function AddAccountModal({ form, roleOptions, open, submitLoad, o
                             message: t("account:USERNAME01"),
                         },
                         {
-                            validator: async (_) => {
+                            validator: async () => {
                                 if (usernameValidated === false) {
                                     throw new Error();
                                 }
@@ -82,6 +86,7 @@ export default function AddAccountModal({ form, roleOptions, open, submitLoad, o
                     hasFeedback={usernameValidated === undefined ? false : true}
                     validateStatus={
                         usernameValidated === undefined ? undefined :
+                        usernameCheckLoad ? "validating" :
                         !usernameValidated ? "error" : "success"
                     }
                     help={
@@ -124,11 +129,29 @@ export default function AddAccountModal({ form, roleOptions, open, submitLoad, o
                             type: 'email', 
                             message: t("account:EMAIL01") 
                         },
+                        {
+                            validator: async () => {
+                                if (emailValidated === false) {
+                                    throw new Error();
+                                }
+                            }
+                        }
                     ]}
+                    hasFeedback={emailValidated === undefined ? false : true}
+                    validateStatus={
+                        emailValidated === undefined ? undefined :
+                        emailCheckLoad ? "validating" :
+                        !emailValidated ? "error" : "success"
+                    }
+                    help={
+                        !emailValidated && emailValidated !== undefined ? t("account:ACCOUNT409-2") :
+                        emailValidated === undefined ? undefined : ""
+                    }
                 >
                     <Input
                         placeholder="example.email@mail.com"
                         maxLength={50}
+                        onChange={e => handleChangeEmailValue(e.target.value)}
                     />
                 </Form.Item>
                 <Form.Item
