@@ -1,12 +1,13 @@
 
 // exceptions
-import { DataNotFound, NotValid } from "../utility/exceptions";
+import { DataNotFound, NotValid, WrongFormat } from "../utility/exceptions";
 
 // utils
 import { DefaultRoleEnum, PermissionEnum } from "../utility/enums";
+import { validateEmail } from "../utility/utils";
 
 // types and interfaces
-import { IAccessTokenBody, ILoginData, ISuperAdminLoginData, LoginReturnData } from "../interfaces/IAuth"
+import { IAccessTokenBody, IGenerateOtpData, ILoginData, ISuperAdminLoginData, LoginReturnData } from "../interfaces/IAuth"
 import { IHashProvider } from "../providers/hashProvider";
 import { IJwtProvider } from "../providers/jwtProvider";
 import { IEnvData } from "../interfaces/IConfig";
@@ -17,13 +18,15 @@ import { IuaParserProvider } from "../providers/uaParserProvider";
 import { IOrganizationService } from "./organizationService";
 import { IRolePermissionService } from "./rolePermissionService";
 import { IAccountService } from "./accountService";
+import { IOtpAuthRepository } from "../repositories/otpCodeRepository";
 export interface IAuthService {
     login(data : ILoginData, userAgent : string, transaction : Transaction) : Promise<LoginReturnData>;
     superAdminLogin(data : ISuperAdminLoginData, userAgent : string, transaction? : Transaction) : Promise<LoginReturnData>;
     generateAccessToken(refreshToken : string, userAgent : string) : Promise<string>;
     logout(refreshToken : string) : Promise<void>;
-    logoutAllSession(accountId : string) : Promise<boolean>
-    authenticate(accesToken : string) : Promise<IAccessTokenBody>
+    logoutAllSession(accountId : string) : Promise<boolean>;
+    generateOtpCode(data : IGenerateOtpData) : Promise<void>;
+    authenticate(accesToken : string) : Promise<IAccessTokenBody>;
 }
 
 
@@ -35,6 +38,7 @@ export class AuthService implements IAuthService {
         private rolePermissionService : IRolePermissionService,
         private accountService : IAccountService,
         private refreshTokenRepository : IRefreshTokenRepository,
+        private otpAuthRepository : IOtpAuthRepository,
         private hashProvider : IHashProvider,
         private jwtProvider : IJwtProvider,
         private uaParserProvider : IuaParserProvider,
@@ -279,6 +283,28 @@ export class AuthService implements IAuthService {
             accountRoleName : decoded.accountRoleName,
             permissions : decoded.permissions
         }
+    }
+
+    async generateOtpCode(data: IGenerateOtpData): Promise<void> {
+        const { valid : validEmail, message : emailNotValidMessage } = validateEmail(data.address);
+        if (!validEmail) {
+            throw new WrongFormat(emailNotValidMessage);
+        }
+
+        // check addresses any active otp
+
+        // check if code is occupied
+
+        const expiredSec = data.expired_second ? data.expired_second : Number(this.envData.otpDefaultExpirySec);
+
+        const currentTime = new Date();
+        const expiredDate = new Date(currentTime.getTime() + expiredSec * 1000);
+
+        const otpAuth = await this.otpAuthRepository.createOtpAuth({
+            code : 0,
+            send_to : data.address,
+            expires_at : expiredDate,
+        });
     }
 
     private async checkAndRevokeSession(accountId : string, cap : number = 3, transaction? : Transaction) : Promise<void> {

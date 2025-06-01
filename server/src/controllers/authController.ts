@@ -5,7 +5,7 @@ import sequelize from "../config/database";
 import { authService } from '../services';
 
 // exceptions
-import { DataNotFound, NotValid } from '../utility/exceptions';
+import { DataNotFound, NotValid, WrongFormat } from '../utility/exceptions';
 
 // types and interfaces
 import { Transaction  } from 'sequelize';
@@ -184,6 +184,36 @@ class AuthController {
 
             if (e instanceof NotValid) {
                 return res.status(401).json({
+                    "status" : "failed",
+                    "message" : e.message,
+                    "userMessage" : e.message,
+                });
+            }
+
+            return res.status(500).json({
+                "status" : "failed",
+                "message" : "server error",
+                "userMessage" : "500",
+                "errors" : e
+            });
+        }
+    }
+
+    static async generateOtpCode(req : Request, res : Response) {
+        try {
+
+            await authService.generateOtpCode(req.body);
+
+            return res.status(200).json({
+                "status" : "success",
+                "message" : "new otp generated",
+                "userMessage" : "",
+            });
+            
+        } catch(e) {
+
+            if (e instanceof WrongFormat) {
+                return res.status(422).json({
                     "status" : "failed",
                     "message" : e.message,
                     "userMessage" : e.message,

@@ -20,6 +20,11 @@ export interface IAccessTokenBody {
     permissions : IRolePermissionData[]
 }
 
+export interface IGenerateOtpData {
+    address : string;
+    expired_second : number;
+}
+
 export type LoginReturnData = {
     accessToken : string;
     refreshToken : string;

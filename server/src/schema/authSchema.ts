@@ -11,3 +11,8 @@ export const SuperAdminLoginSchema = z.object({
     organizationNo : z.string().min(1)
 });
 
+export const GenerateOtpCodeSchema = z.object({
+    address : z.string().min(1),
+    expired_second : z.number().min(10).optional(),
+});
+

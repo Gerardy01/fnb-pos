@@ -8,6 +8,8 @@ import PageAccessPermission from "./pageAccessPermission.models";
 import RolePermissions from "./rolePermission.model";
 import RolePageAccessPermission from "./rolePageAccessPermission.model";
 import RefreshToken from "./refreshToken.model";
+import OtpAuth from "./otpAuth.model";
+import TokenAuth from "./tokenAuth.model";
 
 
 
@@ -48,5 +50,7 @@ export {
     PageAccessPermission,
     RefreshToken,
     RolePageAccessPermission,
-    RolePermissions
+    RolePermissions,
+    OtpAuth,
+    TokenAuth,
 }
