@@ -72,3 +72,7 @@ export function validateEmail(email : string) : { valid : boolean, message : str
     }
     return {valid: true, message: ""}
 }
+
+export function generateCode(): number {
+    return Math.floor(100000 + Math.random() * 900000);
+}

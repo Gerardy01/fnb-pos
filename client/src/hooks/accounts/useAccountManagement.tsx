@@ -4,6 +4,7 @@ import { SelectProps, TableColumnsType, Space, Button, Form } from 'antd';
 import { EditOutlined } from '@ant-design/icons';
 
 import useStaticModal from '../useStaticModal';
+import useNotification from '../useNotification';
 import { useTranslation } from 'react-i18next';
 
 import { accountApi, roleApi } from '../../api';
@@ -23,6 +24,7 @@ export interface AccountTableData {
 export default function useAccountManagement() {
 
     const { serverErrorModal, errorModal } = useStaticModal();
+    const { successnotification } = useNotification();
 
     const { t } = useTranslation(["global", "account", "role"]);
 
@@ -209,7 +211,8 @@ export default function useAccountManagement() {
                 name : value.name,
                 email : value.email !== undefined ? value.email : null,
                 roleId : value.role,
-                password : value.password
+                password : value.password,
+                otpCode : Number(value.otpCode)
             });
     
             if (err) {
@@ -217,6 +220,11 @@ export default function useAccountManagement() {
                     const error = err.response.data.schemaErrors ? err.response.data.schemaErrors[0] : undefined;
                     if (!error) return;
                     errorModal(undefined, `${error.field} is ${error.message}`);
+                    return;
+                }
+
+                if (err.status === 403) {
+                    errorModal(t('global:failed'), t(`account:${err.response.data.message}`));
                     return;
                 }
     
@@ -246,6 +254,8 @@ export default function useAccountManagement() {
                 roleId : data.roleId
             }]);
             openAddAccount(false);
+            successnotification(t("account:accountAddSuccess"));
+
         } finally {
             setAddAccountSubmitLoad(false)
         }
@@ -262,6 +272,11 @@ export default function useAccountManagement() {
                     const error = err.response.data.schemaErrors ? err.response.data.schemaErrors[0] : undefined;
                     if (!error) return;
                     errorModal(undefined, `${error.field} is ${error.message}`);
+                    return;
+                }
+
+                if (err.status === 403) {
+                    errorModal(t('global:failed'), t(`account:${err.response.data.message}`));
                     return;
                 }
     
@@ -291,6 +306,8 @@ export default function useAccountManagement() {
             }]);
     
             openEditAccount(false);
+            successnotification(t("account:accountChangedSuccess"));
+
         } finally {
             setEditAccountSubmitLoad(false);
         }

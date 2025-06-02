@@ -29,6 +29,7 @@ import {
 import { IAccountRepository } from "../repositories/accountRepository";
 import { IHashProvider } from "../providers/hashProvider";
 import { IRolePermissionService } from "./rolePermissionService";
+import { IOtpAuthRepository } from "../repositories/otpAuthRepository";
 export interface IAccountService {
     getAllAccount(organizationId : string, userRole : string, userAccountId : string) : Promise<AccountDataReturn[]>
     getAccountById(accountId : string) : Promise<AccountDataReturn>
@@ -53,6 +54,7 @@ export class AccountService implements IAccountService {
     constructor(
         private rolePermissionService : IRolePermissionService,
         private accountRepository : IAccountRepository,
+        private otpAuthRepository : IOtpAuthRepository,
         private hashProvider : IHashProvider,
     ) {}
 
@@ -183,6 +185,13 @@ export class AccountService implements IAccountService {
         // check if role exist
         const role = await this.rolePermissionService.getOneRole(data.roleId, organizationId, userRole);
         
+        // check email OTP
+        if (inputedEmail !== "") {
+            console.log(data.otpCode)
+            if (!data.otpCode) throw new NotValid("ACCOUNT403-6");
+            const otpValid = await this.validateOtpValid(data.otpCode, inputedEmail);
+            if (!otpValid) throw new NotValid("ACCOUNT403-6");
+        }
 
         const hashedPassword = await this.hashProvider.hashString(data.password);
 
@@ -457,6 +466,13 @@ export class AccountService implements IAccountService {
 
         // check if role exist
         const role = await this.rolePermissionService.getOneRole(data.roleId, organizationId, userRole);
+
+        // check email OTP
+        if (inputedEmail !== account.email && inputedEmail !== "") {
+            if (!data.otpCode) throw new NotValid("ACCOUNT403-6");
+            const otpValid = await this.validateOtpValid(data.otpCode, inputedEmail);
+            if (!otpValid) throw new NotValid("ACCOUNT403-6");
+        }
         
         account.username = data.username;
         account.name = data.name;
@@ -506,5 +522,14 @@ export class AccountService implements IAccountService {
         }
 
         return allowed;
+    }
+
+    private async validateOtpValid(code : number, address : string) : Promise<boolean> {
+        const currentDate = new Date();
+        const validOtp = await this.otpAuthRepository.findActiveOtpsByCode(code);
+        if (!validOtp || validOtp.send_to !== address || (validOtp && validOtp.expires_at < currentDate)) return false;
+
+        await this.otpAuthRepository.revokeActiveOtpByAddress(address);
+        return true;
     }
 }

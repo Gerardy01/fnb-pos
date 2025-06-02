@@ -15,7 +15,7 @@ import { PermissionRepository } from "../repositories/permissionRepository";
 import { RefreshTokenRepository } from "../repositories/refreshTokenRepository";
 import { AdminOrganizationRepository } from "../repositories/adminOrganizationRepository";
 import { PageAccessPermissionRepository } from "../repositories/pageAccessPermissionRepository";
-import { OtpAuthRepository } from "../repositories/otpCodeRepository";
+import { OtpAuthRepository } from "../repositories/otpAuthRepository";
 
 // providers
 import { BcryptHashProvider } from "../providers/hashProvider";
@@ -47,7 +47,7 @@ const counterService = new CounterService(counterRepository);
 // main service
 export const organizationService = new OrganizationService(counterService, organizationRepository, adminOrganizationRepository);
 export const rolePermissionService = new RolePermissionService(roleRepository, permissionRepository, pageAccessPermissionRepository);
-export const accountService = new AccountService(rolePermissionService, accountRepository, bcryptHashProvider);
+export const accountService = new AccountService(rolePermissionService, accountRepository, otpAuthRepository, bcryptHashProvider);
 export const authService = new AuthService(
     organizationService,
     rolePermissionService,

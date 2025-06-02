@@ -6,6 +6,7 @@ export const CreateAccountSchema = z.object({
     email : z.string().max(50).nullable(),
     password : z.string().min(1),
     roleId : z.number().min(1),
+    otpCode : z.number().min(6).optional().nullable(),
 });
 
 export const EditAccountManagementSchema = z.object({
@@ -14,6 +15,7 @@ export const EditAccountManagementSchema = z.object({
     name : z.string().min(1),
     email : z.string().max(50).nullable(),
     roleId : z.number().min(1),
+    otpCode : z.number().min(6).optional().nullable(),
 });
 
 export const CreateSuperadminSchema = z.object({

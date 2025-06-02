@@ -1,8 +1,9 @@
-import { Button, Form, FormInstance, FormProps, Input, Modal, Select, SelectProps } from "antd";
+import { Button, Form, FormInstance, FormProps, Input, Modal, Select, SelectProps, Space } from "antd";
 
 import { useTranslation } from "react-i18next";
 
 import { useCheckEmailAvailability, useCheckUsernameAvailability } from "../../hooks/global/useCheckAvailability";
+import useGenerateOtp from "../../hooks/authentication/useGenerateOtp";
 
 // types and interfaces
 import { CreateAccountData } from "../../models/accountInterface";
@@ -25,10 +26,11 @@ interface Props {
 
 export default function AddAccountModal({ form, roleOptions, open, submitLoad, onClose, onSubmit : submitAddAccount } : Props) {
 
-    const { t } = useTranslation(["account", "global"]);
+    const { t } = useTranslation(["account", "global", "auth"]);
 
     const { usernameCheckLoad, usernameValidated, handleChangeUsernameValue, clearUsernameValidated } = useCheckUsernameAvailability();
     const { emailCheckLoad, emailValidated, handleChangeEmailValue, clearEmailalidated } = useCheckEmailAvailability();
+    const { generateOtpCountdown, generateOtpLoad, generateOtpCode, handleChangeAddress, restartCountdown } = useGenerateOtp();
 
     const onSubmit : FormProps<AddAccountForm>['onFinish'] = (values) => {
         submitAddAccount(values);
@@ -45,6 +47,7 @@ export default function AddAccountModal({ form, roleOptions, open, submitLoad, o
                 onClose();
                 clearUsernameValidated();
                 clearEmailalidated();
+                restartCountdown();
             }}  
             footer={null}
             maskClosable={false}
@@ -117,43 +120,108 @@ export default function AddAccountModal({ form, roleOptions, open, submitLoad, o
                         maxLength={50}
                     />
                 </Form.Item>
-                <Form.Item
-                    name="email"
-                    label={t('account:emailOptional')}
-                    rules={[
-                        {
-                            max: 50,
-                            message: t("account:EMAIL02"),
-                        },
-                        { 
-                            type: 'email', 
-                            message: t("account:EMAIL01") 
-                        },
-                        {
-                            validator: async () => {
-                                if (emailValidated === false) {
-                                    throw new Error();
+                <div style={styles.emailGroupFormHolder}>
+                    <Form.Item
+                        style={styles.emailForm}
+                        name="email"
+                        label={t('account:emailOptional')}
+                        rules={[
+                            {
+                                max: 50,
+                                message: t("account:EMAIL02"),
+                            },
+                            { 
+                                type: 'email', 
+                                message: t("account:EMAIL01") 
+                            },
+                            {
+                                validator: async () => {
+                                    if (emailValidated === false) {
+                                        throw new Error();
+                                    }
                                 }
                             }
+                        ]}
+                        hasFeedback={emailValidated === undefined ? false : true}
+                        validateStatus={
+                            emailValidated === undefined ? undefined :
+                            emailCheckLoad ? "validating" :
+                            !emailValidated ? "error" : "success"
                         }
-                    ]}
-                    hasFeedback={emailValidated === undefined ? false : true}
-                    validateStatus={
-                        emailValidated === undefined ? undefined :
-                        emailCheckLoad ? "validating" :
-                        !emailValidated ? "error" : "success"
-                    }
-                    help={
-                        !emailValidated && emailValidated !== undefined ? t("account:ACCOUNT409-2") :
-                        emailValidated === undefined ? undefined : ""
-                    }
-                >
-                    <Input
-                        placeholder="example.email@mail.com"
-                        maxLength={50}
-                        onChange={e => handleChangeEmailValue(e.target.value)}
-                    />
-                </Form.Item>
+                        help={
+                            !emailValidated && emailValidated !== undefined ? t("account:ACCOUNT409-2") :
+                            emailValidated === undefined ? undefined : ""
+                        }
+                    >
+                        <Input
+                            placeholder="example.email@mail.com"
+                            maxLength={50}
+                            onChange={e => {
+                                handleChangeEmailValue(e.target.value);
+                                handleChangeAddress(e.target.value);
+                                form.resetFields(["otpCode"]);
+                            }}
+                        />
+                    </Form.Item>
+                    <Form.Item
+                        name={"otpCode"}
+                        label={t("account:otp")}
+                        style={styles.otpForm}
+                        rules={[
+                            ({ getFieldValue }) => ({
+                                validator(_, value) {
+                                    const email = getFieldValue("email");
+                                    const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email || "");
+                                    
+                                    if (
+                                        (!email || email.trim() === "") ||
+                                        emailValidated == false ||
+                                        !isValidEmail
+                                    ) {
+                                        return Promise.resolve();
+                                    }
+
+                                    if (!value || value.length < 6) {
+                                        return Promise.reject(t("account:ACCOUNT403-6"));
+                                    }
+
+                                    if (Number.isNaN(Number(value))) {
+                                        return Promise.reject(t("account:otpMustNumber"))
+                                    }
+
+                                    return Promise.resolve();
+                                }
+                            })
+                        ]}
+                    >
+                        <Space direction="vertical">
+                            <Space.Compact>
+                                <Input
+                                    name="otpCode"
+                                    maxLength={6}
+                                    disabled={
+                                        (form.getFieldValue("email") == null) ||
+                                        (form.getFieldError("email").length > 0 && form.getFieldError("email")[0] != "") ||
+                                        emailCheckLoad ||
+                                        emailValidated == false
+                                    }
+                                />
+                                <Button
+                                    type="primary"
+                                    disabled={
+                                        (form.getFieldValue("email") == null) ||
+                                        (form.getFieldError("email").length > 0 && form.getFieldError("email")[0] != "") ||
+                                        emailCheckLoad ||
+                                        emailValidated == false ||
+                                        generateOtpCountdown > 0
+                                    }
+                                    onClick={generateOtpCode}
+                                    loading={generateOtpLoad}
+                                >{generateOtpCountdown > 0 ? `${generateOtpCountdown}s` : t("auth:code")}</Button>
+                            </Space.Compact>
+                        </Space>
+                    </Form.Item>
+                </div>
                 <Form.Item
                     name="role"
                     label={t('account:role')}
@@ -231,6 +299,7 @@ export default function AddAccountModal({ form, roleOptions, open, submitLoad, o
                         htmlType="submit"
                         size="large"
                         loading={submitLoad}
+                        disabled={emailCheckLoad || usernameCheckLoad}
                     >
                         {t("global:submit")}
                     </Button>
@@ -243,6 +312,16 @@ export default function AddAccountModal({ form, roleOptions, open, submitLoad, o
 const styles : { [key: string]: React.CSSProperties } = {
     form : {
         paddingTop: '1rem',
+    },
+    emailGroupFormHolder : {
+        display: 'flex'
+    },
+    otpForm : {
+        marginLeft: '10px',
+        width: '30%'
+    },
+    emailForm : {
+        flex: 1
     },
     submitBtnHolder : {
         marginBottom: '0px',

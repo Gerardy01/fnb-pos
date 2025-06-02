@@ -1,8 +1,9 @@
-import { Button, Form, FormInstance, FormProps, Input, Modal, Select, SelectProps } from "antd";
+import { Button, Form, FormInstance, FormProps, Input, Modal, Select, SelectProps, Space } from "antd";
 import { LockOutlined } from "@ant-design/icons";
 
 import { useTranslation } from "react-i18next";
 import { useCheckEmailAvailability, useCheckUsernameAvailability } from "../../hooks/global/useCheckAvailability";
+import useGenerateOtp from "../../hooks/authentication/useGenerateOtp";
 
 // types and interfaces
 import { EditAccountManagementBodyData } from "../../models/accountInterface";
@@ -11,6 +12,7 @@ type EditAccountForm = {
     name : string;
     email : string | null;
     role : number;
+    otpCode? : number;
 }
 interface Props {
     form : FormInstance;
@@ -25,10 +27,11 @@ interface Props {
 
 export default function EditAccountModal({ form, roleOptions, open, selectedAccountData, submitLoad, onClose, onSubmit : submitEditAccount } : Props) {
 
-    const { t } = useTranslation(["account", "global"]);
+    const { t } = useTranslation(["account", "global", "auth"]);
 
     const { usernameCheckLoad, usernameValidated, handleChangeUsernameValue, clearUsernameValidated  } = useCheckUsernameAvailability(selectedAccountData?.username);
     const { emailCheckLoad, emailValidated, handleChangeEmailValue, clearEmailalidated } = useCheckEmailAvailability(selectedAccountData?.email ? selectedAccountData?.email : "");
+    const { generateOtpCountdown, generateOtpLoad, generateOtpCode, handleChangeAddress, restartCountdown } = useGenerateOtp();
 
     const onSubmit : FormProps<EditAccountForm>['onFinish'] = (values) => {
         submitEditAccount({
@@ -36,7 +39,8 @@ export default function EditAccountModal({ form, roleOptions, open, selectedAcco
             username : values.username,
             name : values.name,
             email : values.email,
-            roleId : values.role
+            roleId : values.role,
+            otpCode : Number(values.otpCode),
         });
         clearUsernameValidated();
         clearEmailalidated();
@@ -53,6 +57,7 @@ export default function EditAccountModal({ form, roleOptions, open, selectedAcco
                         onClose();
                         clearUsernameValidated();
                         clearEmailalidated();
+                        restartCountdown();
                     }}
                     footer={null}
                     maskClosable={false}
@@ -127,44 +132,112 @@ export default function EditAccountModal({ form, roleOptions, open, selectedAcco
                                 maxLength={50}
                             />
                         </Form.Item>
-                        <Form.Item
-                            name="email"
-                            label={t('account:emailOptional')}
-                            initialValue={selectedAccountData.email == "-" ? "" : selectedAccountData.email}
-                            rules={[
-                                {
-                                    max: 50,
-                                    message: t("account:EMAIL02"),
-                                },
-                                { 
-                                    type: 'email', 
-                                    message: t("account:EMAIL01") 
-                                },
-                                {
-                                    validator: async () => {
-                                        if (emailValidated === false) {
-                                            throw new Error();
+                        <div style={styles.emailGroupFormHolder}>
+                            <Form.Item
+                                style={styles.emailForm}
+                                name="email"
+                                label={t('account:emailOptional')}
+                                initialValue={selectedAccountData.email == "-" ? "" : selectedAccountData.email}
+                                rules={[
+                                    {
+                                        max: 50,
+                                        message: t("account:EMAIL02"),
+                                    },
+                                    { 
+                                        type: 'email', 
+                                        message: t("account:EMAIL01") 
+                                    },
+                                    {
+                                        validator: async () => {
+                                            if (emailValidated === false) {
+                                                throw new Error();
+                                            }
                                         }
                                     }
+                                ]}
+                                hasFeedback={emailValidated === undefined ? false : true}
+                                validateStatus={
+                                    emailValidated === undefined ? undefined :
+                                    emailCheckLoad ? "validating" :
+                                    !emailValidated ? "error" : "success"
                                 }
-                            ]}
-                            hasFeedback={emailValidated === undefined ? false : true}
-                            validateStatus={
-                                emailValidated === undefined ? undefined :
-                                emailCheckLoad ? "validating" :
-                                !emailValidated ? "error" : "success"
-                            }
-                            help={
-                                !emailValidated && emailValidated !== undefined ? t("account:ACCOUNT409-2") :
-                                emailValidated === undefined ? undefined : ""
-                            }
-                        >
-                            <Input
-                                placeholder="example.email@mail.com"
-                                maxLength={50}
-                                onChange={e => handleChangeEmailValue(e.target.value)}
-                            />
-                        </Form.Item>
+                                help={
+                                    !emailValidated && emailValidated !== undefined ? t("account:ACCOUNT409-2") :
+                                    emailValidated === undefined ? undefined : ""
+                                }
+                            >
+                                <Input
+                                    placeholder="example.email@mail.com"
+                                    maxLength={50}
+                                    onChange={e => {
+                                        handleChangeEmailValue(e.target.value);
+                                        handleChangeAddress(e.target.value);
+                                        form.resetFields(["otpCode"]);
+                                    }}
+                                />
+                            </Form.Item>
+                            <Form.Item
+                                name={"otpCode"}
+                                label={t("account:otp")}
+                                style={styles.otpForm}
+                                rules={[
+                                    ({ getFieldValue }) => ({
+                                        validator(_, value) {
+                                            const email = getFieldValue("email");
+                                            const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email || "");
+                                            
+                                            if (
+                                                (!email || email.trim() === "") ||
+                                                email == selectedAccountData.email ||
+                                                emailValidated == false ||
+                                                !isValidEmail
+                                            ) {
+                                                return Promise.resolve();
+                                            }
+
+                                            if (!value || value.length < 6) {
+                                                return Promise.reject(t("account:ACCOUNT403-6"));
+                                            }
+
+                                            if (Number.isNaN(Number(value))) {
+                                                return Promise.reject(t("account:otpMustNumber"))
+                                            }
+
+                                            return Promise.resolve();
+                                        }
+                                    })
+                                ]}
+                            >
+                                <Space direction="vertical">
+                                    <Space.Compact>
+                                        <Input
+                                            name="otpCode"
+                                            maxLength={6}
+                                            disabled={
+                                                (form.getFieldValue("email") == selectedAccountData.email) ||
+                                                (form.getFieldValue("email") == null) ||
+                                                (form.getFieldError("email").length > 0 && form.getFieldError("email")[0] != "") ||
+                                                emailCheckLoad ||
+                                                emailValidated == false
+                                            }
+                                        />
+                                        <Button
+                                            type="primary"
+                                            disabled={
+                                                (form.getFieldValue("email") == selectedAccountData.email) ||
+                                                (form.getFieldValue("email") == null) ||
+                                                (form.getFieldError("email").length > 0 && form.getFieldError("email")[0] != "") ||
+                                                emailCheckLoad ||
+                                                emailValidated == false ||
+                                                generateOtpCountdown > 0
+                                            }
+                                            onClick={generateOtpCode}
+                                            loading={generateOtpLoad}
+                                        >{generateOtpCountdown > 0 ? `${generateOtpCountdown}s` : t("auth:code")}</Button>
+                                    </Space.Compact>
+                                </Space>
+                            </Form.Item>
+                        </div>
                         <Form.Item
                             name="role"
                             label={t('account:role')}
@@ -209,6 +282,7 @@ export default function EditAccountModal({ form, roleOptions, open, selectedAcco
                                         htmlType="submit"
                                         size="large"
                                         loading={submitLoad}
+                                        disabled={emailCheckLoad}
                                     >
                                         {t("global:submit")}
                                     </Button>
@@ -225,6 +299,16 @@ export default function EditAccountModal({ form, roleOptions, open, selectedAcco
 const styles : { [key: string]: React.CSSProperties } = {
     form : {
         paddingTop: '1rem',
+    },
+    emailGroupFormHolder : {
+        display: 'flex'
+    },
+    otpForm : {
+        marginLeft: '10px',
+        width: '30%'
+    },
+    emailForm : {
+        flex: 1
     },
     submitBtnHolder : {
         width: '100%',

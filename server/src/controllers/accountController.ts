@@ -146,6 +146,14 @@ class AccountController {
                 });
             }
 
+            if (e instanceof NotValid) {
+                return res.status(403).json({
+                    "status" : "failed",
+                    "message" : e.message,
+                    "userMessage" : e.message,
+                });
+            }
+
             if (e instanceof DataNotFound) {
                 return res.status(404).json({
                     "status" : "failed",
@@ -377,6 +385,14 @@ class AccountController {
             })
 
         } catch(e) {
+
+            if (e instanceof NotValid) {
+                return res.status(403).json({
+                    "status" : "failed",
+                    "message" : e.message,
+                    "userMessage" : e.message,
+                });
+            }
 
             if (e instanceof ExistData) {
                 return res.status(409).json({

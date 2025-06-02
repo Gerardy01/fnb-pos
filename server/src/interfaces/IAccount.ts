@@ -7,6 +7,7 @@ export interface ICreateAccountData {
     email : string;
     password : string;
     roleId : number;
+    otpCode? : number;
 }
 
 export interface IEditAccountManagementData {
@@ -15,6 +16,7 @@ export interface IEditAccountManagementData {
     name : string;
     email : string;
     roleId : number;
+    otpCode? : number;
 }
 
 export interface ICreateAccountForManagementData {

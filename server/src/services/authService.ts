@@ -4,7 +4,10 @@ import { DataNotFound, NotValid, WrongFormat } from "../utility/exceptions";
 
 // utils
 import { DefaultRoleEnum, PermissionEnum } from "../utility/enums";
-import { validateEmail } from "../utility/utils";
+import { validateEmail, generateCode } from "../utility/utils";
+
+// models
+import { OtpAuth } from "../models";
 
 // types and interfaces
 import { IAccessTokenBody, IGenerateOtpData, ILoginData, ISuperAdminLoginData, LoginReturnData } from "../interfaces/IAuth"
@@ -18,7 +21,7 @@ import { IuaParserProvider } from "../providers/uaParserProvider";
 import { IOrganizationService } from "./organizationService";
 import { IRolePermissionService } from "./rolePermissionService";
 import { IAccountService } from "./accountService";
-import { IOtpAuthRepository } from "../repositories/otpCodeRepository";
+import { IOtpAuthRepository } from "../repositories/otpAuthRepository";
 export interface IAuthService {
     login(data : ILoginData, userAgent : string, transaction : Transaction) : Promise<LoginReturnData>;
     superAdminLogin(data : ISuperAdminLoginData, userAgent : string, transaction? : Transaction) : Promise<LoginReturnData>;
@@ -291,17 +294,29 @@ export class AuthService implements IAuthService {
             throw new WrongFormat(emailNotValidMessage);
         }
 
-        // check addresses any active otp
-
-        // check if code is occupied
-
-        const expiredSec = data.expired_second ? data.expired_second : Number(this.envData.otpDefaultExpirySec);
-
+        // revoke address's any active otp
+        await this.otpAuthRepository.revokeActiveOtpByAddress(data.address);
+        
         const currentTime = new Date();
+
+        // generate and check if code is occupied
+        let otpCode = 0;
+        while(otpCode == 0) {
+            const newOtp : number = generateCode();
+            
+            const activeOtpCode = await this.otpAuthRepository.findActiveOtpsByCode(newOtp);
+            if (activeOtpCode && activeOtpCode.expires_at >= currentTime) continue;
+
+            otpCode = newOtp;
+            break;
+        }
+
+        // generate otp
+        const expiredSec = data.expired_second ? data.expired_second : Number(this.envData.otpDefaultExpirySec);
         const expiredDate = new Date(currentTime.getTime() + expiredSec * 1000);
 
         const otpAuth = await this.otpAuthRepository.createOtpAuth({
-            code : 0,
+            code : otpCode,
             send_to : data.address,
             expires_at : expiredDate,
         });

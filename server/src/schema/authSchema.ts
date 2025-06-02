@@ -13,6 +13,6 @@ export const SuperAdminLoginSchema = z.object({
 
 export const GenerateOtpCodeSchema = z.object({
     address : z.string().min(1),
-    expired_second : z.number().min(10).optional(),
+    expired_second : z.number().min(10).optional().nullable(),
 });
 

@@ -37,6 +37,7 @@ export interface CreateAccountBodyData {
     email : string | null;
     roleId : number;
     password : string;
+    otpCode? : number;
 }
 
 export interface EditAccountManagementBodyData {
@@ -45,6 +46,7 @@ export interface EditAccountManagementBodyData {
     name : string;
     email : string | null;
     roleId : number;
+    otpCode? : number;
 }
 
 export interface ChangePasswordBodyData {
@@ -74,4 +76,5 @@ export interface CreateAccountData {
     role : number;
     password : string;
     confirmPassword : string;
+    otpCode? : string;
 }

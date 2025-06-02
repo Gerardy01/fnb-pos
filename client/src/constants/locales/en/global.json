@@ -6,6 +6,7 @@
     "info" : "Information",
     "warning" : "Warning",
     "error" : "Error",
+    "failed" : "Failed",
     "close" : "Close",
     "wentWrong" : "Something went wrong",
     "unexpectedError" : "An unexpected error has occured. Please try again later. Contact support if the error persists.",

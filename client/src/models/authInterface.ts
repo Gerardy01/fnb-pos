@@ -15,3 +15,7 @@ export interface LoginData {
     password : string;
     rememberMe : boolean;
 }
+
+export interface GenerateOtpData {
+    address : string;
+}

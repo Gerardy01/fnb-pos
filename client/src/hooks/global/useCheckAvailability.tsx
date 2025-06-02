@@ -19,6 +19,7 @@ export function useCheckUsernameAvailability(defaultUsername : string = "") {
         const timeoutId = setTimeout(() => {
             setValidated(undefined);
             handleCheckUsernameExist();
+            setOnLoad(false);
         }, 1000);
 
         return () => clearTimeout(timeoutId);
@@ -43,20 +44,16 @@ export function useCheckUsernameAvailability(defaultUsername : string = "") {
         const pattern = /^[a-zA-Z0-9_]+$/;
         if (!pattern.test(value)) return;
 
-        try {
-            const [err, data] = await accountApi.checkAvailability({ username: value });
-            if (err) {
-                serverErrorModal();
-                return;
-            }
-    
-            if (!data.available) return setValidated(false);
-    
-            setValidated(true);
-
-        } finally {
-            setOnLoad(false);
+        const [err, data] = await accountApi.checkAvailability({ username: value });
+        if (err) {
+            serverErrorModal();
+            return;
         }
+
+        if (!data.available) return setValidated(false);
+
+        setValidated(true);
+            
     }
 
     return {
@@ -80,6 +77,7 @@ export function useCheckEmailAvailability(defaultEmail : string = "") {
         const timeoutId = setTimeout(() => {
             setValidated(undefined);
             handleCheckEmailExist();
+            setOnLoad(false);
         }, 1000);
 
         return () => clearTimeout(timeoutId);
@@ -103,21 +101,16 @@ export function useCheckEmailAvailability(defaultEmail : string = "") {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(value)) return;
 
-        try {
-            const [err, data] = await accountApi.checkAvailability({ email: value });
-    
-            if (err) {
-                serverErrorModal();
-                return;
-            }
-    
-            if (!data.available) return setValidated(false);
-    
-            setValidated(true);
+        const [err, data] = await accountApi.checkAvailability({ email: value });
 
-        } finally {
-            setOnLoad(false);
+        if (err) {
+            serverErrorModal();
+            return;
         }
+
+        if (!data.available) return setValidated(false);
+
+        setValidated(true);
     }
 
     return {
