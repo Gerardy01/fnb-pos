@@ -23,6 +23,7 @@
     "NAME01" : "Name cannot be longer than 50 characters",
 
     "changePassword" : "Change Password",
+    "resetPassword" : "Reset Password",
     "createNewPassword" : "Create new password for account",
     "oldPassword" : "Old Password",
     "newPassword" : "New Password",
@@ -65,5 +66,7 @@
     "enterPassword" : "Enter Password",
     "editAccount" : "Edit Account",
     "accountChangedSuccess" : "Account changed successfully",
-    "accountAddSuccess" : "Account added successfully"
+    "accountAddSuccess" : "Account added successfully",
+    "sureDeleteAccount" : "Are you sure want to delete this account?",
+    "deleteAccountDesc" : "Please confirm that you want to permanently delete this account. This operation cannot be undone."
 }

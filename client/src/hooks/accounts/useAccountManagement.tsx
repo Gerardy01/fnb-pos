@@ -23,7 +23,7 @@ export interface AccountTableData {
 
 export default function useAccountManagement() {
 
-    const { serverErrorModal, errorModal } = useStaticModal();
+    const { serverErrorModal, errorModal, confirmationModal } = useStaticModal();
     const { successnotification } = useNotification();
 
     const { t } = useTranslation(["global", "account", "role"]);
@@ -313,6 +313,22 @@ export default function useAccountManagement() {
         }
     }
 
+    const handleDeleteAccount = async () => {
+        
+    }
+
+    const clickDeleteAccount = () => {
+        confirmationModal({
+            title : t("account:sureDeleteAccount"),
+            content: t("account:deleteAccountDesc"),
+            okBtn: t("global:yes"),
+            cancelBtn: t("global:cancel"),
+            centered: true,
+            okBtnDanger: true,
+            onOkWithPromise : handleDeleteAccount,
+        });
+    }
+
     return {
         roleOptions,
         contentLoad,
@@ -331,5 +347,6 @@ export default function useAccountManagement() {
         openEditAccount,
         submitAddAccount,
         submitEditAccount,
+        clickDeleteAccount,
     }
 }

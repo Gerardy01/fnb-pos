@@ -38,6 +38,7 @@ export default function AccountManagement() {
         openEditAccount,
         submitAddAccount,
         submitEditAccount,
+        clickDeleteAccount,
     } = useAccountManagement();
 
     return (
@@ -105,7 +106,7 @@ export default function AccountManagement() {
                 submitLoad={editAccountSubmitLoad}
                 onClose={() => openEditAccount(false)}
                 onSubmit={submitEditAccount}
-
+                onDeleteAccount={clickDeleteAccount}
             />
         </div>
     )

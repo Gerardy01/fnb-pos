@@ -22,10 +22,11 @@ interface Props {
     submitLoad : boolean;
     onClose : () => void;
     onSubmit : (data : EditAccountManagementBodyData) => void;
+    onDeleteAccount : () => void;
 }
 
 
-export default function EditAccountModal({ form, roleOptions, open, selectedAccountData, submitLoad, onClose, onSubmit : submitEditAccount } : Props) {
+export default function EditAccountModal({ form, roleOptions, open, selectedAccountData, submitLoad, onClose, onSubmit : submitEditAccount, onDeleteAccount } : Props) {
 
     const { t } = useTranslation(["account", "global", "auth"]);
 
@@ -264,6 +265,7 @@ export default function EditAccountModal({ form, roleOptions, open, selectedAcco
                                         color="danger"
                                         style={styles.deleteBtn}
                                         disabled={submitLoad}
+                                        onClick={onDeleteAccount}
                                     >
                                         {t("global:delete")}
                                     </Button>
@@ -273,7 +275,7 @@ export default function EditAccountModal({ form, roleOptions, open, selectedAcco
                                         disabled={submitLoad}
                                         icon={<LockOutlined />}
                                     >
-                                        {t("account:changePassword")}
+                                        {t("account:resetPassword")}
                                     </Button>
                                 </div>
                                 <div>
