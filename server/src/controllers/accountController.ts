@@ -336,7 +336,7 @@ class AccountController {
         try {
             
             const accountId = req.user ? req.user.accountId : "";
-            const changed = await accountService.changePaassword(req.body, accountId);
+            const changed = await accountService.changePassword(req.body, accountId);
 
             return res.status(200).json({
                 "status" : "success",
@@ -418,6 +418,37 @@ class AccountController {
                 });
             }
             
+            return res.status(500).json({
+                "status" : "failed",
+                "message" : "server error",
+                "userMessage" : "500",
+                "errors" : e
+            });
+        }
+    }
+
+    static async deleteAccount(req : Request, res : Response) {
+        try {
+            
+            const organizationId = req.user ? req.user.organizationId : "";
+            await accountService.deleteAccount(req.params.id, organizationId);
+
+            return res.status(200).json({
+                "status" : "success",
+                "message" : "account deleted",
+                "userMessage" : "",
+            });
+
+        } catch(e) {
+
+            if (e instanceof DataNotFound) {
+                return res.status(404).json({
+                    "status" : "failed",
+                    "message" : e.message,
+                    "userMessage" : e.message,
+                });
+            }
+
             return res.status(500).json({
                 "status" : "failed",
                 "message" : "server error",

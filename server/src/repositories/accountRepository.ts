@@ -5,6 +5,7 @@ import { Account, Organization, Role } from "../models";
 import { Transaction } from "sequelize"
 export interface IAccountRepository {
     findAccountById(id : string) : Promise<Account | null>
+    findAccountByIdAndOrganization(id : string, organizationId : string) : Promise<Account | null>
     findAllAccountByOrganization(organizationId : string) : Promise<Account[]>
     findAccountByUsername(username : string) : Promise<Account | null>
     findAccountByEmail(email : string) : Promise<Account | null>
@@ -19,6 +20,26 @@ export class AccountRepository implements IAccountRepository {
         return Account.findOne({
             where: {
                 account_id : id,
+                archived : false
+            },
+            include: [
+                {
+                    model: Role,
+                    as: 'role'
+                },
+                {
+                    model: Organization,
+                    as: 'organization'
+                }
+            ]
+        });
+    }
+
+    findAccountByIdAndOrganization(id: string, organizationId: string): Promise<Account | null> {
+        return Account.findOne({
+            where: {
+                account_id : id,
+                organization_id : organizationId,
                 archived : false
             },
             include: [

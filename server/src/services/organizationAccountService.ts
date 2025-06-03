@@ -26,7 +26,7 @@ export class OrganizationAccountSerivice implements IOrganizationAccountService 
             endValidDatetime : data.endValidDatetime,
         }, transaction);
 
-        const account = await this.accountSerivce.createAccountForManagement({
+        const account = await this.accountSerivce.createAccountForSystem({
             username : data.username,
             name : data.name,
             email : data.email,
@@ -48,7 +48,7 @@ export class OrganizationAccountSerivice implements IOrganizationAccountService 
         const systemOrganization = await this.organizationRepository.findOrganizationByNo("system");
         if (!systemOrganization) throw Error("system organization does not exist");
 
-        const newAccount = await this.accountSerivce.createAccountForManagement({
+        const newAccount = await this.accountSerivce.createAccountForSystem({
             username : data.username,
             name : data.name,
             email : data.email,

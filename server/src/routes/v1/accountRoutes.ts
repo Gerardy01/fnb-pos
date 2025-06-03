@@ -54,6 +54,7 @@ accountRoutes.put("/",
 );
 accountRoutes.put("/action/reset-password",
     authenticate,
+    validatePermission(PermissionEnum.ACCOUNT_MANAGEMENT, 'write'),
     validateRequest(ResetPasswordSchema),
     AccountController.resetPassword
 );
@@ -68,5 +69,10 @@ accountRoutes.put("/action/management",
     validateRequest(EditAccountManagementSchema),
     AccountController.editAccountManagement
 );
+accountRoutes.delete("/:id",
+    authenticate,
+    validatePermission(PermissionEnum.ACCOUNT_MANAGEMENT, 'write'),
+    AccountController.deleteAccount
+)
 
 export default accountRoutes;

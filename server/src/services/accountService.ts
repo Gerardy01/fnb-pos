@@ -36,7 +36,7 @@ export interface IAccountService {
     getUserAccountInfo(accountId : string) : Promise<AccountInfoReturn>
     getAccountForLogin(identifier : string) : Promise<AccountDataReturnExtended>
     createAccount(data : ICreateAccountData, organizationId : string, userRole : string, transaction? : Transaction) : Promise<AccountDataReturn>
-    createAccountForManagement(data : ICreateAccountForManagementData, transaction? : Transaction, forSuperAdmin? : boolean) : Promise<AccountDataReturn>
+    createAccountForSystem(data : ICreateAccountForManagementData, transaction? : Transaction, forSuperAdmin? : boolean) : Promise<AccountDataReturn>
     checkUsernameAvailable(username : string) : Promise<boolean>
     checkEmailAvailable(email : string) : Promise<boolean>
     editAccount(data : IEditAccount, userAccountId : string, userRole : string) : Promise<EditAccountReturn>
@@ -44,8 +44,9 @@ export interface IAccountService {
     changeEmail(data : IChangeEmail, userAccountId : string, userRole : string) : Promise<string>
     changeName(data : IChangeName, userAccountId : string, userRole : string) : Promise<string>
     resetPassword(data : IResetPassword, userRole : string) : Promise<boolean>
-    changePaassword(data : IChangePassword, accountId : string) : Promise<boolean>
+    changePassword(data : IChangePassword, accountId : string) : Promise<boolean>
     editAccountManagement(data : IEditAccountManagementData, organizationId : string, userRole : string) : Promise<AccountDataReturn>
+    deleteAccount(accountId : string, organizationId : string) : Promise<boolean>
 }
 
 
@@ -187,7 +188,6 @@ export class AccountService implements IAccountService {
         
         // check email OTP
         if (inputedEmail !== "") {
-            console.log(data.otpCode)
             if (!data.otpCode) throw new NotValid("ACCOUNT403-6");
             const otpValid = await this.validateOtpValid(data.otpCode, inputedEmail);
             if (!otpValid) throw new NotValid("ACCOUNT403-6");
@@ -216,7 +216,7 @@ export class AccountService implements IAccountService {
         }
     }
 
-    async createAccountForManagement(data: ICreateAccountForManagementData, transaction?: Transaction, forSuperAdmin : boolean = false): Promise<AccountDataReturn> {
+    async createAccountForSystem(data: ICreateAccountForManagementData, transaction?: Transaction, forSuperAdmin : boolean = false): Promise<AccountDataReturn> {
         
         // check if username format is valid
         const usernameValid = validateUsername(data.username);
@@ -421,7 +421,7 @@ export class AccountService implements IAccountService {
         return this.changePasswordHandler(account, data.newPassword);
     }
 
-    async changePaassword(data: IChangePassword, accountId : string): Promise<boolean> {
+    async changePassword(data: IChangePassword, accountId : string): Promise<boolean> {
         const account = await this.accountRepository.findAccountById(accountId);
         if (!account) throw new Error("something wrong when getting account");
 
@@ -435,8 +435,8 @@ export class AccountService implements IAccountService {
 
     async editAccountManagement(data : IEditAccountManagementData, organizationId : string, userRole : string) : Promise<AccountDataReturn> {
         
-        const account = await this.accountRepository.findAccountById(data.accountId);
-        if (!account || account.archived) throw new DataNotFound("");
+        const account = await this.accountRepository.findAccountByIdAndOrganization(data.accountId, organizationId);
+        if (!account) throw new DataNotFound("account not found");
 
         // check if username format is valid
         const usernameValid = validateUsername(data.username);
@@ -491,6 +491,16 @@ export class AccountService implements IAccountService {
             roleName : role.roleName,
             archived : editedAccount.archived,
         }
+    }
+
+    async deleteAccount(accountId: string, organizationId : string): Promise<boolean> {
+        const account = await this.accountRepository.findAccountByIdAndOrganization(accountId, organizationId);
+        if (!account) throw new DataNotFound("account not found");
+
+        account.archived = true;
+        account.save();
+
+        return true;
     }
 
     private async changePasswordHandler(account : Account, newPassword : string) : Promise<boolean> {
