@@ -6,12 +6,12 @@ import { getAccessToken, storeAccessToken } from "../utils/intermediaryService";
 
 
 export const axiosPublic = axios.create({
-    baseURL : 'http://localhost:8000/api/v1'
+    baseURL : import.meta.env.VITE_API_BASE_URL
 });
 
 
 export const axiosPrivate = axios.create({
-    baseURL : 'http://localhost:8000/api/v1',
+    baseURL : import.meta.env.VITE_API_BASE_URL,
     withCredentials : true
 });
 
