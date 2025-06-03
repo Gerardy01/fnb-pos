@@ -60,11 +60,6 @@ export interface IChangeName {
     newName : string;
 }
 
-export interface IResetPassword {
-    accountId : string;
-    newPassword : string;
-}
-
 export interface CheckAvailabilityQueryParams {
     username? : string;
     email? : string;

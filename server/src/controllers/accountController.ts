@@ -288,13 +288,15 @@ class AccountController {
         try {
 
             const roleName = req.user ? req.user.accountRoleName : "";
-            const isChanged = await accountService.resetPassword(req.body, roleName);
+            const newPassword = await accountService.resetPassword(req.params.id, roleName);
 
             return res.status(200).json({
                 "status" : "success",
                 "message" : "password changed",
                 "userMessage" : "",
-                "data" : isChanged
+                "data" : {
+                    "newPassword": newPassword
+                }
             });
 
         } catch(e) {

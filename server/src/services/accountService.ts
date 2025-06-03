@@ -4,7 +4,7 @@ import { Account } from "../models";
 
 // utils
 import { DefaultRoleEnum, EditAccountProcessEnum } from "../utility/enums";
-import { validateEmail, validatePassword, validateUsername } from "../utility/utils";
+import { generateRandomPassword, validateEmail, validatePassword, validateUsername } from "../utility/utils";
 
 // exceptions
 import { ExistData, DataNotFound, WrongFormat, NotValid, Forbidden } from "../utility/exceptions";
@@ -17,7 +17,6 @@ import {
     ICreateAccountForManagementData,
     AccountInfoReturn,
     IChangePassword,
-    IResetPassword,
     IChangeUsername,
     IChangeEmail,
     IChangeName,
@@ -43,7 +42,7 @@ export interface IAccountService {
     changeUsername(data : IChangeUsername, userAccountId : string, userRole : string) : Promise<string>
     changeEmail(data : IChangeEmail, userAccountId : string, userRole : string) : Promise<string>
     changeName(data : IChangeName, userAccountId : string, userRole : string) : Promise<string>
-    resetPassword(data : IResetPassword, userRole : string) : Promise<boolean>
+    resetPassword(accountId : string, userRole : string) : Promise<string>
     changePassword(data : IChangePassword, accountId : string) : Promise<boolean>
     editAccountManagement(data : IEditAccountManagementData, organizationId : string, userRole : string) : Promise<AccountDataReturn>
     deleteAccount(accountId : string, organizationId : string) : Promise<boolean>
@@ -408,8 +407,8 @@ export class AccountService implements IAccountService {
         return updatedAccount.name;
     }
 
-    async resetPassword(data: IResetPassword, userRole : string): Promise<boolean> {
-        const account = await this.accountRepository.findAccountById(data.accountId);
+    async resetPassword(accountId : string, userRole : string): Promise<string> {
+        const account = await this.accountRepository.findAccountById(accountId);
         if (!account) throw new DataNotFound("account not found");
         if (!account.role) throw new Error("something wrong when getting role data");
         
@@ -417,8 +416,11 @@ export class AccountService implements IAccountService {
         const isAllowed = this.checkRoleEligibility(userRole, account.role.role_name);
         if (!isAllowed) throw new Forbidden("you dont have permission to do this action");
 
-        // change password
-        return this.changePasswordHandler(account, data.newPassword);
+        // generate password
+        const newPass = generateRandomPassword();
+        await this.changePasswordHandler(account, newPass, false);
+        
+        return newPass;
     }
 
     async changePassword(data: IChangePassword, accountId : string): Promise<boolean> {
@@ -503,11 +505,11 @@ export class AccountService implements IAccountService {
         return true;
     }
 
-    private async changePasswordHandler(account : Account, newPassword : string) : Promise<boolean> {
+    private async changePasswordHandler(account : Account, newPassword : string, validateFormat : boolean = true) : Promise<boolean> {
 
         // check if password format is valid
         const passwordValid = validatePassword(newPassword);
-        if (!passwordValid.valid) {
+        if (!passwordValid.valid && validateFormat) {
             throw new WrongFormat(passwordValid.message);
         }
 

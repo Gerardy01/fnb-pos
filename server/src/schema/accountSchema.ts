@@ -31,11 +31,6 @@ export const EditAccountSchema = z.object({
     value : z.string(),
 });
 
-export const ResetPasswordSchema = z.object({
-    accountId : z.string().min(1),
-    newPassword : z.string().min(1)
-});
-
 export const ChangePasswordSchema = z.object({
     currentPassword : z.string().min(1),
     newPassword : z.string().min(1),

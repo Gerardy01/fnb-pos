@@ -76,3 +76,17 @@ export function validateEmail(email : string) : { valid : boolean, message : str
 export function generateCode(): number {
     return Math.floor(100000 + Math.random() * 900000);
 }
+
+export function generateRandomPassword(length: number = 12): string {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  const result = [];
+  const array = new Uint32Array(length);
+
+  crypto.getRandomValues(array);
+
+  for (let i = 0; i < length; i++) {
+    result.push(chars[array[i] % chars.length]);
+  }
+
+  return result.join('');
+}

@@ -12,7 +12,6 @@ import {
     CreateSuperadminSchema,
     ChangePasswordSchema,
     EditAccountSchema,
-    ResetPasswordSchema,
     EditAccountManagementSchema,
 } from '../../schema/accountSchema';
 
@@ -52,10 +51,9 @@ accountRoutes.put("/",
     validateRequest(EditAccountSchema),
     AccountController.editAccount
 );
-accountRoutes.put("/action/reset-password",
+accountRoutes.put("/action/reset-password/:id",
     authenticate,
     validatePermission(PermissionEnum.ACCOUNT_MANAGEMENT, 'write'),
-    validateRequest(ResetPasswordSchema),
     AccountController.resetPassword
 );
 accountRoutes.put("/action/change-password",
