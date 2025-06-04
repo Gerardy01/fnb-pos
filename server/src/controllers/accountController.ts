@@ -286,7 +286,6 @@ class AccountController {
 
     static async resetPassword(req : Request, res : Response) {
         try {
-
             const roleName = req.user ? req.user.accountRoleName : "";
             const newPassword = await accountService.resetPassword(req.params.id, roleName);
 

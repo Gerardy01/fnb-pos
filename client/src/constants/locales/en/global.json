@@ -30,5 +30,6 @@
     "no" : "No",
     "change" : "Change",
     "action" : "Action",
-    "conflict" : "Conflict"
+    "conflict" : "Conflict",
+    "delete" : "Delete"
 }

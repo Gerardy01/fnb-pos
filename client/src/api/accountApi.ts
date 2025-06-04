@@ -4,7 +4,7 @@ import { catchFetchError } from "../utils/utility";
 
 // types and interfaces
 import { FetchResponse, ErrorResponse } from "../models/globalInterface";
-import { AccountDataReturn, AccountInfoReturn, ChangePasswordBodyData, CheckAvailabilityQueryParams, CheckAvailabilityReturn, CreateAccountBodyData, EditAccountBodyData, EditAccountManagementBodyData, EditAccountReturn } from "../models/accountInterface";
+import { AccountDataReturn, AccountInfoReturn, ChangePasswordBodyData, CheckAvailabilityQueryParams, CheckAvailabilityReturn, CreateAccountBodyData, EditAccountBodyData, EditAccountManagementBodyData, EditAccountReturn, ResetPasswordData } from "../models/accountInterface";
 
 
 export class AccountApi {
@@ -37,7 +37,7 @@ export class AccountApi {
                 params: {
                     username : username,
                     email : email
-                },             
+                },
             }
         ));
 
@@ -93,6 +93,29 @@ export class AccountApi {
             {
                 headers : { 'Content-Type' : 'application/json' },
             }
+        ));
+
+        if (error) return [error];
+        return [error, res.data.data];
+    }
+
+    async deleteAccount(accountId : string) : Promise<[undefined, boolean] | [ErrorResponse]> {
+
+        const [error, res] = await catchFetchError(axiosPrivate.delete<FetchResponse<boolean>>(
+            `account/${accountId}`,
+            {
+                headers : { 'Content-Type' : 'application/json' },
+            }
+        ));
+
+        if (error) return [error];
+        return [error, res.data.data];
+    }
+
+    async resetPassword(accountId : string) : Promise<[undefined, ResetPasswordData] | [ErrorResponse]> {
+
+        const [error, res] = await catchFetchError(axiosPrivate.put<FetchResponse<ResetPasswordData>>(
+            `account/action/reset-password/${accountId}`,
         ));
 
         if (error) return [error];

@@ -36,6 +36,7 @@ export default function useAccountManagement() {
     const [editAccountModal, setEditAccountModal] = useState<boolean>(false);
 
     const [editAccountData, setEditAccountData] = useState<EditAccountManagementBodyData | null>(null);
+    const [newPassword, setNewPassword] = useState<string>("");
 
     const [getRoleLoad, setGetRoleLoad] = useState<boolean>(true);
     const [getAccountLoad, setGetAccountLoad] = useState<boolean>(true);
@@ -314,7 +315,33 @@ export default function useAccountManagement() {
     }
 
     const handleDeleteAccount = async () => {
+        if (!editAccountData) return;
+
+        const [err] = await accountApi.deleteAccount(editAccountData.accountId);
+
+        if (err) {
+            serverErrorModal();
+            return;
+        }
+
+        successnotification();
+        openEditAccount(false);
         
+        const newAccountList = accounts.filter(item => item.key !== editAccountData.accountId);
+        setAccounts(newAccountList);
+    }
+
+    const handleResetPass = async () => {
+        if (!editAccountData) return;
+        console.log(editAccountData)
+        const [err, data] = await accountApi.resetPassword(editAccountData.accountId);
+
+        if (err) {
+            serverErrorModal();
+            return;
+        }
+
+        setNewPassword(data.newPassword);
     }
 
     const clickDeleteAccount = () => {
@@ -329,6 +356,22 @@ export default function useAccountManagement() {
         });
     }
 
+    const clickResetPassword = () => {
+        confirmationModal({
+            title : t("account:sureResetPass"),
+            content: "",
+            okBtn: t("global:yes"),
+            cancelBtn: t("global:cancel"),
+            centered: true,
+            okBtnDanger: true,
+            onOkWithPromise : handleResetPass,
+        });
+    }
+
+    const clearNewPass = () => {
+        setNewPassword("");
+    }
+
     return {
         roleOptions,
         contentLoad,
@@ -341,6 +384,7 @@ export default function useAccountManagement() {
         editAccountData,
         addAccountSubmitLoad,
         editAccountSubmitLoad,
+        newPassword,
         handleChangeRoleFilter,
         handleSearch,
         openAddAccount,
@@ -348,5 +392,7 @@ export default function useAccountManagement() {
         submitAddAccount,
         submitEditAccount,
         clickDeleteAccount,
+        clickResetPassword,
+        clearNewPass,
     }
 }

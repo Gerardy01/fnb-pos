@@ -78,3 +78,7 @@ export interface CreateAccountData {
     confirmPassword : string;
     otpCode? : string;
 }
+
+export interface ResetPasswordData {
+    newPassword : string;
+}

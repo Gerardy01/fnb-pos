@@ -32,6 +32,7 @@ export default function AccountManagement() {
         editAccountData,
         addAccountSubmitLoad,
         editAccountSubmitLoad,
+        newPassword,
         handleChangeRoleFilter,
         handleSearch,
         openAddAccount,
@@ -39,6 +40,8 @@ export default function AccountManagement() {
         submitAddAccount,
         submitEditAccount,
         clickDeleteAccount,
+        clickResetPassword,
+        clearNewPass,
     } = useAccountManagement();
 
     return (
@@ -104,9 +107,12 @@ export default function AccountManagement() {
                 open={editAccountModal}
                 selectedAccountData={editAccountData}
                 submitLoad={editAccountSubmitLoad}
+                newPassword={newPassword}
                 onClose={() => openEditAccount(false)}
                 onSubmit={submitEditAccount}
                 onDeleteAccount={clickDeleteAccount}
+                onResetPass={clickResetPassword}
+                clearNewPass={clearNewPass}
             />
         </div>
     )

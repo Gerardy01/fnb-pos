@@ -10,13 +10,15 @@ dotenv.config();
 
 
 const app : Express = express();
-const port = process.env.PORT || 8000;
+const port : number = Number(process.env.PORT) || 8000;
+const host : string = process.env.HOST || 'localhost';
+const client_url : string = process.env.CLIENT_URL || ""
 
 // Middleware
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors({
-    origin: process.env.CLIENT_URL,
+    origin: [client_url], // add another url to allow more
     credentials: true,
 }));
 
@@ -26,6 +28,6 @@ app.use("*", (req, res) => res.status(404).send("NO API ROUTES"));
 
 
 // run
-app.listen(port, () => {
-    console.log(`[server]: Server is running at http://localhost:${port}`);
+app.listen(port, host, () => {
+    console.log(`[server]: Server is running at http://${host}:${port}`);
 });

@@ -20,13 +20,16 @@ interface Props {
     open : boolean;
     selectedAccountData : EditAccountManagementBodyData | null;
     submitLoad : boolean;
+    newPassword : string;
     onClose : () => void;
     onSubmit : (data : EditAccountManagementBodyData) => void;
     onDeleteAccount : () => void;
+    onResetPass : () => void;
+    clearNewPass : () => void;
 }
 
 
-export default function EditAccountModal({ form, roleOptions, open, selectedAccountData, submitLoad, onClose, onSubmit : submitEditAccount, onDeleteAccount } : Props) {
+export default function EditAccountModal({ form, roleOptions, open, selectedAccountData, submitLoad, newPassword, onClose, onSubmit : submitEditAccount, onDeleteAccount, onResetPass, clearNewPass } : Props) {
 
     const { t } = useTranslation(["account", "global", "auth"]);
 
@@ -274,6 +277,7 @@ export default function EditAccountModal({ form, roleOptions, open, selectedAcco
                                         size="large"
                                         disabled={submitLoad}
                                         icon={<LockOutlined />}
+                                        onClick={onResetPass}
                                     >
                                         {t("account:resetPassword")}
                                     </Button>
@@ -294,6 +298,18 @@ export default function EditAccountModal({ form, roleOptions, open, selectedAcco
                     </Form>
                 </Modal>
             )}
+
+            <Modal
+                title="New password"
+                centered
+                open={newPassword !== ""}
+                onCancel={clearNewPass}
+                footer={null}
+                maskClosable={false}
+                destroyOnClose
+            >
+                {newPassword}
+            </Modal>
         </>
     )
 }
