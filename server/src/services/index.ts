@@ -21,6 +21,7 @@ import { OtpAuthRepository } from "../repositories/otpAuthRepository";
 import { BcryptHashProvider } from "../providers/hashProvider";
 import { JsonWebTokenJwtProvider } from "../providers/jwtProvider";
 import { UAParserJsUaParserProvider } from "../providers/uaParserProvider";
+import { NodemailerEmailProvider } from "../providers/emailProvider";
 
 // config
 import envData from "../config/envData";
@@ -38,7 +39,8 @@ const otpAuthRepository = new OtpAuthRepository();
 
 const bcryptHashProvider = new BcryptHashProvider();
 const jsonWebTokenJwtProvider = new JsonWebTokenJwtProvider();
-const uaParserJsUaParserProvider = new UAParserJsUaParserProvider(); 
+const uaParserJsUaParserProvider = new UAParserJsUaParserProvider();
+const emailProvider = new NodemailerEmailProvider(envData);
 
 // unexposed service
 const counterService = new CounterService(counterRepository);
