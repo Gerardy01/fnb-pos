@@ -5,6 +5,7 @@ import { OrganizationAccountSerivice } from "./organizationAccountService";
 import { AccountService } from "./accountService";
 import { AuthService } from "./authService";
 import { RolePermissionService } from "./rolePermissionService";
+import { NotificationService } from "./notificationService";
 
 // repository
 import { OrganizationRepository } from "../repositories/organizationRepository";
@@ -61,6 +62,7 @@ export const authService = new AuthService(
     uaParserJsUaParserProvider,
     envData
 );
+export const notificationService = new NotificationService(emailProvider);
 
 
 // combined service (orchestration)

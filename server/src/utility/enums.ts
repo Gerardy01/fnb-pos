@@ -20,5 +20,10 @@ export enum PermissionEnum {
 export enum EditAccountProcessEnum {
     USERNAME = "username",
     EMAIL = "email",
-    NAME = "name"
+    NAME = "name",
+}
+
+export enum SendEmailTypeEnum {
+    TEXT = 'text',
+    HTML = 'html',
 }
