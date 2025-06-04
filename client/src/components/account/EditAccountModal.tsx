@@ -1,5 +1,5 @@
-import { Button, Form, FormInstance, FormProps, Input, Modal, Select, SelectProps, Space } from "antd";
-import { LockOutlined } from "@ant-design/icons";
+import { Button, Form, FormInstance, FormProps, Input, Modal, Select, SelectProps, Space, Typography } from "antd";
+import { CheckOutlined, CopyOutlined, LockOutlined } from "@ant-design/icons";
 
 import { useTranslation } from "react-i18next";
 import { useCheckEmailAvailability, useCheckUsernameAvailability } from "../../hooks/global/useCheckAvailability";
@@ -28,6 +28,9 @@ interface Props {
     clearNewPass : () => void;
 }
 
+
+
+const { Paragraph, Text } = Typography;
 
 export default function EditAccountModal({ form, roleOptions, open, selectedAccountData, submitLoad, newPassword, onClose, onSubmit : submitEditAccount, onDeleteAccount, onResetPass, clearNewPass } : Props) {
 
@@ -300,15 +303,29 @@ export default function EditAccountModal({ form, roleOptions, open, selectedAcco
             )}
 
             <Modal
-                title="New password"
+                title={t('account:newPassword')}
                 centered
                 open={newPassword !== ""}
                 onCancel={clearNewPass}
                 footer={null}
                 maskClosable={false}
                 destroyOnClose
+                width={300}
             >
-                {newPassword}
+                <Paragraph
+                    copyable={{
+                        icon: [
+                            <CopyOutlined style={{ fontSize: '1.3rem', color: 'gray' }} />,
+                            <CheckOutlined style={{ fontSize: '1.3rem', color: 'gray' }} />
+                        ],
+                        text: newPassword
+                    }}
+                    style={styles.newPassHolder}
+                >
+                    <Text style={styles.newPasswordText}>
+                        {newPassword}
+                    </Text>
+                </Paragraph>
             </Modal>
         </>
     )
@@ -340,5 +357,20 @@ const styles : { [key: string]: React.CSSProperties } = {
     },
     deleteBtn : {
         marginRight: '15px'
+    },
+    newPassHolder : {
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'lightgray',
+        borderRadius: '5px',
+        padding: '15px',
+        marginTop: '20px'
+    },
+    newPasswordText : {
+        fontWeight: 'bold',
+        fontSize: '1.5rem',
+        textAlign: 'center',
+        marginRight: '10px',
     }
 }
