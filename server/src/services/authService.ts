@@ -28,7 +28,7 @@ export interface IAuthService {
     generateAccessToken(refreshToken : string, userAgent : string) : Promise<string>;
     logout(refreshToken : string) : Promise<void>;
     logoutAllSession(accountId : string) : Promise<boolean>;
-    generateOtpCode(data : IGenerateOtpData) : Promise<void>;
+    generateOtpCode(data : IGenerateOtpData, transaction? : Transaction) : Promise<void>;
     authenticate(accesToken : string) : Promise<IAccessTokenBody>;
 }
 
@@ -288,7 +288,7 @@ export class AuthService implements IAuthService {
         }
     }
 
-    async generateOtpCode(data: IGenerateOtpData): Promise<void> {
+    async generateOtpCode(data: IGenerateOtpData, transaction? : Transaction): Promise<void> {
         const { valid : validEmail, message : emailNotValidMessage } = validateEmail(data.address);
         if (!validEmail) {
             throw new WrongFormat(emailNotValidMessage);
@@ -304,7 +304,7 @@ export class AuthService implements IAuthService {
         while(otpCode == 0) {
             const newOtp : number = generateCode();
             
-            const activeOtpCode = await this.otpAuthRepository.findActiveOtpsByCode(newOtp);
+            const activeOtpCode = await this.otpAuthRepository.findActiveOtpsByCode(newOtp, transaction);
             if (activeOtpCode && activeOtpCode.expires_at >= currentTime) continue;
 
             otpCode = newOtp;

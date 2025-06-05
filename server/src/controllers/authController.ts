@@ -200,9 +200,13 @@ class AuthController {
     }
 
     static async generateOtpCode(req : Request, res : Response) {
+        const transaction : Transaction = await sequelize.transaction();
+
         try {
 
             await authService.generateOtpCode(req.body);
+
+            transaction.commit();
 
             return res.status(200).json({
                 "status" : "success",
@@ -211,6 +215,8 @@ class AuthController {
             });
             
         } catch(e) {
+
+            transaction.rollback();
 
             if (e instanceof WrongFormat) {
                 return res.status(422).json({
