@@ -3,11 +3,11 @@
 import { DataNotFound, NotValid, WrongFormat } from "../utility/exceptions";
 
 // utils
-import { DefaultRoleEnum, PermissionEnum } from "../utility/enums";
+import { DefaultRoleEnum, PermissionEnum, SendEmailTypeEnum } from "../utility/enums";
 import { validateEmail, generateCode } from "../utility/utils";
 
-// models
-import { OtpAuth } from "../models";
+// queue
+import { sendEmailToQueue } from "../queue/emailProducer";
 
 // types and interfaces
 import { IAccessTokenBody, IGenerateOtpData, ILoginData, ISuperAdminLoginData, LoginReturnData } from "../interfaces/IAuth"
@@ -320,6 +320,8 @@ export class AuthService implements IAuthService {
             send_to : data.address,
             expires_at : expiredDate,
         });
+
+        this.sendOtpEmail(data.address, otpAuth.code);
     }
 
     private async checkAndRevokeSession(accountId : string, cap : number = 3, transaction? : Transaction) : Promise<void> {
@@ -333,6 +335,15 @@ export class AuthService implements IAuthService {
 
         filtered[0].is_revoked = true
         filtered[0].save({ transaction });
+    }
+
+    private sendOtpEmail(to : string, otp : number) : void {
+        sendEmailToQueue({
+            to: to,
+            subject: 'test',
+            body : `<h1>${otp}</h1>`,
+            type : SendEmailTypeEnum.HTML
+        });
     }
 }
 

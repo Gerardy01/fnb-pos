@@ -19,7 +19,7 @@ import { PageAccessPermissionRepository } from "../repositories/pageAccessPermis
 import { OtpAuthRepository } from "../repositories/otpAuthRepository";
 
 // providers
-import { BcryptHashProvider } from "../providers/hashProvider";
+import { BcryptJsHashProvider } from "../providers/hashProvider";
 import { JsonWebTokenJwtProvider } from "../providers/jwtProvider";
 import { UAParserJsUaParserProvider } from "../providers/uaParserProvider";
 import { NodemailerEmailProvider } from "../providers/emailProvider";
@@ -38,7 +38,7 @@ const adminOrganizationRepository = new AdminOrganizationRepository();
 const pageAccessPermissionRepository = new PageAccessPermissionRepository();
 const otpAuthRepository = new OtpAuthRepository();
 
-const bcryptHashProvider = new BcryptHashProvider();
+const bcryptJsHashProvider = new BcryptJsHashProvider();
 const jsonWebTokenJwtProvider = new JsonWebTokenJwtProvider();
 const uaParserJsUaParserProvider = new UAParserJsUaParserProvider();
 const emailProvider = new NodemailerEmailProvider(envData);
@@ -50,14 +50,14 @@ const counterService = new CounterService(counterRepository);
 // main service
 export const organizationService = new OrganizationService(counterService, organizationRepository, adminOrganizationRepository);
 export const rolePermissionService = new RolePermissionService(roleRepository, permissionRepository, pageAccessPermissionRepository);
-export const accountService = new AccountService(rolePermissionService, accountRepository, otpAuthRepository, bcryptHashProvider);
+export const accountService = new AccountService(rolePermissionService, accountRepository, otpAuthRepository, bcryptJsHashProvider);
 export const authService = new AuthService(
     organizationService,
     rolePermissionService,
     accountService,
     refreshTokenRepository,
     otpAuthRepository,
-    bcryptHashProvider,
+    bcryptJsHashProvider,
     jsonWebTokenJwtProvider,
     uaParserJsUaParserProvider,
     envData

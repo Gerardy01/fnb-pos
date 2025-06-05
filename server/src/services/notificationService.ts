@@ -14,7 +14,7 @@ export class NotificationService implements INotificationService {
     ) {}
 
     async sendEmail(to: string, subject: string, body: string, type : string): Promise<void> {
-
+        
         if (type === SendEmailTypeEnum.TEXT) {
             await this.emailProvider.sendText(
                 to,

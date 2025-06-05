@@ -310,7 +310,7 @@ export default function EditAccountModal({ form, roleOptions, open, selectedAcco
                 footer={null}
                 maskClosable={false}
                 destroyOnClose
-                width={300}
+                width={350}
             >
                 <Paragraph
                     copyable={{

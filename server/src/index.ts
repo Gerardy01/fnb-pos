@@ -3,6 +3,10 @@ import cookieParser from 'cookie-parser';
 import dotenv from "dotenv";
 import cors from 'cors';
 
+// Queue
+import { connectRabbitMQ } from './config/rabbitmq';
+import { consumeEmailQueue } from "./queue/emailConsumer";
+
 // api routes
 import api from "./routes";
 
@@ -28,6 +32,11 @@ app.use("*", (req, res) => res.status(404).send("NO API ROUTES"));
 
 
 // run
-app.listen(port, host, () => {
-    console.log(`[server]: Server is running at http://${host}:${port}`);
-});
+(async () => {
+    await connectRabbitMQ();
+    await consumeEmailQueue();
+
+    app.listen(port, host, () => {
+        console.log(`[server]: Server is running at http://${host}:${port}`);
+    });
+})();

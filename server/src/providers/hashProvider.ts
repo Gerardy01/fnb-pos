@@ -1,4 +1,4 @@
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 
 // types and interfaces
 export interface IHashProvider {
@@ -7,9 +7,10 @@ export interface IHashProvider {
 }
 
 
-export class BcryptHashProvider implements IHashProvider {
-    async hashString(string: string, saltRounds : number = 10): Promise<string> {
-        const hashedString = await bcrypt.hash(string, saltRounds);
+export class BcryptJsHashProvider implements IHashProvider {
+    async hashString(string: string, saltRounds: number = 10): Promise<string> {
+        const salt = await bcrypt.genSalt(saltRounds);
+        const hashedString = await bcrypt.hash(string, salt);
         return hashedString;
     }
 

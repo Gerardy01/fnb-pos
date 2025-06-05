@@ -4,9 +4,15 @@ import { getChannel } from '../config/rabbitmq';
 import { ISendEmail } from '../interfaces/INotifications';
 
 export const sendEmailToQueue = async (emailData: ISendEmail) => {
-    const channel = getChannel();
-    
-    channel.sendToQueue('email_queue', Buffer.from(JSON.stringify(emailData)), {
-        persistent: true,
-    });
+    try {
+        const channel = await getChannel();
+        if (!channel) throw new Error('Failed to get RabbitMQ channel');
+        
+        channel.sendToQueue('email_queue', Buffer.from(JSON.stringify(emailData)), {
+            persistent: true,
+        });
+        
+    } catch (error) {
+        console.error('Error sending email to queue:', error);
+    }
 };

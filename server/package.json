@@ -16,7 +16,7 @@
   "dependencies": {
     "@types/nodemailer": "^6.4.17",
     "amqplib": "^0.10.8",
-    "bcrypt": "^5.1.1",
+    "bcryptjs": "^3.0.2",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
