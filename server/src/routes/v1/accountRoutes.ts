@@ -4,7 +4,7 @@ import { Router } from 'express';
 import { PermissionEnum } from '../../utility/enums';
 
 // middlewares
-import { authenticate, checkPassword, validatePermission, validateRequest } from '../../utility/middleware';
+import { authenticate, checkPassword, validatePermission, validateRequest, publicApiRateLimiter } from '../../utility/middleware';
 
 // schema
 import {
@@ -31,6 +31,7 @@ accountRoutes.get("/action/user-info",
     AccountController.getUserAccountInfo
 );
 accountRoutes.get("/action/check-availability",
+    publicApiRateLimiter,
     AccountController.checkAvailability
 );
 accountRoutes.post("/",

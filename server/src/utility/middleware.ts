@@ -1,5 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 
+import rateLimit from 'express-rate-limit';
+
 // services
 import { authService } from '../services';
 
@@ -136,3 +138,14 @@ export function checkPassword(req : Request, res : Response, next : NextFunction
         });
     }
 }
+
+export const publicApiRateLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 mins
+    max: 100,
+    message: {
+        status: 429,
+        message: 'Too many requests from this IP, please try again later.',
+    },
+    standardHeaders: true,
+    legacyHeaders: false,
+});

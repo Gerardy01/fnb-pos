@@ -15,6 +15,7 @@ export class OtpAuthRepository implements IOtpAuthRepository {
                 code : code,
                 revoked : false
             },
+            lock: transaction?.LOCK.UPDATE,
             transaction
         });
     }
