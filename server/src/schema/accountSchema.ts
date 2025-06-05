@@ -29,6 +29,7 @@ export const EditAccountSchema = z.object({
     accountId : z.string().min(1),
     process : z.string().min(1),
     value : z.string(),
+    otpCode : z.number().min(6).optional().nullable(),
 });
 
 export const ChangePasswordSchema = z.object({

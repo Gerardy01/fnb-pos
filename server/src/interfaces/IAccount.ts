@@ -43,6 +43,7 @@ export interface IEditAccount {
     accountId : string;
     process : string;
     value : string;
+    otpCode? : number;
 }
 
 export interface IChangeUsername {

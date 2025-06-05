@@ -58,6 +58,7 @@ export interface EditAccountBodyData {
     accountId : string;
     process : string;
     value : string;
+    otpCode? : number;
 }
 
 export interface EditAccountReturn {

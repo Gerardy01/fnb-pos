@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Form } from "antd";
 
 import { accountApi } from "../../api";
 
@@ -9,6 +10,7 @@ import { useTranslation } from "react-i18next";
 import { useSelector, useDispatch } from "react-redux"
 import { RootState } from "../../redux/store"
 import { setUserEmail, setUserName, setUserUsername } from "../../redux/account/userInfoSlice";
+import useNotification from "../useNotification";
 
 // types and interfaces
 export type ChangeNameForm = {
@@ -20,6 +22,7 @@ export type ChangeUsernameForm = {
 
 export type ChangeEmailForm = {
     email : string;
+    otpCode : string;
 }
 
 
@@ -27,6 +30,7 @@ export type ChangeEmailForm = {
 export function useChangeUsername() {
 
     const { serverErrorModal, errorModal } = useStaticModal();
+    const { successnotification } = useNotification();
 
     const dispatch = useDispatch();
 
@@ -84,6 +88,8 @@ export function useChangeUsername() {
             dispatch(setUserUsername(res.newValue));
             setOpenChangeUsernameModal(false);
 
+            successnotification(t("account:changeNameSuccess"));
+
         } finally {
             setChangeUsernameLoad(false);
         }
@@ -104,6 +110,7 @@ export function useChangeName() {
     const userInfo = useSelector((state : RootState) => state.userInfo);
 
     const { serverErrorModal, errorModal } = useStaticModal();
+    const { successnotification } = useNotification();
 
     const dispatch = useDispatch();
 
@@ -179,6 +186,8 @@ export function useChangeName() {
             dispatch(setUserName(res.newValue));
             setOpenChangeNameModal(false);
             setChangeNameBtnDisabled(true);
+
+            successnotification(t("account:changeNameSuccess"));
             
         } finally {
             setChangeNameLoad(false);
@@ -199,18 +208,28 @@ export function useChangeName() {
 export function useChangeEmail() {
 
     const { serverErrorModal, errorModal } = useStaticModal();
+    const { successnotification } = useNotification();
 
     const dispatch = useDispatch();
 
     const userInfo = useSelector((state : RootState) => state.userInfo);
     const { t } = useTranslation("account");
 
+    const [changeEmailForm] = Form.useForm();
+
     const [changeEmailLoad, setChangeEmailLoad] = useState<boolean>(false);
     const [openChangeEmailModal, setOpenChangeEmailModal] = useState<boolean>(false);
     const [changeEmailErrorMsg, setChangeEmailErrorMsg] = useState<string>("");
 
+    const [changeEmailStep, setChangeEmailStep] = useState<number>(0);
+
     const handleOpenChangeEmail = (open : boolean) : void => {
         setOpenChangeEmailModal(open);
+
+        if (!open) {
+            handleChangeEmailStep(0);
+            changeEmailForm.resetFields();
+        }
     }
 
     const handleChangeEmail = async (data : ChangeEmailForm) => {
@@ -221,7 +240,8 @@ export function useChangeEmail() {
             const [err, res] = await accountApi.editAccount({
                 accountId: userInfo.accountId,
                 process: "email",
-                value: data.email
+                value: data.email,
+                otpCode: Number(data.otpCode),
             });
     
             if (err) {
@@ -238,7 +258,7 @@ export function useChangeEmail() {
                 }
     
                 if (err.status === 403) {
-                    setChangeEmailErrorMsg(t(err.response.data.message))
+                    errorModal(t('global:failed'), t(`account:${err.response.data.message}`));
                     return;
                 }
     
@@ -251,7 +271,9 @@ export function useChangeEmail() {
                 return;
             }
     
-            setOpenChangeEmailModal(false);
+            handleOpenChangeEmail(false);
+            successnotification(t("account:changeEmailSuccess"));
+
             dispatch(setUserEmail(res.newValue));
 
         } finally {
@@ -259,12 +281,19 @@ export function useChangeEmail() {
         }
     }
 
+    const handleChangeEmailStep = (step: number) : void => {
+        setChangeEmailStep(step);
+    } 
+
     return {
+        changeEmailForm,
         openChangeEmailModal,
         changeEmailLoad,
         changeEmailErrorMsg,
+        changeEmailStep,
         handleOpenChangeEmail,
         handleChangeEmail,
+        handleChangeEmailStep,
     }
 
 }

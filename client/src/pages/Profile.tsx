@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import useProfile, { useChangeName, useChangeUsername, useChangeEmail } from "../hooks/accounts/useProfile";
 import { useCheckEmailAvailability, useCheckUsernameAvailability } from "../hooks/global/useCheckAvailability";
 import { useTranslation } from "react-i18next";
+import useGenerateOtp from "../hooks/authentication/useGenerateOtp";
 
 // components
 import Container from "../components/global/Container";
@@ -113,7 +114,9 @@ export default function Profile() {
     const  { t } = useTranslation(["global", "account"]);
 
     const { usernameCheckLoad, usernameValidated, handleChangeUsernameValue } = useCheckUsernameAvailability(userInfo.username);
-    const { emailCheckLoad, emailValidated, handleChangeEmailValue } = useCheckEmailAvailability(userInfo.email);
+    const { emailCheckLoad, emailValidated, handleChangeEmailValue, clearEmailalidated } = useCheckEmailAvailability(userInfo.email);
+
+    const { generateOtpCountdown, generateOtpLoad, generateOtpCode, handleChangeAddress, restartCountdown } = useGenerateOtp();
 
     const {
         openChangeUsernameModal,
@@ -134,12 +137,19 @@ export default function Profile() {
     } = useChangeName();
 
     const {
+        changeEmailForm,
         openChangeEmailModal,
         changeEmailLoad,
         changeEmailErrorMsg,
+        changeEmailStep,
         handleOpenChangeEmail,
-        handleChangeEmail
+        handleChangeEmail,
+        handleChangeEmailStep,
     } = useChangeEmail();
+
+    const onChangeEmail : FormProps<ChangeEmailForm>['onFinish']= (values) => {
+        handleChangeEmail(values);
+    }
     
     return (
         <>
@@ -214,7 +224,7 @@ export default function Profile() {
                 onCancel={() => handleOpenChangeUsername(false)}
                 handleSubmit={handleChangeUsername}
                 btnDisabled={!usernameValidated || usernameCheckLoad}
-                btnLoad={changeUsernameLoad}
+                btnLoad={changeUsernameLoad || usernameCheckLoad}
             >
                 <Form.Item
                     name="username"
@@ -286,58 +296,147 @@ export default function Profile() {
                         maxLength={50}
                     />
                 </Form.Item>
-            </FormModal>
+            </FormModal >
 
-            <FormModal<ChangeEmailForm>
+            <Modal
                 title={t("account:changeEmail")}
-                description={t("account:changeEmailDesc")}
                 open={openChangeEmailModal}
-                onCancel={() => handleOpenChangeEmail(false)}
-                handleSubmit={handleChangeEmail}
-                btnDisabled={!emailValidated || emailCheckLoad}
-                btnLoad={changeEmailLoad}
+                centered
+                onCancel={() => {
+                    handleOpenChangeEmail(false)
+                    clearEmailalidated();
+                    restartCountdown();
+                }}
+                footer={[]}
+                maskClosable={false}
             >
-                <Form.Item
-                    name="email"
-                    required
-                    rules={[
-                        {
-                            max: 50,
-                            message: t("account:EMAIL02"),
-                        },
-                        { 
-                            type: 'email', 
-                            message: t("account:EMAIL01") 
-                        },
-                        {
-                            validator: async () => {
-                                if (emailValidated === false) {
-                                    throw new Error();
-                                }
-                            }
-                        }
-                    ]}
-                    hasFeedback={emailValidated === undefined ? false : true}
-                    validateStatus={
-                        emailValidated === undefined ? undefined :
-                        emailCheckLoad ? "validating" :
-                        !emailValidated ? "error" : "success"
-                    }
-                    help={
-                        !emailValidated && emailValidated !== undefined ? t("account:ACCOUNT409-2") :
-                        changeEmailErrorMsg ? changeEmailErrorMsg :
-                        emailValidated === undefined ? undefined : ""
-                    }
+                <Form
+                    onFinish={onChangeEmail}
+                    autoComplete="off"
+                    form={changeEmailForm}
                 >
-                    <Input
-                        size="large"
-                        placeholder={t("account:newEmail")}
-                        maxLength={50}
-                        defaultValue={userInfo.email}
-                        onChange={e => handleChangeEmailValue(e.target.value)}
-                    />
-                </Form.Item>
-            </FormModal>
+                    <div style={{ display: changeEmailStep === 0 ? 'block' : 'none' }}>
+
+                        <div style={styles.formModalDesc}>
+                            <Text>{t("account:changeEmailDesc")}</Text>
+                        </div>
+                        <Form.Item
+                            name="email"
+                            required
+                            rules={[
+                                {
+                                    max: 50,
+                                    message: t("account:EMAIL02"),
+                                },
+                                { 
+                                    type: 'email', 
+                                    message: t("account:EMAIL01") 
+                                },
+                                {
+                                    validator: async () => {
+                                        if (emailValidated === false) {
+                                            throw new Error();
+                                        }
+                                    }
+                                }
+                            ]}
+                            hasFeedback={emailValidated === undefined ? false : true}
+                            validateStatus={
+                                emailValidated === undefined ? undefined :
+                                emailCheckLoad ? "validating" :
+                                !emailValidated ? "error" : "success"
+                            }
+                            help={
+                                !emailValidated && emailValidated !== undefined ? t("account:ACCOUNT409-2") :
+                                changeEmailErrorMsg ? changeEmailErrorMsg :
+                                emailValidated === undefined ? undefined : ""
+                            }
+                        >
+                            <Input
+                                size="large"
+                                placeholder={t("account:newEmail")}
+                                maxLength={50}
+                                defaultValue={userInfo.email}
+                                onChange={e => {
+                                    handleChangeEmailValue(e.target.value);
+                                    handleChangeAddress(e.target.value);
+                                }}
+                            />
+                        </Form.Item>
+
+                        <Button
+                            type="primary"
+                            size="large"
+                            style={styles.formModalBtn}
+                            disabled={!emailValidated || emailCheckLoad}
+                            loading={changeEmailLoad || emailCheckLoad}
+                            onClick={() => {
+                                changeEmailForm.validateFields(['email']).then(() => {
+                                    handleChangeEmailStep(1);
+                                    generateOtpCode();
+                                });
+                            }}
+                        >
+                            {t("global:continue")}
+                        </Button>
+                    </div>
+                    
+                    <div style={{ display: changeEmailStep === 1 ? 'block' : 'none' }}>
+                        <div style={styles.formModalDesc}>
+                            <Text>OTP has been sent. Didn't get your code?</Text>
+                            <Button
+                                type="link"
+                                size="small"
+                                onClick={generateOtpCode}
+                                loading={generateOtpLoad}
+                                disabled={generateOtpCountdown > 0}
+                            >
+                                Get OTP {generateOtpCountdown > 0 ? `${generateOtpCountdown}s` : ""}
+                            </Button>
+                        </div>
+                        <Form.Item
+                            name='otpCode'
+                            style={{
+                                display: 'flex',
+                                justifyContent: 'center'
+                            }}
+                            required
+                            rules={[
+                                () => ({
+                                    validator(_, value) {
+                                        if (!value || value.length < 6) {
+                                            return Promise.reject(t("account:ACCOUNT403-6"));
+                                        }
+
+                                        if (Number.isNaN(Number(value))) {
+                                            return Promise.reject(t("account:otpMustNumber"))
+                                        }
+
+                                        return Promise.resolve();
+                                    }
+                                })
+                            ]}
+                        >
+                            <Input.OTP
+                                length={6}
+                            />
+                        </Form.Item>
+                        <Form.Item>
+                            <Button
+                                key="submit"
+                                type="primary"
+                                size="large"
+                                style={styles.formModalBtn}
+                                htmlType="submit"
+                                disabled={!emailValidated || emailCheckLoad}
+                                loading={changeEmailLoad}
+                            >
+                                {t("global:submit")}
+                            </Button>
+                        </Form.Item>
+                    </div>
+                </Form>
+            </Modal>
         </>
     )
 }

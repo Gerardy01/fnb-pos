@@ -310,6 +310,12 @@ export class AccountService implements IAccountService {
             if (data.value.length > 50) {
                 throw new NotValid("ACCOUNT403-3"); // Email cannot be more than 50 characters.
             }
+
+            // check email OTP
+            if (!data.otpCode) throw new NotValid("ACCOUNT403-6");
+            const otpValid = await this.validateOtpValid(data.otpCode, data.value);
+            if (!otpValid) throw new NotValid("ACCOUNT403-6");
+            
             newValue = await this.changeEmail({
                 accountId: data.accountId,
                 newEmail: data.value

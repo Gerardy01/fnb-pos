@@ -31,5 +31,6 @@
     "change" : "Change",
     "action" : "Action",
     "conflict" : "Conflict",
-    "delete" : "Delete"
+    "delete" : "Delete",
+    "continue" : "Continue"
 }
