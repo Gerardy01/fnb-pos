@@ -1,4 +1,6 @@
-
+import path from "path";
+import ejs from 'ejs';
+import fs from 'fs';
 
 
 export function generateOrganizationNumber(organizationName: string, count: number): string {
@@ -88,3 +90,9 @@ export function generateRandomPassword(length: number = 12): string {
     
     return password;
 }
+
+export const renderTemplate = async (templateName: string, data: any): Promise<string> => {
+    const templatePath = path.join(__dirname, `../templates/${templateName}`);
+    const template = fs.readFileSync(templatePath, 'utf-8');
+    return ejs.render(template, data);
+};

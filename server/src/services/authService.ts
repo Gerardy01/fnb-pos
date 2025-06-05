@@ -4,7 +4,7 @@ import { DataNotFound, NotValid, WrongFormat } from "../utility/exceptions";
 
 // utils
 import { DefaultRoleEnum, PermissionEnum, SendEmailTypeEnum } from "../utility/enums";
-import { validateEmail, generateCode } from "../utility/utils";
+import { validateEmail, generateCode, renderTemplate } from "../utility/utils";
 
 // queue
 import { sendEmailToQueue } from "../queue/emailProducer";
@@ -337,11 +337,12 @@ export class AuthService implements IAuthService {
         filtered[0].save({ transaction });
     }
 
-    private sendOtpEmail(to : string, otp : number) : void {
+    private async sendOtpEmail(to : string, otp : number) : Promise<void> {
+        const html = await renderTemplate("otp.html", { otp : otp })
         sendEmailToQueue({
             to: to,
-            subject: 'test',
-            body : `<h1>${otp}</h1>`,
+            subject: 'Your OTP',
+            body : html,
             type : SendEmailTypeEnum.HTML
         });
     }
