@@ -34,6 +34,7 @@ export default function App() {
 							
 							<Route element={<PermissionProtectedRoutes requiredPermission={[PageAccessPermissionEnum.ACCOUNT_MANAGEMENT]} />}>
 								<Route path="/account-management" element={<AccountManagement />} />
+								<Route path="/account-management/:accountId" element={<AccountManagement />} />
 							</Route>
 							<Route element={<PermissionProtectedRoutes requiredPermission={[PageAccessPermissionEnum.ROLE_MANAGEMENT]} />}>
 								<Route path="/role-management" element={<Dashboard />} />

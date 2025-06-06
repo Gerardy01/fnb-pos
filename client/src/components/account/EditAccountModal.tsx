@@ -55,20 +55,20 @@ export default function EditAccountModal({ form, roleOptions, open, selectedAcco
 
     return (
         <>
-            {selectedAccountData && (
-                <Modal
-                    title={`${t('account:editAccount')} ${selectedAccountData.name}`}
-                    centered
-                    open={open}
-                    onCancel={() => {
-                        onClose();
-                        clearUsernameValidated();
-                        clearEmailalidated();
-                        restartCountdown();
-                    }}
-                    footer={null}
-                    maskClosable={false}
-                >
+            <Modal
+                title={`${t('account:editAccount')} ${selectedAccountData ? selectedAccountData.name : ""}`}
+                centered
+                open={open}
+                onCancel={() => {
+                    onClose();
+                    clearUsernameValidated();
+                    clearEmailalidated();
+                    restartCountdown();
+                }}
+                footer={null}
+                maskClosable={false}
+            >
+                {selectedAccountData && (
                     <Form
                         name="editAccountManagement"
                         onFinish={onSubmit}
@@ -299,8 +299,8 @@ export default function EditAccountModal({ form, roleOptions, open, selectedAcco
                             </div>
                         </Form.Item>
                     </Form>
-                </Modal>
-            )}
+                )}
+            </Modal>
 
             <Modal
                 title={t('account:newPassword')}

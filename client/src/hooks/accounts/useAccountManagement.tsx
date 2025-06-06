@@ -5,6 +5,7 @@ import { EditOutlined } from '@ant-design/icons';
 
 import useStaticModal from '../useStaticModal';
 import useNotification from '../useNotification';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
 import { accountApi, roleApi } from '../../api';
@@ -23,10 +24,13 @@ export interface AccountTableData {
 
 export default function useAccountManagement() {
 
+    const navigate = useNavigate();
+
     const { serverErrorModal, errorModal, confirmationModal } = useStaticModal();
     const { successnotification } = useNotification();
 
     const { t } = useTranslation(["global", "account", "role"]);
+    const { accountId : accountIdFromParams } = useParams();
 
     const [accounts, setAccounts] = useState<AccountTableData[]>([]);
     const [filteredAccounts, setFilteredAccounts] = useState<AccountTableData[]>([]);
@@ -50,6 +54,7 @@ export default function useAccountManagement() {
     useEffect(() => {
         getRoleData();
         getAccountList();
+        if (accountIdFromParams) setEditAccountModal(true);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
@@ -113,6 +118,7 @@ export default function useAccountManagement() {
     const handleSelectEdit = (data : EditAccountManagementBodyData) => {
         openEditAccount(true);
         setEditAccountData(data);
+        navigate(`/account-management/${data.accountId}`, { replace: false });
     }
 
     const getRoleData = async () : Promise<void> => {
@@ -166,6 +172,18 @@ export default function useAccountManagement() {
             
             setAccounts(accountTableDataList);
             setFilteredAccounts(accountTableDataList);
+
+            if (accountIdFromParams) {
+                const selectedEditAccount = data.find(item => item.accountId === accountIdFromParams);
+                if (!selectedEditAccount) return;
+                setEditAccountData({
+                    accountId : selectedEditAccount.accountId,
+                    username : selectedEditAccount.username,
+                    name : selectedEditAccount.name,
+                    email : selectedEditAccount.email,
+                    roleId : selectedEditAccount.roleId
+                });
+            }
 
         } finally {
             setGetAccountLoad(false);
@@ -333,7 +351,7 @@ export default function useAccountManagement() {
 
     const handleResetPass = async () => {
         if (!editAccountData) return;
-        console.log(editAccountData)
+
         const [err, data] = await accountApi.resetPassword(editAccountData.accountId);
 
         if (err) {
