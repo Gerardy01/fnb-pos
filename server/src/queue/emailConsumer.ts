@@ -9,6 +9,11 @@ import { ISendEmail } from '../interfaces/INotifications';
 export const consumeEmailQueue = async () => {
     const channel = getChannel();
 
+    if (!channel) {
+        console.warn('⚠️ RabbitMQ channel not available, skipping email queue consumer.');
+        return;
+    }
+
     channel.consume('email_queue', async (msg) => {
         if (msg === null) return;
 
