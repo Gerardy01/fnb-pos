@@ -1,5 +1,8 @@
 
 
 {
-    "getRoleDataWrong" : "Something wrong when getting role data."
+    "getRoleDataWrong" : "Something wrong when getting role data.",
+    "roleManagement" : "Role Management",
+    "newRole" : "New Role",
+    "roleName" : "Role Name"
 }

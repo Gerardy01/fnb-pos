@@ -148,9 +148,10 @@ export default function useAccountManagement() {
     }
 
     const getAccountList = async () : Promise<void> => {
-        const [err, data] = await accountApi.getAllAccount();
-
+        
         try {
+            const [err, data] = await accountApi.getAllAccount();
+            
             if (err) {
                 if (err.status === 500) {
                     serverErrorModal();

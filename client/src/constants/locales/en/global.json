@@ -32,5 +32,6 @@
     "action" : "Action",
     "conflict" : "Conflict",
     "delete" : "Delete",
-    "continue" : "Continue"
+    "continue" : "Continue",
+    "description" : "Description"
 }
