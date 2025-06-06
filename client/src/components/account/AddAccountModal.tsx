@@ -201,6 +201,7 @@ export default function AddAccountModal({ form, roleOptions, open, submitLoad, o
                                     maxLength={6}
                                     disabled={
                                         (form.getFieldValue("email") == null) ||
+                                        (form.getFieldValue("email") == "") ||
                                         (form.getFieldError("email").length > 0 && form.getFieldError("email")[0] != "") ||
                                         emailCheckLoad ||
                                         emailValidated == false
@@ -210,6 +211,7 @@ export default function AddAccountModal({ form, roleOptions, open, submitLoad, o
                                     type="primary"
                                     disabled={
                                         (form.getFieldValue("email") == null) ||
+                                        (form.getFieldValue("email") == "") ||
                                         (form.getFieldError("email").length > 0 && form.getFieldError("email")[0] != "") ||
                                         emailCheckLoad ||
                                         emailValidated == false ||

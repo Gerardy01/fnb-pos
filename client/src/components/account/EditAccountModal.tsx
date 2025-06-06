@@ -223,6 +223,7 @@ export default function EditAccountModal({ form, roleOptions, open, selectedAcco
                                             disabled={
                                                 (form.getFieldValue("email") == selectedAccountData.email) ||
                                                 (form.getFieldValue("email") == null) ||
+                                                (form.getFieldValue("email") == "") ||
                                                 (form.getFieldError("email").length > 0 && form.getFieldError("email")[0] != "") ||
                                                 emailCheckLoad ||
                                                 emailValidated == false
@@ -233,6 +234,7 @@ export default function EditAccountModal({ form, roleOptions, open, selectedAcco
                                             disabled={
                                                 (form.getFieldValue("email") == selectedAccountData.email) ||
                                                 (form.getFieldValue("email") == null) ||
+                                                (form.getFieldValue("email") == "") ||
                                                 (form.getFieldError("email").length > 0 && form.getFieldError("email")[0] != "") ||
                                                 emailCheckLoad ||
                                                 emailValidated == false ||

@@ -33,5 +33,7 @@
     "conflict" : "Conflict",
     "delete" : "Delete",
     "continue" : "Continue",
-    "description" : "Description"
+    "description" : "Description",
+    "read": "Read",
+    "write": "Write"
 }

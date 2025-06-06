@@ -40,6 +40,7 @@ export default function App() {
 
 							<Route element={<PermissionProtectedRoutes requiredPermission={[PageAccessPermissionEnum.ROLE_MANAGEMENT]} />}>
 								<Route path="/role-management" element={<RoleManagement />} />
+								<Route path="/role-management/:roleId" element={<RoleManagement />} />
 							</Route>
 							
 							<Route element={<PermissionProtectedRoutes requiredPermission={[PageAccessPermissionEnum.ORGANIZATION_SETTINGS]} />}>

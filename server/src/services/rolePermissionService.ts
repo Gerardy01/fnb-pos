@@ -11,7 +11,7 @@ import RolePageAccessPermission from "../models/rolePageAccessPermission.model";
 
 // types and interfaces
 import { Transaction } from "sequelize";
-import { ICreateRoleData, RoleWithPermissionReturnData, IRolePermissionData, RoleReturnData, PageAccessPermissionReturnData } from "../interfaces/IRolePermission";
+import { ICreateRoleData, RoleWithPermissionReturnData, IRolePermissionData, RoleReturnData, PageAccessPermissionReturnData, PermissionReturnData } from "../interfaces/IRolePermission";
 import { IRoleRepository } from "../repositories/roleRepository";
 import { IPermissionRepository } from "../repositories/permissionRepository";
 import { IPageAccessPermissionRepository, PageAccessPermissionRepository } from "../repositories/pageAccessPermissionRepository";
@@ -21,6 +21,8 @@ export interface IRolePermissionService {
     getOneRole(roleId : number, organizationId : string, userRole : string) : Promise<RoleReturnData>
     getRoleById(roleId : number) : Promise<RoleReturnData>
     getOneRoleWithPermission(roleId : number, organizationId : string, userRole : string) : Promise<RoleWithPermissionReturnData>
+    getAllPermission() : Promise<PermissionReturnData[]>;
+    getAllPageAccessPermission() : Promise<PageAccessPermissionReturnData[]>
     getDefaultRoleByName(roleName : string) : Promise<RoleReturnData>
     getPermissionByRole(roleId : number) : Promise<IRolePermissionData[]>
     getPageAccessPermissionByRole(roleId : number) : Promise<PageAccessPermissionReturnData[]>
@@ -142,6 +144,39 @@ export class RolePermissionService implements IRolePermissionService {
             permissions: permissionData,
             pageAccessPermissionIds: pageAccessPermissionIds
         }
+    }
+
+    async getAllPermission(): Promise<PermissionReturnData[]> {
+
+        let allPermission = await this.permissionRepository.findAllPermission();
+        allPermission = allPermission.filter(item => item.permission_id !== PermissionEnum.SUPER_PERMISSION);
+
+        const permissionReturn : PermissionReturnData[] = [];
+        allPermission.forEach(item => {
+            permissionReturn.push({
+                permissionId : item.permission_id,
+                permissionName : item.permission_name,
+                description : item.description,
+            });
+        });
+
+        return permissionReturn;
+    }
+
+    async getAllPageAccessPermission(): Promise<PageAccessPermissionReturnData[]> {
+
+        const allPageAccessPermission = await this.pageAccessPermissionRepository.findAllPageAccessPermission();
+        
+        const returnData : PageAccessPermissionReturnData[] = [];
+        allPageAccessPermission.forEach(item => {
+            returnData.push({
+                permissionId : item.id,
+                permissionName : item.permission_name,
+                description : item.description,
+            });
+        });
+
+        return returnData;
     }
 
     async getDefaultRoleByName(roleName: string): Promise<RoleReturnData> {

@@ -103,9 +103,6 @@ export class AccountApi {
 
         const [error, res] = await catchFetchError(axiosPrivate.delete<FetchResponse<boolean>>(
             `account/${accountId}`,
-            {
-                headers : { 'Content-Type' : 'application/json' },
-            }
         ));
 
         if (error) return [error];

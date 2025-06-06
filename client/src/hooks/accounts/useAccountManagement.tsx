@@ -67,6 +67,18 @@ export default function useAccountManagement() {
         setFilteredAccounts(accounts);
     }, [accounts]);
 
+    useEffect(() => {
+        if (!editAccountData) return;
+        editAccountForm.resetFields();
+        editAccountForm.setFieldsValue({
+            username: editAccountData.username,
+            name: editAccountData.name,
+            email: editAccountData.email === "-" ? "" : editAccountData.email,
+            role: editAccountData.roleId
+        });
+        navigate(`/account-management/${editAccountData.accountId}`, { replace: false });
+    }, [editAccountData]); 
+
     const columns: TableColumnsType<AccountTableData> = [
         {
             title: t("account:name"),
@@ -118,7 +130,6 @@ export default function useAccountManagement() {
     const handleSelectEdit = (data : EditAccountManagementBodyData) => {
         openEditAccount(true);
         setEditAccountData(data);
-        navigate(`/account-management/${data.accountId}`, { replace: false });
     }
 
     const getRoleData = async () : Promise<void> => {
@@ -219,6 +230,7 @@ export default function useAccountManagement() {
 
         if (!open) {
             setEditAccountData(null);
+            navigate("/account-management")
         }
     }
 
@@ -283,7 +295,7 @@ export default function useAccountManagement() {
 
     const submitEditAccount = async (values : EditAccountManagementBodyData) => {
         setEditAccountSubmitLoad(true);
-
+        console.log(values)
         try {
             const [err, data] = await accountApi.editAccountManagementApi(values);
     

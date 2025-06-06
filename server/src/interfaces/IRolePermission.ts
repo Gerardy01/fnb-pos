@@ -32,3 +32,9 @@ export type PageAccessPermissionReturnData = {
     permissionName : string;
     description : string;
 }
+
+export type PermissionReturnData = {
+    permissionId : number;
+    permissionName : string;
+    description : string;
+}

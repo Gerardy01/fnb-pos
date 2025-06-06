@@ -4,5 +4,8 @@
     "getRoleDataWrong" : "Something wrong when getting role data.",
     "roleManagement" : "Role Management",
     "newRole" : "New Role",
-    "roleName" : "Role Name"
+    "roleName" : "Role Name",
+    "addNewRole" : "Add New Role",
+    "pageAccess" : "Page Access",
+    "permissions" : "Permissions"
 }
