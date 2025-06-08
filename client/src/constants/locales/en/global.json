@@ -35,5 +35,6 @@
     "continue" : "Continue",
     "description" : "Description",
     "read": "Read",
-    "write": "Write"
+    "write": "Write",
+    "advanced" : "Advanced"
 }

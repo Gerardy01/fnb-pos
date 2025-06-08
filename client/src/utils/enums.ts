@@ -6,3 +6,10 @@ export enum PageAccessPermissionEnum {
     ROLE_MANAGEMENT = 3,
     POS = 4
 }
+
+export enum PermissionEnum {
+    SUPER_PERMISSION = 1,
+    ORGANIZATION_MANAGEMENT = 2,
+    ACCOUNT_MANAGEMENT = 3,
+    ROLE_MANAGEMENT = 4,
+}

@@ -1,8 +1,8 @@
-import { Button, Form, Input, Modal, Switch, Typography } from "antd";
+import { Alert, Button, Checkbox, Form, Input, Modal, Switch, Typography } from "antd";
 
 import { useTranslation } from "react-i18next";
 
-import { useAddRole } from "../../hooks/roles/useRoleManagement";
+import { RoleTableData, useAddRole } from "../../hooks/roles/useRoleManagement";
 
 // types and interfaces
 import { PageAccessPermissionData, PermissionData } from "../../models/permissionInterface";
@@ -11,6 +11,7 @@ interface Props {
     permissions : PermissionData[];
     pageAccessPermissions : PageAccessPermissionData[];
     onClose : () => void;
+    onAddRoleSuccess : (newRole : RoleTableData) => void;
 }
 
 const { TextArea } = Input;
@@ -21,6 +22,7 @@ export default function AddRoleModal({
     permissions,
     pageAccessPermissions,
     onClose,
+    onAddRoleSuccess,
 } : Props) {
 
     const { t } = useTranslation(["global", "role"]);
@@ -28,10 +30,15 @@ export default function AddRoleModal({
         addRoleForm,
         selectedPermission,
         selectedPageAccessPermission,
+        isAdvanced,
+        pageAccessPermissionErrorMsg,
+        permissionErrorMsg,
         handleTogglePageAccessPermission,
         handleTogglePermission,
         resetData,
-    } = useAddRole();
+        handleSetAdvanced,
+        submitAddRole,
+    } = useAddRole(onAddRoleSuccess);
 
     return (
         <Modal
@@ -52,6 +59,7 @@ export default function AddRoleModal({
                 layout="vertical"
                 form={addRoleForm}
                 style={styles.form}
+                onFinish={submitAddRole}
             >
                 <Form.Item
                     name="roleName"
@@ -84,6 +92,15 @@ export default function AddRoleModal({
 
                 <div style={styles.permissionSettingHolder}>
                     <Text strong>{t("role:pageAccess")}</Text>
+
+                    {pageAccessPermissionErrorMsg && (
+                        <Alert
+                            message={pageAccessPermissionErrorMsg}
+                            type="error"
+                            showIcon
+                            style={styles.alert}
+                        />
+                    )}
                     
                     <div style={styles.permissionItemHolder}>
                         {pageAccessPermissions.map((item : PageAccessPermissionData, i : number) => {
@@ -106,45 +123,62 @@ export default function AddRoleModal({
                         })}
                     </div>
                 </div>
+                
+                <Checkbox
+                    style={styles.checkBox}
+                    onChange={e => handleSetAdvanced(e.target.checked)}
+                    checked={isAdvanced}
+                >{t("global:advanced")}</Checkbox>
 
-                <div style={styles.permissionSettingHolder}>
-                    <Text strong>{t("role:permissions")}</Text>
+                {isAdvanced && (
+                    <div style={styles.permissionSettingHolder}>
+                        <Text strong>{t("role:permissions")}</Text>
 
-                    <div style={styles.permissionItemHolder}>
-                        {permissions.map((item : PermissionData, i : number) => {
-                            const existingPermission = selectedPermission.find(
-                                perm => perm.permissionId === item.permissionId
-                            );
+                        {permissionErrorMsg && (
+                            <Alert
+                                message={permissionErrorMsg}
+                                type="error"
+                                showIcon
+                                style={styles.alert}
+                            />
+                        )}
 
-                            return (
-                                <div
-                                    key={i}
-                                    style={styles.permissionItem}
-                                >
-                                    <Text>{item.permissionName}</Text>
-                                    <div style={styles.permissionItemContent}>
-                                        <div style={styles.readWriteHolder}>
-                                            <Switch
-                                                style={{ marginRight: '10px' }}
-                                                checked={existingPermission?.read || false}
-                                                onChange={(checked) => handleTogglePermission(item.permissionId, checked, 'read')}
-                                            />
-                                            <Text>{t('global:read')}</Text>
-                                        </div>
-                                        <div style={styles.readWriteHolder}>
-                                            <Switch
-                                                style={{ marginRight: '10px'}}
-                                                checked={existingPermission?.write || false}
-                                                onChange={(checked) => handleTogglePermission(item.permissionId, checked, 'write')}
-                                            />
-                                            <Text>{t('global:write')}</Text>
+                        <div style={styles.permissionItemHolder}>
+                            {permissions.map((item : PermissionData, i : number) => {
+                                const existingPermission = selectedPermission.find(
+                                    perm => perm.permissionId === item.permissionId
+                                );
+
+                                return (
+                                    <div
+                                        key={i}
+                                        style={styles.permissionItem}
+                                    >
+                                        <Text>{item.permissionName}</Text>
+                                        <div style={styles.permissionItemContent}>
+                                            <div style={styles.readWriteHolder}>
+                                                <Switch
+                                                    style={{ marginRight: '10px' }}
+                                                    checked={existingPermission?.read || false}
+                                                    onChange={(checked) => handleTogglePermission(item.permissionId, checked, 'read')}
+                                                />
+                                                <Text>{t('global:read')}</Text>
+                                            </div>
+                                            <div style={styles.readWriteHolder}>
+                                                <Switch
+                                                    style={{ marginRight: '10px'}}
+                                                    checked={existingPermission?.write || false}
+                                                    onChange={(checked) => handleTogglePermission(item.permissionId, checked, 'write')}
+                                                />
+                                                <Text>{t('global:write')}</Text>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            )
-                        })}
+                                )
+                            })}
+                        </div>
                     </div>
-                </div>
+                )}
 
                 <Form.Item
                     style={styles.submitBtnHolder}
@@ -212,5 +246,13 @@ const styles : { [key: string]: React.CSSProperties } = {
         width: '49%',
         display: 'flex',
         alignItems: 'center',
+    },
+    checkBox : {
+        marginTop: '2rem',
+    },
+    alert : {
+        marginTop: '1rem',
+        marginBottom: '2rem',
+        width: '45%',
     }
 }

@@ -7,5 +7,7 @@
     "roleName" : "Role Name",
     "addNewRole" : "Add New Role",
     "pageAccess" : "Page Access",
-    "permissions" : "Permissions"
+    "permissions" : "Permissions",
+    "selectOne" : "Please select at least one permission below",
+    "roleAddSuccess" : "Role added successfully"
 }

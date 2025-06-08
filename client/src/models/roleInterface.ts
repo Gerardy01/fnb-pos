@@ -11,6 +11,12 @@ export interface RolePermission {
     read: boolean,
     write: boolean
 }
+export interface CreateRoleData {
+    roleName : string;
+    description? : string;
+    permissions : RolePermission[]
+    pageAccessPermissionIds : number[]
+}
 
 export interface OneRoleData {
     roleId : number;

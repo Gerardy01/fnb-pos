@@ -23,6 +23,7 @@ export default function RoleManagement() {
         pageAccessPermissions,
         handleSearch,
         openAddRole,
+        onAddRoleSuccess,
     } = useRoleManagement();
 
     return (
@@ -65,6 +66,7 @@ export default function RoleManagement() {
                 permissions={permissions}
                 pageAccessPermissions={pageAccessPermissions}
                 onClose={() => openAddRole(false)}
+                onAddRoleSuccess={onAddRoleSuccess}
             />
         </div>
     )

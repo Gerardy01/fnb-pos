@@ -77,6 +77,7 @@ export default function useAccountManagement() {
             role: editAccountData.roleId
         });
         navigate(`/account-management/${editAccountData.accountId}`, { replace: false });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [editAccountData]); 
 
     const columns: TableColumnsType<AccountTableData> = [
@@ -295,7 +296,7 @@ export default function useAccountManagement() {
 
     const submitEditAccount = async (values : EditAccountManagementBodyData) => {
         setEditAccountSubmitLoad(true);
-        console.log(values)
+        
         try {
             const [err, data] = await accountApi.editAccountManagementApi(values);
     
