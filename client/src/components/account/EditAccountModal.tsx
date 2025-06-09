@@ -82,7 +82,9 @@ export default function EditAccountModal({
                 footer={null}
                 maskClosable={false}
             >
-                {selectedAccountData ? (
+                {contentLoad ? (
+                    <>Loading...</>
+                ) : !contentLoad && selectedAccountData ? (
                     <Form
                         name="editAccountManagement"
                         onFinish={onSubmit}
@@ -315,10 +317,8 @@ export default function EditAccountModal({
                             </div>
                         </Form.Item>
                     </Form>
-                ) : !selectedAccountData && !contentLoad ? (
-                    <>Not found</>
                 ) : (
-                    <>Loading...</>
+                    <>Not found</>
                 )}
             </Modal>
 
