@@ -11,7 +11,7 @@ import RolePageAccessPermission from "../models/rolePageAccessPermission.model";
 
 // types and interfaces
 import { Transaction } from "sequelize";
-import { ICreateRoleData, RoleWithPermissionReturnData, IRolePermissionData, RoleReturnData, PageAccessPermissionReturnData, PermissionReturnData } from "../interfaces/IRolePermission";
+import { ICreateRoleData, IEditRoleData, RoleWithPermissionReturnData, IRolePermissionData, RoleReturnData, PageAccessPermissionReturnData, PermissionReturnData } from "../interfaces/IRolePermission";
 import { IRoleRepository } from "../repositories/roleRepository";
 import { IPermissionRepository } from "../repositories/permissionRepository";
 import { IPageAccessPermissionRepository, PageAccessPermissionRepository } from "../repositories/pageAccessPermissionRepository";
@@ -27,6 +27,7 @@ export interface IRolePermissionService {
     getPermissionByRole(roleId : number) : Promise<IRolePermissionData[]>
     getPageAccessPermissionByRole(roleId : number) : Promise<PageAccessPermissionReturnData[]>
     createRole(data : ICreateRoleData, organizationId : string, transaction? : Transaction) : Promise<RoleWithPermissionReturnData>
+    editRole(data : IEditRoleData, organizationId : string, transaction? : Transaction) : Promise<RoleWithPermissionReturnData>
 }
 
 export class RolePermissionService implements IRolePermissionService {
@@ -135,7 +136,7 @@ export class RolePermissionService implements IRolePermissionService {
         });
 
         const pageAccessPermission = await this.pageAccessPermissionRepository.findPageAccessPermissionByRole(roleId);
-        const pageAccessPermissionIds : number[] = pageAccessPermission.map(item => item.id);
+        const pageAccessPermissionIds : number[] = pageAccessPermission.map(item => item.permission_id);
 
         return {
             roleId: roleData.roleId,
@@ -304,12 +305,109 @@ export class RolePermissionService implements IRolePermissionService {
             });
         });
 
-        const newRolePageAccessPermissionIds = newRolePageAccessPermission.map(item => item.id); 
+        const newRolePageAccessPermissionIds = newRolePageAccessPermission.map(item => item.permission_id); 
 
         return {
             roleId : newRole.role_id,
             roleName : newRole.role_name,
             description : newRole.description,
+            permissions : createdPermissionList,
+            pageAccessPermissionIds : newRolePageAccessPermissionIds
+        }
+    }
+
+    async editRole(data: IEditRoleData, organizationId: string, transaction?: Transaction): Promise<RoleWithPermissionReturnData> {
+        let permissionIds = data.permissions.map(data => data.permissionId);
+
+        // remove duplicate permission input
+        const uniquePermissionIds = new Set(permissionIds);
+        permissionIds = Array.from(uniquePermissionIds);
+
+        const uniquePageAccessPermissionIds = new Set(data.pageAccessPermissionIds);
+        const pageAccessPermissionIds = Array.from(uniquePageAccessPermissionIds);
+
+        // check if no super admin permission included in request body data
+        const superPermissionInRequest = data.permissions.find(data => data.permissionId === PermissionEnum.SUPER_PERMISSION);
+        if (superPermissionInRequest) {
+            throw new DataNotFound(`Permission with id ${superPermissionInRequest.permissionId} does not exist`)
+        }
+
+        // check if all permission exist
+        const permissions = await this.permissionRepository.findByIds(permissionIds);
+        const foundPermissionIds = permissions.map(permission => permission.permission_id);
+        if (foundPermissionIds.length !== permissionIds.length) {
+            const missingPermissionIds = permissionIds.filter(id => !foundPermissionIds.includes(id));
+            throw new DataNotFound(`Permission with id ${missingPermissionIds.join(', ')} does not exist`)
+        }
+
+        if (data.pageAccessPermissionIds.length > 0) {
+            const pageAccessPermissions = await this.pageAccessPermissionRepository.findByIds(pageAccessPermissionIds);
+            const foundPageAccessPermissionIds = pageAccessPermissions.map(item => item.id);
+            if (foundPageAccessPermissionIds.length !== pageAccessPermissionIds.length) {
+                const missingPageAccessPermissionIds = pageAccessPermissionIds.filter(id => !foundPageAccessPermissionIds.includes(id));
+                throw new DataNotFound(`Page Access Permission with id ${missingPageAccessPermissionIds.join(', ')} does not exist`)
+            }
+        }
+
+        // check if selected role exist
+        const targetRole = await this.roleRepository.findRoleByIdAndOrganization(data.roleId, organizationId);
+        if (!targetRole || targetRole.is_default) {
+            throw new DataNotFound(`Role with id ${data.roleId} not found`);
+        }
+
+        // check if role name already exist
+        const role = await this.roleRepository.findRoleByNameAndOrganization(data.roleName, organizationId);
+        const defaultRole = await this.roleRepository.findDefaultRoleByName(data.roleName);
+        if (
+            (role && role.role_name !=targetRole.role_name) ||
+            (defaultRole && defaultRole.role_name !== DefaultRoleEnum.SUPER_ADMIN)
+        ) {
+            throw new ExistData(`Role ${data.roleName} already exist`);
+        }
+
+        targetRole.role_name = data.roleName;
+        targetRole.description = data.description ? data.description : "";
+
+        targetRole.save({ transaction });
+
+        await this.roleRepository.destroyRolePermission(targetRole.role_id, transaction);
+        await this.roleRepository.destroyRolePageAccessPermission(targetRole.role_id, transaction);
+
+        const rolePermissionData : Partial<RolePermissions>[] = [];
+        data.permissions.forEach(item => {
+            rolePermissionData.push({
+                role_id : targetRole.role_id,
+                permission_id : item.permissionId,
+                read : item.read,
+                write : item.write,
+            });
+        });
+        const newRolePermission = await this.roleRepository.bulkCreateRolePermissions(rolePermissionData, transaction);
+
+        const createdPermissionList : IRolePermissionData[] = [];
+        newRolePermission.forEach(item => {
+            createdPermissionList.push({
+                permissionId: item.permission_id,
+                read : item.read,
+                write : item.write
+            });
+        });
+
+        const rolePageAccessPermissionData : Partial<RolePageAccessPermission>[] = [];
+        pageAccessPermissionIds.forEach(permissionId => {
+            rolePageAccessPermissionData.push({
+                role_id: targetRole.role_id,
+                permission_id : permissionId
+            });
+        });
+        const newRolePageAccessPermission = await this.roleRepository.bulkCreateRolePageAccessPermission(rolePageAccessPermissionData, transaction);
+
+        const newRolePageAccessPermissionIds = newRolePageAccessPermission.map(item => item.permission_id); 
+
+        return {
+            roleId : targetRole.role_id,
+            roleName : targetRole.role_name,
+            description : targetRole.description,
             permissions : createdPermissionList,
             pageAccessPermissionIds : newRolePageAccessPermissionIds
         }

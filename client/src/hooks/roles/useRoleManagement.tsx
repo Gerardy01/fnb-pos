@@ -10,11 +10,11 @@ import { PageAccessPermissionEnum, PermissionEnum } from "../../utils/enums";
 import useStaticModal from "../useStaticModal";
 import useNotification from "../useNotification";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 // types and interfaces
 import { PermissionData, PageAccessPermissionData } from "../../models/permissionInterface";
-import { RolePermission } from "../../models/roleInterface";
+import { OneRoleData, RolePermission } from "../../models/roleInterface";
 interface PermissionRule {
     pageAccessId: number;
     requiredPermissions: {
@@ -40,6 +40,7 @@ export function useRoleManagement() {
     const navigate = useNavigate();
 
     const { t } = useTranslation(["global", "role"]);
+    const { roleId : roleIdFormParams } = useParams();
 
     const { serverErrorModal } = useStaticModal();
 
@@ -55,12 +56,13 @@ export function useRoleManagement() {
     const [pageAccessPermissions, setPageAccessPermissions] = useState<PageAccessPermissionData[]>([]);
 
     const [addRoleModal, setAddRoleModal] = useState<boolean>(false);
+    const [editRoleModal, setEditRoleModal] = useState<boolean>(false);
 
     useEffect(() => {
         getRoleData();
         getPermissionData();
         getPageAccessPermissionData();
-
+        if (roleIdFormParams) setEditRoleModal(true);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
@@ -177,11 +179,20 @@ export function useRoleManagement() {
     }
 
     const handleEdit = (roleId : number) => {
-        navigate(`/role-management/${roleId}`, { replace: false });  
+        navigate(`/role-management/${roleId}`, { replace: false });
+        setEditRoleModal(true);
     }
 
     const openAddRole = (open : boolean) => {
         setAddRoleModal(open);
+    }
+
+    const openEditRole = (open : boolean) => {
+        setEditRoleModal(open);
+
+        if (!open) {
+            navigate(`/role-management`);
+        }
     }
 
     const onAddRoleSuccess = (newRole : RoleTableData) : void => {
@@ -189,9 +200,10 @@ export function useRoleManagement() {
         setAddRoleModal(false);
     }
 
-    const onEditRoleSuccess = (roleId : number, newRoleData : RoleTableData) : void => {
+    const onEditRoleSuccess = (roleId : number, roleData : RoleTableData) : void => {
         const filtered = roles.filter(item => item.key !== roleId);
-        setRoles([...filtered, newRoleData]);
+        setRoles([...filtered, roleData]);
+        setEditRoleModal(false);
     }
 
     const onDeleteRoleSuccess = (roleId : number) : void => {
@@ -201,13 +213,16 @@ export function useRoleManagement() {
 
     return {
         addRoleModal,
+        editRoleModal,
         contentLoad,
         columns,
         roles : filteredRoles,
         permissions,
         pageAccessPermissions,
+        roleIdFormParams,
         handleSearch,
         openAddRole,
+        openEditRole,
         onAddRoleSuccess,
         onEditRoleSuccess,
         onDeleteRoleSuccess,
@@ -234,10 +249,13 @@ export function useAddRole(pushNewRole : (newRole : RoleTableData) => void) {
     const [addRoleForm] = Form.useForm();
     const [pageAccessPermissionErrorMsg, setPageAccessPermissionErrorMsg] = useState<string>("");
     const [permissionErrorMsg, setPermissionErrorMsg] = useState<string>("");
+    const [addRoleLoad, setAddRoleLoad] = useState<boolean>(false);
 
     const resetData = () : void => {
         addRoleForm.resetFields();
         resetSelectedPermissions();
+        setPermissionErrorMsg("");
+        setPageAccessPermissionErrorMsg("");
     }
 
     const submitAddRole : FormProps<RoleForm>['onFinish'] = async (values) => {
@@ -251,31 +269,38 @@ export function useAddRole(pushNewRole : (newRole : RoleTableData) => void) {
             setPermissionErrorMsg(t("role:selectOne"));
             return;
         }
-        
-        const [err, data] = await roleApi.createRole({
-            roleName : values.roleName,
-            description : values?.description,
-            permissions : selectedPermission,
-            pageAccessPermissionIds : selectedPageAccessPermission
-        });
 
-        if (err) {
-            if (err.status === 409) {
-                errorModal(t('global:failed'), err.response.data.message);
+        setAddRoleLoad(true);
+        
+        try {
+            const [err, data] = await roleApi.createRole({
+                roleName : values.roleName,
+                description : values?.description,
+                permissions : selectedPermission,
+                pageAccessPermissionIds : selectedPageAccessPermission
+            });
+    
+            if (err) {
+                if (err.status === 409) {
+                    errorModal(t('global:failed'), err.response.data.message);
+                    return;
+                }
+    
+                serverErrorModal();
                 return;
             }
+    
+            successnotification(t("role:roleAddSuccess"));
+            pushNewRole({
+                key: data.roleId,
+                roleName : data.roleName,
+                description : data.description
+            });
+            resetSelectedPermissions();
 
-            serverErrorModal();
-            return;
+        } finally {
+            setAddRoleLoad(false);
         }
-
-        successnotification(t("role:roleAddSuccess"));
-        pushNewRole({
-            key: data.roleId,
-            roleName : data.roleName,
-            description : data.description
-        })
-        console.log(data);
     }
 
     return {
@@ -285,11 +310,153 @@ export function useAddRole(pushNewRole : (newRole : RoleTableData) => void) {
         isAdvanced,
         permissionErrorMsg,
         pageAccessPermissionErrorMsg,
+        addRoleLoad,
         handleTogglePageAccessPermission,
         handleTogglePermission,
         resetData,
         handleSetAdvanced,
         submitAddRole,
+    }
+}
+
+
+export function useEditRole(pushNewEditedRole : (roleId : number, roleData : RoleTableData) => void) {
+
+    const { t } = useTranslation(["global", "role"]);
+    const { roleId : roleIdFormParams } = useParams();
+
+    const { errorModal, serverErrorModal } = useStaticModal();
+    const { successnotification } = useNotification();
+
+    const navigate = useNavigate();
+
+    const {
+        selectedPermission,
+        selectedPageAccessPermission,
+        isAdvanced,
+        handleTogglePageAccessPermission,
+        handleTogglePermission,
+        resetSelectedPermissions,
+        handleSetAdvanced,
+        handleSetPermisions,
+        handleSetPageAccessPermissions,
+    } = usePermissionSetHandling();
+
+    const [editRoleForm] = Form.useForm();
+    const [pageAccessPermissionErrorMsg, setPageAccessPermissionErrorMsg] = useState<string>("");
+    const [permissionErrorMsg, setPermissionErrorMsg] = useState<string>("");
+    const [selectedRoleData, setSelectedRoleData] = useState<OneRoleData | null>(null);
+    const [getOneRoleLoad, setGetOneRoleLoad] = useState(true);
+    const [submitLoad, setSubmitLoad] = useState<boolean>(false);
+
+    useEffect(() => {
+        getOneRoleData();
+
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    const getOneRoleData = async () => {
+        
+        try {
+            const [err, data] = await roleApi.getOneRole(Number(roleIdFormParams));
+
+            if (err) {
+
+                if (err.status === 404) {
+                    return;
+                }
+
+                serverErrorModal();
+                return;
+            }
+
+            setSelectedRoleData({
+                roleId : data.roleId,
+                roleName : data.roleName,
+                description : data.description,
+                permissions : data.permissions,
+                pageAccessPermissionIds : data.pageAccessPermissionIds
+            });
+
+            handleSetPermisions(data.permissions);
+            handleSetPageAccessPermissions(data.pageAccessPermissionIds);
+
+        } finally {
+            setGetOneRoleLoad(false);
+        }
+    }
+
+    const submitEditRole : FormProps<RoleForm>['onFinish'] = async (values) => {
+
+        if (selectedPageAccessPermission.length === 0) {
+            setPageAccessPermissionErrorMsg(t("role:selectOne"));
+            return;
+        }
+
+        if (selectedPermission.length === 0 && isAdvanced) {
+            setPermissionErrorMsg(t("role:selectOne"));
+            return;
+        }
+
+        setSubmitLoad(true);
+
+        try {
+
+            const [err, data] = await roleApi.editRole({
+                roleId : Number(roleIdFormParams),
+                roleName : values.roleName,
+                description : values.description,
+                permissions : selectedPermission,
+                pageAccessPermissionIds : selectedPageAccessPermission
+            });
+
+            if (err) {
+
+                if (err.status === 409) {
+                    errorModal(t('global:failed'), err.response.data.message);
+                    return;
+                }
+
+                serverErrorModal();
+                return;
+            }
+
+            successnotification(t("role:roleEditSuccess"));
+            pushNewEditedRole(data.roleId, {
+                key : data.roleId,
+                roleName : data.roleName,
+                description : data.description,
+            });
+            resetSelectedPermissions();
+            navigate("/role-management")
+        } finally {
+            setSubmitLoad(false);
+        }
+
+    }
+
+    const resetData = () : void => {
+        editRoleForm.resetFields();
+        resetSelectedPermissions();
+        setPermissionErrorMsg("");
+        setPageAccessPermissionErrorMsg("");
+    }
+
+    return {
+        editRoleForm,
+        selectedPermission,
+        selectedPageAccessPermission,
+        isAdvanced,
+        pageAccessPermissionErrorMsg,
+        permissionErrorMsg,
+        getOneRoleLoad,
+        selectedRoleData,
+        submitLoad,
+        resetData,
+        submitEditRole,
+        handleTogglePageAccessPermission,
+        handleTogglePermission,
+        handleSetAdvanced,
     }
 }
 
@@ -490,6 +657,14 @@ function usePermissionSetHandling() {
         setIsAdvanced(value);
     }
 
+    const handleSetPermisions = (value : RolePermission[]) => {
+        setSelectedPermission(value)
+    }
+
+    const handleSetPageAccessPermissions = (value : number[]) => {
+        setSelectedPageAccessPermission(value);
+    }
+
     return {
         selectedPermission,
         selectedPageAccessPermission,
@@ -498,5 +673,7 @@ function usePermissionSetHandling() {
         handleTogglePermission,
         resetSelectedPermissions,
         handleSetAdvanced,
+        handleSetPermisions,
+        handleSetPageAccessPermissions,
     }
 }

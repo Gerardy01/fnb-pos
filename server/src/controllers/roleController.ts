@@ -148,6 +148,51 @@ class RoleController {
             });
         }
     }
+
+    static async editRole(req : Request, res : Response) {
+        const transaction : Transaction = await sequelize.transaction();
+
+        try {
+            const organizationId = req.user ? req.user.organizationId : "";
+            const newRole = await rolePermissionService.editRole(req.body, organizationId, transaction);
+            
+            transaction.commit();
+
+            return res.status(201).json({
+                "status" : "success",
+                "message" : "role edited",
+                "userMessage" : "",
+                "data" : newRole,
+            });
+
+        } catch(e) {
+
+            transaction.rollback();
+
+            if (e instanceof ExistData) {
+                return res.status(409).json({
+                    "status" : "failed",
+                    "message" : e.message,
+                    "userMessage" : e.message,
+                });
+            }
+
+            if (e instanceof DataNotFound) {
+                return res.status(404).json({
+                    "status" : "failed",
+                    "message" : e.message,
+                    "userMessage" : "Make sure you select exist permission",
+                });
+            }
+
+            return res.status(500).json({
+                "status" : "failed",
+                "message" : "server error",
+                "userMessage" : "Something wrong. Try again later.",
+                "errors" : e
+            });
+        }
+    }
 }
 
 export default RoleController;

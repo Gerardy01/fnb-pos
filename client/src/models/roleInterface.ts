@@ -18,6 +18,14 @@ export interface CreateRoleData {
     pageAccessPermissionIds : number[]
 }
 
+export interface EditRoleData {
+    roleId : number;
+    roleName : string;
+    description? : string;
+    permissions : RolePermission[]
+    pageAccessPermissionIds : number[]
+}
+
 export interface OneRoleData {
     roleId : number;
     roleName : string;

@@ -21,6 +21,8 @@ export interface IRoleRepository {
     createRole(data : Partial<Role>, transaction? : Transaction) : Promise<Role>
     bulkCreateRolePermissions(data : Partial<RolePermissions>[], transaction? : Transaction) : Promise<RolePermissions[]>
     bulkCreateRolePageAccessPermission(data : Partial<RolePageAccessPermission>[], transaction? : Transaction) : Promise<RolePageAccessPermission[]>
+    destroyRolePermission(roleId : number, transaction? : Transaction) : Promise<void>
+    destroyRolePageAccessPermission(roleId : number, transaction? : Transaction) : Promise<void>
 }
 
 
@@ -104,5 +106,23 @@ export class RoleRepository implements IRoleRepository {
 
     bulkCreateRolePageAccessPermission(data: Partial<RolePageAccessPermission>[], transaction?: Transaction): Promise<RolePageAccessPermission[]> {
         return RolePageAccessPermission.bulkCreate(data, { transaction });
+    }
+
+    destroyRolePermission(roleId: number, transaction? : Transaction): Promise<void> {
+        return RolePermissions.destroy({
+            where: {
+                role_id : roleId
+            },
+            transaction
+        }).then(() => {});
+    }
+
+    destroyRolePageAccessPermission(roleId : number, transaction? : Transaction): Promise<void> {
+        return RolePageAccessPermission.destroy({
+            where: {
+                role_id : roleId
+            },
+            transaction
+        }).then(() => {});
     }
 }

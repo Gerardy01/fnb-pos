@@ -8,7 +8,7 @@ import { authService } from '../services';
 import { DataNotFound, NotValid, WrongFormat } from '../utility/exceptions';
 
 // types and interfaces
-import { Transaction  } from 'sequelize';
+import { Transaction } from 'sequelize';
 
 
 class AuthController {

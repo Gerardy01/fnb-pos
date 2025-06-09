@@ -13,6 +13,14 @@ export interface ICreateRoleData {
     description? : string;
 }
 
+export interface IEditRoleData {
+    roleId : number;
+    roleName : string;
+    permissions : IRolePermissionData[];
+    pageAccessPermissionIds : number[];
+    description? : string;
+}
+
 export type RoleReturnData = {
     roleId : number;
     roleName : string;

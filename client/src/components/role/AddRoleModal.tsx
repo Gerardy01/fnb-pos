@@ -33,6 +33,7 @@ export default function AddRoleModal({
         isAdvanced,
         pageAccessPermissionErrorMsg,
         permissionErrorMsg,
+        addRoleLoad,
         handleTogglePageAccessPermission,
         handleTogglePermission,
         resetData,
@@ -74,7 +75,7 @@ export default function AddRoleModal({
                     ]}
                 >
                     <Input
-                        placeholder="example.email@mail.com"
+                        placeholder="role name"
                         maxLength={50}
                     />
                 </Form.Item>
@@ -187,6 +188,7 @@ export default function AddRoleModal({
                         type="primary"
                         htmlType="submit"
                         size="large"
+                        loading={addRoleLoad}
                     >
                         {t("global:submit")}
                     </Button>

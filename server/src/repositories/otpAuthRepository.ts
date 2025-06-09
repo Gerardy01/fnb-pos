@@ -5,7 +5,7 @@ import { OtpAuth } from "../models";
 export interface IOtpAuthRepository {
     findActiveOtpsByCode(code : number, transaction? : Transaction): Promise<OtpAuth | null>;
     revokeActiveOtpByAddress(address : string) : Promise<number[]>;
-    createOtpAuth(data: Partial<OtpAuth>) : Promise<OtpAuth>;
+    createOtpAuth(data: Partial<OtpAuth>, transaction? : Transaction) : Promise<OtpAuth>;
 }
 
 export class OtpAuthRepository implements IOtpAuthRepository {
@@ -30,7 +30,7 @@ export class OtpAuthRepository implements IOtpAuthRepository {
             }
         )
     }
-    createOtpAuth(data: Partial<OtpAuth>): Promise<OtpAuth> {
-        return OtpAuth.create(data);
+    createOtpAuth(data: Partial<OtpAuth>, transaction? : Transaction): Promise<OtpAuth> {
+        return OtpAuth.create(data, { transaction });
     }
 }

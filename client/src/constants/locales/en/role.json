@@ -9,5 +9,7 @@
     "pageAccess" : "Page Access",
     "permissions" : "Permissions",
     "selectOne" : "Please select at least one permission below",
-    "roleAddSuccess" : "Role added successfully"
+    "roleAddSuccess" : "Role added successfully",
+    "roleEditSuccess" : "Role edited successfully",
+    "roleSearchPlaceholder" : "Find by Name"
 }

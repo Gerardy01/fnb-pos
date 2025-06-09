@@ -21,6 +21,7 @@ interface Props {
     selectedAccountData : EditAccountManagementBodyData | null;
     submitLoad : boolean;
     newPassword : string;
+    contentLoad : boolean;
     onClose : () => void;
     onSubmit : (data : EditAccountManagementBodyData) => void;
     onDeleteAccount : () => void;
@@ -32,7 +33,20 @@ interface Props {
 
 const { Paragraph, Text } = Typography;
 
-export default function EditAccountModal({ form, roleOptions, open, selectedAccountData, submitLoad, newPassword, onClose, onSubmit : submitEditAccount, onDeleteAccount, onResetPass, clearNewPass } : Props) {
+export default function EditAccountModal({
+    form,
+    roleOptions,
+    open,
+    selectedAccountData,
+    submitLoad,
+    newPassword,
+    contentLoad,
+    onClose,
+    onSubmit : submitEditAccount,
+    onDeleteAccount,
+    onResetPass,
+    clearNewPass
+} : Props) {
 
     const { t } = useTranslation(["account", "global", "auth"]);
 
@@ -68,7 +82,7 @@ export default function EditAccountModal({ form, roleOptions, open, selectedAcco
                 footer={null}
                 maskClosable={false}
             >
-                {selectedAccountData && (
+                {selectedAccountData ? (
                     <Form
                         name="editAccountManagement"
                         onFinish={onSubmit}
@@ -301,6 +315,10 @@ export default function EditAccountModal({ form, roleOptions, open, selectedAcco
                             </div>
                         </Form.Item>
                     </Form>
+                ) : !selectedAccountData && !contentLoad ? (
+                    <>Not found</>
+                ) : (
+                    <>Loading...</>
                 )}
             </Modal>
 

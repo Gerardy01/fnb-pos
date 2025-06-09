@@ -7,7 +7,7 @@ import { PermissionEnum } from '../../utility/enums';
 import { authenticate, validatePermission, validateRequest } from '../../utility/middleware';
 
 // schema
-import { CreateRoleSchema } from '../../schema/roleSchema';
+import { CreateRoleSchema, EditRoleSchema } from '../../schema/roleSchema';
 
 // controllers
 import RoleController from '../../controllers/roleController';
@@ -35,5 +35,11 @@ roleRoutes.post("/",
     validateRequest(CreateRoleSchema),
     RoleController.createRole
 );
+roleRoutes.put("/",
+    authenticate,
+    validatePermission(PermissionEnum.ROLE_MANAGEMENT, 'read'),
+    validateRequest(EditRoleSchema),
+    RoleController.editRole
+)
 
 export default roleRoutes;

@@ -319,7 +319,7 @@ export class AuthService implements IAuthService {
             code : otpCode,
             send_to : data.address,
             expires_at : expiredDate,
-        });
+        }, transaction);
 
         this.sendOtpEmail(data.address, otpAuth.code);
     }

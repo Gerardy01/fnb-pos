@@ -108,6 +108,7 @@ export default function AccountManagement() {
                 selectedAccountData={editAccountData}
                 submitLoad={editAccountSubmitLoad}
                 newPassword={newPassword}
+                contentLoad={contentLoad}
                 onClose={() => openEditAccount(false)}
                 onSubmit={submitEditAccount}
                 onDeleteAccount={clickDeleteAccount}

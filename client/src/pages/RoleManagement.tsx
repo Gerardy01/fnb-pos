@@ -6,6 +6,7 @@ import { useRoleManagement, RoleTableData } from '../hooks/roles/useRoleManageme
 
 // components
 import AddRoleModal from '../components/role/AddRoleModal';
+import EditRoleModal from '../components/role/EditRoleModal';
 
 const { Title } = Typography;
 const { Search } = Input;
@@ -16,14 +17,18 @@ export default function RoleManagement() {
 
     const {
         addRoleModal,
+        editRoleModal,
         contentLoad,
         columns,
         roles,
         permissions,
         pageAccessPermissions,
+        roleIdFormParams,
         handleSearch,
         openAddRole,
+        openEditRole,
         onAddRoleSuccess,
+        onEditRoleSuccess,
     } = useRoleManagement();
 
     return (
@@ -38,14 +43,14 @@ export default function RoleManagement() {
                     <div style={styles.rightSide}>
                         <Skeleton.Button active size="large" style={styles.skeletonbtn}/>
                     </div>
-                </div>    
+                </div>
             ) : (
                 <div style={styles.controlSection}>
                     <Search
                         style={styles.searchInput}
                         size='large'
                         allowClear
-                        placeholder={t("accountSearchPlaceholder")}
+                        placeholder={t("roleSearchPlaceholder")}
                         onChange={(e) => handleSearch(e.target.value)}
                     />
                     <div style={styles.rightSide}>
@@ -68,6 +73,15 @@ export default function RoleManagement() {
                 onClose={() => openAddRole(false)}
                 onAddRoleSuccess={onAddRoleSuccess}
             />
+            {roleIdFormParams && (
+                <EditRoleModal
+                    open={editRoleModal}
+                    permissions={permissions}
+                    pageAccessPermissions={pageAccessPermissions}
+                    onClose={() => openEditRole(false)}
+                    onEditRoleSuccess={onEditRoleSuccess}
+                />
+            )}
         </div>
     )
 }
