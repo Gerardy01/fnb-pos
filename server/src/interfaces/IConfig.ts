@@ -9,4 +9,5 @@ export interface IEnvData {
     emailSecure : boolean;
     emailUser : string;
     emailPass : string;
+    client_url : string;
 }

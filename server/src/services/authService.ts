@@ -1,16 +1,16 @@
 
 // exceptions
-import { DataNotFound, NotValid, WrongFormat } from "../utility/exceptions";
+import { DataNotFound, Forbidden, NotValid, WrongFormat } from "../utility/exceptions";
 
 // utils
 import { DefaultRoleEnum, PermissionEnum, SendEmailTypeEnum } from "../utility/enums";
-import { validateEmail, generateCode, renderTemplate } from "../utility/utils";
+import { validateEmail, generateCode, renderTemplate, generateToken } from "../utility/utils";
 
 // queue
 import { sendEmailToQueue } from "../queue/emailProducer";
 
 // types and interfaces
-import { IAccessTokenBody, IGenerateOtpData, ILoginData, ISuperAdminLoginData, LoginReturnData } from "../interfaces/IAuth"
+import { IAccessTokenBody, IGenerateOtpData, IGenerateTokenAuthData, ILoginData, ISuperAdminLoginData, LoginReturnData } from "../interfaces/IAuth"
 import { IHashProvider } from "../providers/hashProvider";
 import { IJwtProvider } from "../providers/jwtProvider";
 import { IEnvData } from "../interfaces/IConfig";
@@ -22,6 +22,8 @@ import { IOrganizationService } from "./organizationService";
 import { IRolePermissionService } from "./rolePermissionService";
 import { IAccountService } from "./accountService";
 import { IOtpAuthRepository } from "../repositories/otpAuthRepository";
+import { IAccountRepository } from "../repositories/accountRepository";
+import { ITokenAuthRepository } from "../repositories/tokenAuthRepository";
 export interface IAuthService {
     login(data : ILoginData, userAgent : string, transaction : Transaction) : Promise<LoginReturnData>;
     superAdminLogin(data : ISuperAdminLoginData, userAgent : string, transaction? : Transaction) : Promise<LoginReturnData>;
@@ -29,6 +31,7 @@ export interface IAuthService {
     logout(refreshToken : string) : Promise<void>;
     logoutAllSession(accountId : string) : Promise<boolean>;
     generateOtpCode(data : IGenerateOtpData, transaction? : Transaction) : Promise<void>;
+    generateTokenAuth(data : IGenerateTokenAuthData, transaction? : Transaction) : Promise<void>;
     authenticate(accesToken : string) : Promise<IAccessTokenBody>;
 }
 
@@ -42,6 +45,8 @@ export class AuthService implements IAuthService {
         private accountService : IAccountService,
         private refreshTokenRepository : IRefreshTokenRepository,
         private otpAuthRepository : IOtpAuthRepository,
+        private accountRepository : IAccountRepository,
+        private tokenAuthRepository : ITokenAuthRepository,
         private hashProvider : IHashProvider,
         private jwtProvider : IJwtProvider,
         private uaParserProvider : IuaParserProvider,
@@ -324,6 +329,33 @@ export class AuthService implements IAuthService {
         this.sendOtpEmail(data.address, otpAuth.code);
     }
 
+    async generateTokenAuth(data: IGenerateTokenAuthData, transaction?: Transaction): Promise<void> {
+        
+        const account = await this.accountRepository.findAccountByEmail(data.email);
+        if (!account) throw new DataNotFound("account not found");
+        
+        if (account.role?.role_name !== DefaultRoleEnum.ADMIN && account.role?.role_name !== DefaultRoleEnum.SUPER_ADMIN) {
+            throw new Forbidden("account is not admin");
+        }
+
+        await this.tokenAuthRepository.revokeActiveTokenByAccount(account.account_id, transaction);
+
+        const currentTime = new Date();
+
+        const expiredSec = data.expired_second ? data.expired_second : Number(this.envData.otpDefaultExpirySec);
+        const expiredDate = new Date(currentTime.getTime() + expiredSec * 1000);
+
+        const token = generateToken();
+
+        const tokenAuth = await this.tokenAuthRepository.createTokenAuth({
+            token: token,
+            account_id: account.account_id,
+            expires_at: expiredDate
+        }, transaction);
+
+        this.sendTokenEmail(account.email, tokenAuth.token);
+    }
+
     private async checkAndRevokeSession(accountId : string, cap : number = 3, transaction? : Transaction) : Promise<void> {
 
         const currentDate = new Date();
@@ -338,10 +370,20 @@ export class AuthService implements IAuthService {
     }
 
     private async sendOtpEmail(to : string, otp : number) : Promise<void> {
-        const html = await renderTemplate("otp.html", { otp : otp })
+        const html = await renderTemplate("otp.html", { otp : otp, host : this.envData.client_url });
         sendEmailToQueue({
             to: to,
             subject: 'Your OTP',
+            body : html,
+            type : SendEmailTypeEnum.HTML
+        });
+    }
+
+    private async sendTokenEmail(to : string, token : string) : Promise<void> {
+        const html = await renderTemplate("forgot-password.html", { host : this.envData.client_url ,link : `${this.envData.client_url}/forgot-password-change?token=${token}` });
+        sendEmailToQueue({
+            to: to,
+            subject: 'Reset Password?',
             body : html,
             type : SendEmailTypeEnum.HTML
         });

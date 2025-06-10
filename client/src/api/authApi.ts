@@ -4,7 +4,7 @@ import { catchFetchError } from "../utils/utility";
 
 // types and interfaces
 import { FetchResponse, ErrorResponse } from "../models/globalInterface";
-import { AuthData, AuthReturn, GenerateOtpData } from "../models/authInterface";
+import { AuthData, AuthReturn, GenerateOtpData, GenerateTokenAuthData } from "../models/authInterface";
 
 
 export class AuthApi {
@@ -51,6 +51,16 @@ export class AuthApi {
     async generateOtpCode(data : GenerateOtpData) : Promise<[undefined, boolean] | [ErrorResponse]> {
         const [error, res] = await catchFetchError(axiosPublic.post<FetchResponse<boolean>>(
             '/otp-code',
+            data
+        ));
+
+        if (error) return [error];
+        return [error, res.data.data]
+    }
+
+    async generateTokenAuth(data : GenerateTokenAuthData) : Promise<[undefined, boolean] | [ErrorResponse]> {
+        const [error, res] = await catchFetchError(axiosPublic.post<FetchResponse<boolean>>(
+            '/generate-token',
             data
         ));
 

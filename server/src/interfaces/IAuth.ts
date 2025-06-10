@@ -25,6 +25,11 @@ export interface IGenerateOtpData {
     expired_second : number;
 }
 
+export interface IGenerateTokenAuthData {
+    email : string;
+    expired_second : number;
+}
+
 export type LoginReturnData = {
     accessToken : string;
     refreshToken : string;

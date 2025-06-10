@@ -87,7 +87,13 @@ export class AccountRepository implements IAccountRepository {
                     [Op.iLike] : email
                 },
                 archived : false
-            }
+            },
+            include: [
+                {
+                    model: Role,
+                    as: 'role'
+                },
+            ]
         });
     }
 

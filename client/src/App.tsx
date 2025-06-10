@@ -11,6 +11,7 @@ import PermissionProtectedRoutes from "./components/global/PermissionProtectedRo
 // pages
 import Home from "./pages/Home";
 import Login from "./pages/Login";
+import ForgotPassword from "./pages/ForgotPassword";
 import Dashboard from "./pages/Dashboard";
 import POS from "./pages/POS";
 import AccountManagement from "./pages/AccountManagement";
@@ -28,6 +29,7 @@ export default function App() {
 				<Routes>
 					<Route path="/" element={<Home />} />
 					<Route path="/login" element={<Login />} />
+					<Route path="/forgot-password" element={<ForgotPassword />} />
 
 					<Route element={<ProtectedRoutes />}>
 						<Route element={<CommonLayout />}>

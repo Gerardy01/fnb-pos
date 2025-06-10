@@ -17,6 +17,7 @@ import { RefreshTokenRepository } from "../repositories/refreshTokenRepository";
 import { AdminOrganizationRepository } from "../repositories/adminOrganizationRepository";
 import { PageAccessPermissionRepository } from "../repositories/pageAccessPermissionRepository";
 import { OtpAuthRepository } from "../repositories/otpAuthRepository";
+import { TokenAuthRepository } from "../repositories/tokenAuthRepository";
 
 // providers
 import { BcryptJsHashProvider } from "../providers/hashProvider";
@@ -37,6 +38,7 @@ const refreshTokenRepository = new RefreshTokenRepository();
 const adminOrganizationRepository = new AdminOrganizationRepository();
 const pageAccessPermissionRepository = new PageAccessPermissionRepository();
 const otpAuthRepository = new OtpAuthRepository();
+const tokenAuthRepository = new TokenAuthRepository();
 
 const bcryptJsHashProvider = new BcryptJsHashProvider();
 const jsonWebTokenJwtProvider = new JsonWebTokenJwtProvider();
@@ -57,6 +59,8 @@ export const authService = new AuthService(
     accountService,
     refreshTokenRepository,
     otpAuthRepository,
+    accountRepository,
+    tokenAuthRepository,
     bcryptJsHashProvider,
     jsonWebTokenJwtProvider,
     uaParserJsUaParserProvider,

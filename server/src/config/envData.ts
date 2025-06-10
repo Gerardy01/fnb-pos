@@ -9,6 +9,7 @@ const envData : IEnvData = {
     emailSecure : process.env.EMAIL_SECURE === "true" || false,
     emailUser : process.env.EMAIL_USER || "",
     emailPass : process.env.EMAIL_PASS || "",
+    client_url : process.env.CLIENT_URL || ""
 }
 
 export default envData;

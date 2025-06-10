@@ -19,3 +19,7 @@ export interface LoginData {
 export interface GenerateOtpData {
     address : string;
 }
+
+export interface GenerateTokenAuthData {
+    email : string;
+}

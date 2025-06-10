@@ -5,7 +5,7 @@ import sequelize from "../config/database";
 import { authService } from '../services';
 
 // exceptions
-import { DataNotFound, NotValid, WrongFormat } from '../utility/exceptions';
+import { DataNotFound, Forbidden, NotValid, WrongFormat } from '../utility/exceptions';
 
 // types and interfaces
 import { Transaction } from 'sequelize';
@@ -204,7 +204,7 @@ class AuthController {
 
         try {
 
-            await authService.generateOtpCode(req.body);
+            await authService.generateOtpCode(req.body, transaction);
 
             transaction.commit();
 
@@ -223,6 +223,44 @@ class AuthController {
                     "status" : "failed",
                     "message" : e.message,
                     "userMessage" : e.message,
+                });
+            }
+
+            return res.status(500).json({
+                "status" : "failed",
+                "message" : "server error",
+                "userMessage" : "500",
+                "errors" : e
+            });
+        }
+    }
+
+    static async generateTokenAuth(req : Request, res : Response) {
+        try {
+
+            await authService.generateTokenAuth(req.body);
+
+            return res.status(200).json({
+                "status" : "success",
+                "message" : "new token generated",
+                "userMessage" : "",
+            });
+
+        } catch(e) {
+
+            if (e instanceof DataNotFound) {
+                return res.status(404).json({
+                    "status" : "failed",
+                    "message" : e.message,
+                    "userMessage" : e.message,
+                });
+            }
+
+            if (e instanceof Forbidden) {
+                return res.status(403).json({
+                    "status" : "failed",
+                    "message" : e.message,
+                    "userMessage" : "",
                 });
             }
 

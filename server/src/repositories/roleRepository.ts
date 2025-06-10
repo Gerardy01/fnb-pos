@@ -113,21 +113,21 @@ export class RoleRepository implements IRoleRepository {
         return RolePageAccessPermission.bulkCreate(data, { transaction });
     }
 
-    destroyRolePermission(roleId: number, transaction? : Transaction): Promise<void> {
-        return RolePermissions.destroy({
+    async destroyRolePermission(roleId: number, transaction? : Transaction): Promise<void> {
+        RolePermissions.destroy({
             where: {
                 role_id : roleId
             },
             transaction
-        }).then(() => {});
+        });
     }
 
-    destroyRolePageAccessPermission(roleId : number, transaction? : Transaction): Promise<void> {
-        return RolePageAccessPermission.destroy({
+    async destroyRolePageAccessPermission(roleId : number, transaction? : Transaction): Promise<void> {
+        RolePageAccessPermission.destroy({
             where: {
                 role_id : roleId
             },
             transaction
-        }).then(() => {});
+        });
     }
 }

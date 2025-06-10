@@ -16,3 +16,8 @@ export const GenerateOtpCodeSchema = z.object({
     expired_second : z.number().min(10).optional().nullable(),
 });
 
+export const GenerateTokenSchema = z.object({
+    email : z.string().min(1),
+    expired_second : z.number().min(10).optional().nullable(),
+});
+

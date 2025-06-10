@@ -14,8 +14,8 @@ dotenv.config();
 
 
 const app : Express = express();
-const port : number = Number(process.env.PORT) || 8000;
-const host : string = process.env.HOST || 'localhost';
+const port : number = Number(process.env.PORT) || 80;
+const host : string = process.env.HOST || '0.0.0.0'; ;
 const client_url : string = process.env.CLIENT_URL || ""
 
 // Middleware

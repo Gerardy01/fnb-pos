@@ -1,6 +1,7 @@
 import path from "path";
 import ejs from 'ejs';
 import fs from 'fs';
+import crypto from 'crypto';
 
 
 export function generateOrganizationNumber(organizationName: string, count: number): string {
@@ -96,3 +97,7 @@ export const renderTemplate = async (templateName: string, data: any): Promise<s
     const template = fs.readFileSync(templatePath, 'utf-8');
     return ejs.render(template, data);
 };
+
+export function generateToken() : string {
+    return crypto.randomBytes(32).toString('hex');
+}
