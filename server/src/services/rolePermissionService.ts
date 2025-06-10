@@ -1,6 +1,6 @@
 
 // exceptions
-import { ExistData, DataNotFound } from "../utility/exceptions";
+import { ExistData, DataNotFound, Forbidden } from "../utility/exceptions";
 
 // utils
 import { DefaultRoleEnum, PermissionEnum } from "../utility/enums";
@@ -15,6 +15,7 @@ import { ICreateRoleData, IEditRoleData, RoleWithPermissionReturnData, IRolePerm
 import { IRoleRepository } from "../repositories/roleRepository";
 import { IPermissionRepository } from "../repositories/permissionRepository";
 import { IPageAccessPermissionRepository, PageAccessPermissionRepository } from "../repositories/pageAccessPermissionRepository";
+import { IAccountRepository } from "../repositories/accountRepository";
 export interface IRolePermissionService {
     getAllRole(organizationId : string) : Promise<RoleReturnData[]>
     getDefaultRole(userRole : string) : Promise<RoleReturnData[]>
@@ -28,6 +29,7 @@ export interface IRolePermissionService {
     getPageAccessPermissionByRole(roleId : number) : Promise<PageAccessPermissionReturnData[]>
     createRole(data : ICreateRoleData, organizationId : string, transaction? : Transaction) : Promise<RoleWithPermissionReturnData>
     editRole(data : IEditRoleData, organizationId : string, transaction? : Transaction) : Promise<RoleWithPermissionReturnData>
+    deleteRole(roleId : number, organizationId : string, transaction? : Transaction) : Promise<boolean>
 }
 
 export class RolePermissionService implements IRolePermissionService {
@@ -35,6 +37,7 @@ export class RolePermissionService implements IRolePermissionService {
         private roleRepository : IRoleRepository,
         private permissionRepository : IPermissionRepository,
         private pageAccessPermissionRepository : IPageAccessPermissionRepository,
+        private accountRepository : IAccountRepository,
     ) {}
 
     async getAllRole(organizationId : string): Promise<RoleReturnData[]> {
@@ -411,5 +414,28 @@ export class RolePermissionService implements IRolePermissionService {
             permissions : createdPermissionList,
             pageAccessPermissionIds : newRolePageAccessPermissionIds
         }
+    }
+
+    async deleteRole(roleId: number, organizationId: string, transaction?: Transaction): Promise<boolean> {
+        
+        // check if selected role exist
+        const targetRole = await this.roleRepository.findRoleByIdAndOrganization(roleId, organizationId);
+        if (!targetRole || targetRole.is_default) {
+            throw new DataNotFound(`Role with id ${roleId} not found`);
+        }
+
+        // check if there is any active account using that role
+        const accounts = await this.accountRepository.findAllAccountByRoleId(roleId);
+        if (accounts.length > 0) {
+            throw new Forbidden("ROLE403-1");
+        }
+
+        targetRole.archived = true;
+        targetRole.save({ transaction });
+
+        await this.roleRepository.destroyRolePermission(targetRole.role_id, transaction);
+        await this.roleRepository.destroyRolePageAccessPermission(targetRole.role_id, transaction);
+
+        return true;
     }
 }

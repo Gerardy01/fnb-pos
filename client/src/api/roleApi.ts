@@ -52,4 +52,13 @@ export class RoleApi {
         if (error) return [error];
         return [error, res.data.data];
     }
+
+    async deleteRole(roleId : number) : Promise<[undefined, boolean] | [ErrorResponse]> {
+        const [error, res] = await catchFetchError(axiosPrivate.delete<FetchResponse<boolean>>(
+            `role/${roleId}`,
+        ));
+
+        if (error) return [error];
+        return [error, res.data.data];
+    }
 }

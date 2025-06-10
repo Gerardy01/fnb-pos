@@ -10,6 +10,7 @@ export interface IAccountRepository {
     findAccountByUsername(username : string) : Promise<Account | null>
     findAccountByEmail(email : string) : Promise<Account | null>
     findAccountByEmailOrUsername(identifier: string) : Promise<Account | null>
+    findAllAccountByRoleId(roleId : number) : Promise<Account[]>
     createAccount(data : Partial<Account>, transaction? : Transaction) : Promise<Account>
 }
 
@@ -108,6 +109,15 @@ export class AccountRepository implements IAccountRepository {
                 }
             ]
         });
+    }
+
+    findAllAccountByRoleId(roleId: number): Promise<Account[]> {
+        return Account.findAll({
+            where: {
+                role_id : roleId,
+                archived : false
+            }
+        })
     }
 
     createAccount(data: Partial<Account>, transaction?: Transaction): Promise<Account> {

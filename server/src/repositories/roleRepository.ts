@@ -31,7 +31,8 @@ export class RoleRepository implements IRoleRepository {
     findOneRole(id: number): Promise<Role | null> {
         return Role.findOne({
             where: {
-                role_id : id
+                role_id : id,
+                archived : false,
             }
         });
     }
@@ -39,7 +40,8 @@ export class RoleRepository implements IRoleRepository {
     findRoleByOrganization(organizationId: string): Promise<Role[]> {
         return Role.findAll({
             where: {
-                organization_id : organizationId
+                organization_id : organizationId,
+                archived : false,
             }
         })
     }
@@ -50,6 +52,7 @@ export class RoleRepository implements IRoleRepository {
                 role_name : {
                     [Op.iLike] : name
                 },
+                archived : false,
             }
         });
     }
@@ -58,7 +61,8 @@ export class RoleRepository implements IRoleRepository {
         return Role.findOne({
             where: {
                 role_id : id,
-                organization_id : organizationId
+                organization_id : organizationId,
+                archived : false,
             }
         });
     }
@@ -69,7 +73,8 @@ export class RoleRepository implements IRoleRepository {
                 role_name : {
                     [Op.iLike] : name
                 },
-                organization_id : organizationId
+                organization_id : organizationId,
+                archived : false,
             }
         });
     }

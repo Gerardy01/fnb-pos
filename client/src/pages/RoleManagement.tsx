@@ -29,6 +29,7 @@ export default function RoleManagement() {
         openEditRole,
         onAddRoleSuccess,
         onEditRoleSuccess,
+        onDeleteRoleSuccess,
     } = useRoleManagement();
 
     return (
@@ -80,6 +81,7 @@ export default function RoleManagement() {
                     pageAccessPermissions={pageAccessPermissions}
                     onClose={() => openEditRole(false)}
                     onEditRoleSuccess={onEditRoleSuccess}
+                    onDeleteRoleSuccess={onDeleteRoleSuccess}
                 />
             )}
         </div>

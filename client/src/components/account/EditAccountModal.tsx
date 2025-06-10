@@ -5,6 +5,10 @@ import { useTranslation } from "react-i18next";
 import { useCheckEmailAvailability, useCheckUsernameAvailability } from "../../hooks/global/useCheckAvailability";
 import useGenerateOtp from "../../hooks/authentication/useGenerateOtp";
 
+// components
+import ContentLoading from "../loading/ContentLoading";
+import ContentNotFound from "../global/ContentNotFound";
+
 // types and interfaces
 import { EditAccountManagementBodyData } from "../../models/accountInterface";
 type EditAccountForm = {
@@ -83,7 +87,9 @@ export default function EditAccountModal({
                 maskClosable={false}
             >
                 {contentLoad ? (
-                    <>Loading...</>
+                    <div style={styles.notContentHolder}>
+                        <ContentLoading />
+                    </div>
                 ) : !contentLoad && selectedAccountData ? (
                     <Form
                         name="editAccountManagement"
@@ -318,7 +324,9 @@ export default function EditAccountModal({
                         </Form.Item>
                     </Form>
                 ) : (
-                    <>Not found</>
+                    <div style={styles.notContentHolder}>
+                        <ContentNotFound />
+                    </div>
                 )}
             </Modal>
 
@@ -392,5 +400,8 @@ const styles : { [key: string]: React.CSSProperties } = {
         fontSize: '1.5rem',
         textAlign: 'center',
         marginRight: '10px',
+    },
+    notContentHolder : {
+        height: '30rem',
     }
 }

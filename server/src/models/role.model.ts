@@ -12,6 +12,7 @@ class Role extends Model {
     public is_default! : boolean;
     public organization_id! : string;
     public description! : string;
+    public archived! : boolean;
 
     public permissions? : Permission[];
 }
@@ -46,7 +47,12 @@ Role.init({
         type: DataTypes.STRING(200),
         allowNull: true,
         defaultValue: ""
-    }
+    },
+    archived: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+    },
 }, {
     sequelize,
     modelName: 'Role',

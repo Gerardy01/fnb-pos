@@ -40,6 +40,11 @@ roleRoutes.put("/",
     validatePermission(PermissionEnum.ROLE_MANAGEMENT, 'read'),
     validateRequest(EditRoleSchema),
     RoleController.editRole
+);
+roleRoutes.delete("/:id",
+    authenticate,
+    validatePermission(PermissionEnum.ROLE_MANAGEMENT, 'write'),
+    RoleController.removeRole
 )
 
 export default roleRoutes;

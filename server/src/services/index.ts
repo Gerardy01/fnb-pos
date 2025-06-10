@@ -49,7 +49,7 @@ const counterService = new CounterService(counterRepository);
 
 // main service
 export const organizationService = new OrganizationService(counterService, organizationRepository, adminOrganizationRepository);
-export const rolePermissionService = new RolePermissionService(roleRepository, permissionRepository, pageAccessPermissionRepository);
+export const rolePermissionService = new RolePermissionService(roleRepository, permissionRepository, pageAccessPermissionRepository, accountRepository);
 export const accountService = new AccountService(rolePermissionService, accountRepository, otpAuthRepository, bcryptJsHashProvider);
 export const authService = new AuthService(
     organizationService,

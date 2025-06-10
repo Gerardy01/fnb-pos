@@ -209,6 +209,7 @@ export function useRoleManagement() {
     const onDeleteRoleSuccess = (roleId : number) : void => {
         const filtered = roles.filter(item => item.key !== roleId);
         setRoles(filtered);
+        setEditRoleModal(false);
     }
 
     return {
@@ -320,12 +321,15 @@ export function useAddRole(pushNewRole : (newRole : RoleTableData) => void) {
 }
 
 
-export function useEditRole(pushNewEditedRole : (roleId : number, roleData : RoleTableData) => void) {
+export function useEditRole(
+    pushNewEditedRole : (roleId : number, roleData : RoleTableData) => void,
+    removeNewDeletedRole : (roleId : number) => void
+) {
 
     const { t } = useTranslation(["global", "role"]);
     const { roleId : roleIdFormParams } = useParams();
 
-    const { errorModal, serverErrorModal } = useStaticModal();
+    const { errorModal, serverErrorModal, confirmationModal } = useStaticModal();
     const { successnotification } = useNotification();
 
     const navigate = useNavigate();
@@ -435,6 +439,40 @@ export function useEditRole(pushNewEditedRole : (roleId : number, roleData : Rol
 
     }
 
+    const clickDeleteBtn = () : void => {
+        confirmationModal({
+            title : t("role:sureDeleteRole"),
+            content: t("role:deleteRoleDesc"),
+            okBtn: t("global:yes"),
+            cancelBtn: t("global:cancel"),
+            centered: true,
+            okBtnDanger: true,
+            onOkWithPromise : handleDeleteRole,
+        });
+    }
+
+    const handleDeleteRole = async () : Promise<void> => {
+        
+        const [err] = await roleApi.deleteRole(Number(roleIdFormParams));
+
+        if (err) {
+
+            if (err.status === 403) {
+                errorModal(t('global:failed'), t(`role:${err.response.data.message}`));
+                return;
+            }
+
+            serverErrorModal();
+            return;
+        }
+
+        successnotification(t("role:roleDeleteSuccess"));
+
+        removeNewDeletedRole(Number(roleIdFormParams));
+        resetSelectedPermissions();
+        navigate("/role-management")
+    }
+ 
     const resetData = () : void => {
         editRoleForm.resetFields();
         resetSelectedPermissions();
@@ -457,6 +495,7 @@ export function useEditRole(pushNewEditedRole : (roleId : number, roleData : Rol
         handleTogglePageAccessPermission,
         handleTogglePermission,
         handleSetAdvanced,
+        clickDeleteBtn,
     }
 }
 

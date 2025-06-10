@@ -5,12 +5,15 @@ import { RoleTableData, useEditRole } from "../../hooks/roles/useRoleManagement"
 
 // types and interfaces
 import { PageAccessPermissionData, PermissionData } from "../../models/permissionInterface";
+import ContentLoading from "../loading/ContentLoading";
+import ContentNotFound from "../global/ContentNotFound";
 interface Props {
     open : boolean;
     permissions : PermissionData[];
     pageAccessPermissions : PageAccessPermissionData[];
     onClose : () => void;
     onEditRoleSuccess : (roleId : number, roleData : RoleTableData) => void;
+    onDeleteRoleSuccess : (roleId : number) => void;
 }
 
 const { TextArea } = Input;
@@ -21,7 +24,8 @@ export default function EditRoleModal({
     permissions,
     pageAccessPermissions,
     onClose,
-    onEditRoleSuccess
+    onEditRoleSuccess,
+    onDeleteRoleSuccess,
 } : Props) {
 
     const { t } = useTranslation(["global", "role"]);
@@ -41,11 +45,12 @@ export default function EditRoleModal({
         handleTogglePageAccessPermission,
         handleTogglePermission,
         handleSetAdvanced,
-    } = useEditRole(onEditRoleSuccess);
+        clickDeleteBtn,
+    } = useEditRole(onEditRoleSuccess, onDeleteRoleSuccess);
 
     return (
         <Modal
-            title={t("role:addNewRole")}
+            title={t("role:editRole")}
             centered
             open={open}
             onCancel={() => {
@@ -58,7 +63,11 @@ export default function EditRoleModal({
             style={styles.modalHolder}
         >
             {getOneRoleLoad ? (
-                <>Loading...</>
+                <div
+                    style={styles.notContentHolder}
+                >
+                    <ContentLoading />
+                </div>
 
             ) : !getOneRoleLoad && selectedRoleData ? (
                 <Form
@@ -197,6 +206,7 @@ export default function EditRoleModal({
                                 size="large"
                                 color="danger"
                                 disabled={submitLoad}
+                                onClick={clickDeleteBtn}
                             >
                                 {t("global:delete")}
                             </Button>
@@ -213,7 +223,11 @@ export default function EditRoleModal({
                     
                 </Form>
             ) : (
-                <>Not found</>
+                <div
+                    style={styles.notContentHolder}
+                >
+                    <ContentNotFound />
+                </div>
             )}
         </Modal>
     )
@@ -276,5 +290,8 @@ const styles : { [key: string]: React.CSSProperties } = {
         marginTop: '1rem',
         marginBottom: '2rem',
         width: '45%',
+    },
+    notContentHolder : {
+        height: '35rem'
     }
 }

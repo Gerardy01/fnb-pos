@@ -1,15 +1,21 @@
 
 
 {
+    "ROLE403-1" : "There is any active account with this role.",
+    
     "getRoleDataWrong" : "Something wrong when getting role data.",
     "roleManagement" : "Role Management",
     "newRole" : "New Role",
     "roleName" : "Role Name",
     "addNewRole" : "Add New Role",
+    "editRole" : "Edit Role",
     "pageAccess" : "Page Access",
     "permissions" : "Permissions",
     "selectOne" : "Please select at least one permission below",
     "roleAddSuccess" : "Role added successfully",
     "roleEditSuccess" : "Role edited successfully",
-    "roleSearchPlaceholder" : "Find by Name"
+    "roleDeleteSuccess" : "Role deleted successfully",
+    "roleSearchPlaceholder" : "Find by Name",
+    "sureDeleteRole" : "Are you sure want to delete this role?",
+    "deleteRoleDesc" : "Please confirm that you want to permanently delete this role. This operation cannot be undone."
 }
