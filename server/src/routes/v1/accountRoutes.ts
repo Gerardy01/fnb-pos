@@ -13,6 +13,7 @@ import {
     ChangePasswordSchema,
     EditAccountSchema,
     EditAccountManagementSchema,
+    ChangePasswordForgotSchema,
 } from '../../schema/accountSchema';
 
 // controllers
@@ -61,6 +62,11 @@ accountRoutes.put("/action/change-password",
     authenticate,
     validateRequest(ChangePasswordSchema),
     AccountController.changePassword
+);
+accountRoutes.put("/action/change-password/forgot",
+    publicApiRateLimiter,
+    validateRequest(ChangePasswordForgotSchema),
+    AccountController.forgotPasswordChange
 );
 accountRoutes.put("/action/management",
     authenticate,

@@ -25,6 +25,7 @@
     "changePassword" : "Change Password",
     "resetPassword" : "Reset Password",
     "createNewPassword" : "Create new password for account",
+    "resetPasswordMsg" : "Type your new password",
     "oldPassword" : "Old Password",
     "newPassword" : "New Password",
     "retype" : "Retype New Password",

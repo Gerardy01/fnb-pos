@@ -54,6 +54,11 @@ export interface ChangePasswordBodyData {
     newPassword : string;
 }
 
+export interface ForgotPassChange {
+    newPassword : string;
+    token : string;
+}
+
 export interface EditAccountBodyData {
     accountId : string;
     process : string;

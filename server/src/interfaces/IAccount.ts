@@ -39,6 +39,11 @@ export interface IChangePassword {
     newPassword : string;
 }
 
+export interface IForgotPasswordChange {
+    newPassword : string;
+    token : string;
+}
+
 export interface IEditAccount {
     accountId : string;
     process : string;

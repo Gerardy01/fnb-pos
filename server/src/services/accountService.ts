@@ -23,12 +23,14 @@ import {
     IEditAccount,
     EditAccountReturn,
     AccountDataReturnExtended,
-    IEditAccountManagementData
+    IEditAccountManagementData,
+    IForgotPasswordChange
 } from "../interfaces/IAccount";
 import { IAccountRepository } from "../repositories/accountRepository";
 import { IHashProvider } from "../providers/hashProvider";
 import { IRolePermissionService } from "./rolePermissionService";
 import { IOtpAuthRepository } from "../repositories/otpAuthRepository";
+import { ITokenAuthRepository } from "../repositories/tokenAuthRepository";
 export interface IAccountService {
     getAllAccount(organizationId : string, userRole : string, userAccountId : string) : Promise<AccountDataReturn[]>
     getAccountById(accountId : string) : Promise<AccountDataReturn>
@@ -44,6 +46,7 @@ export interface IAccountService {
     changeName(data : IChangeName, userAccountId : string, userRole : string) : Promise<string>
     resetPassword(accountId : string, userRole : string) : Promise<string>
     changePassword(data : IChangePassword, accountId : string) : Promise<boolean>
+    forgotPasswordChange(data : IForgotPasswordChange) : Promise<boolean>
     editAccountManagement(data : IEditAccountManagementData, organizationId : string, userRole : string) : Promise<AccountDataReturn>
     deleteAccount(accountId : string, organizationId : string) : Promise<boolean>
 }
@@ -55,6 +58,7 @@ export class AccountService implements IAccountService {
         private rolePermissionService : IRolePermissionService,
         private accountRepository : IAccountRepository,
         private otpAuthRepository : IOtpAuthRepository,
+        private tokenAuthRepository : ITokenAuthRepository,
         private hashProvider : IHashProvider,
     ) {}
 
@@ -439,6 +443,22 @@ export class AccountService implements IAccountService {
 
         // change password
         return this.changePasswordHandler(account, data.newPassword);
+    }
+
+    async forgotPasswordChange(data: IForgotPasswordChange): Promise<boolean> {
+
+        const currentDate = new Date();
+
+        const tokenAuth = await this.tokenAuthRepository.findByToken(data.token);
+        if (!tokenAuth || tokenAuth.expires_at < currentDate) throw new DataNotFound("token not match");
+        if (!tokenAuth.account) throw new Error("error when getting account");
+        
+        this.changePasswordHandler(tokenAuth.account, data.newPassword);
+
+        tokenAuth.used = true;
+        tokenAuth.save();
+
+        return true;
     }
 
     async editAccountManagement(data : IEditAccountManagementData, organizationId : string, userRole : string) : Promise<AccountDataReturn> {

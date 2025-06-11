@@ -380,7 +380,13 @@ export class AuthService implements IAuthService {
     }
 
     private async sendTokenEmail(to : string, token : string) : Promise<void> {
-        const html = await renderTemplate("forgot-password.html", { host : this.envData.client_url ,link : `${this.envData.client_url}/forgot-password-change?token=${token}` });
+        const html = await renderTemplate(
+            "forgot-password.html",
+            {
+                host : this.envData.client_url,
+                link : `${this.envData.client_url}/forgot-password/change?token=${token}`
+            }
+        );
         sendEmailToQueue({
             to: to,
             subject: 'Reset Password?',

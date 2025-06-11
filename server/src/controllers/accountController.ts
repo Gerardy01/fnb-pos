@@ -373,6 +373,44 @@ class AccountController {
         }
     }
 
+    static async forgotPasswordChange(req : Request, res : Response) {
+        try {
+
+            const changed = await accountService.forgotPasswordChange(req.body);
+            return res.status(200).json({
+                "status" : "success",
+                "message" : "password changed",
+                "userMessage" : "",
+                "data" : changed,
+            });
+             
+        } catch(e) {
+
+            if (e instanceof DataNotFound) {
+                return res.status(404).json({
+                    "status" : "failed",
+                    "message" : e.message,
+                    "userMessage" : "",
+                });
+            }
+
+            if (e instanceof WrongFormat) {
+                return res.status(422).json({
+                    "status" : "failed",
+                    "message" : e.message,
+                    "userMessage" : e.message,
+                });
+            }
+
+            return res.status(500).json({
+                "status" : "failed",
+                "message" : "server error",
+                "userMessage" : "500",
+                "errors" : e
+            });
+        }
+    }
+
     static async editAccountManagement(req : Request, res : Response) {
         try {
             const roleName = req.user ? req.user.accountRoleName : "";
