@@ -17,7 +17,8 @@ import { IPermissionRepository } from "../repositories/permissionRepository";
 import { IPageAccessPermissionRepository } from "../repositories/pageAccessPermissionRepository";
 import { IAccountRepository } from "../repositories/accountRepository";
 export interface IRolePermissionService {
-    getAllRole(organizationId : string) : Promise<RoleWithCountReturnData[]>
+    getAllRole(organizationId : string) : Promise<RoleReturnData[]>
+    getAllRoleWithCount(organizationId : string) : Promise<RoleWithCountReturnData[]>
     getDefaultRole(userRole : string) : Promise<RoleReturnData[]>
     getOneRole(roleId : number, organizationId : string, userRole : string) : Promise<RoleReturnData>
     getRoleById(roleId : number) : Promise<RoleReturnData>
@@ -40,7 +41,25 @@ export class RolePermissionService implements IRolePermissionService {
         private accountRepository : IAccountRepository,
     ) {}
 
-    async getAllRole(organizationId : string): Promise<RoleWithCountReturnData[]> {
+    async getAllRole(organizationId : string): Promise<RoleReturnData[]> {
+        
+        const allRole = await this.roleRepository.findRoleByOrganization(organizationId);
+        
+        if (allRole.length === 0) throw new DataNotFound("No role data");
+
+        const roleList : RoleReturnData[] = [];
+        allRole.forEach(item => {
+            roleList.push({
+                roleId: item.role_id,
+                roleName: item.role_name,
+                description: item.description,
+            });
+        });
+        
+        return roleList
+    }
+
+    async getAllRoleWithCount(organizationId : string): Promise<RoleWithCountReturnData[]> {
         
         const allRole = await this.roleRepository.findRoleByOrganizationIncludeCount(organizationId);
         

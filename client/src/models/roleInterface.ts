@@ -4,7 +4,7 @@ export interface RoleDataReturn {
     roleId : number;
     roleName : string;
     description : string;
-    accountCount : number;
+    accountCount? : number;
 }
 
 export interface RolePermission {

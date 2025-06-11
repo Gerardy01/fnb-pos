@@ -41,6 +41,35 @@ class RoleController {
         }
     }
 
+    static async getAllRoleWithCount(req : Request, res : Response) {
+        try {
+            const organizationId = req.user ? req.user.organizationId : "";
+            const allRoleData = await rolePermissionService.getAllRoleWithCount(organizationId);
+            console.log(allRoleData)
+            return res.status(200).json({
+                "status" : "success",
+                "data" : allRoleData,
+            });
+
+        } catch(e) {
+
+            if (e instanceof DataNotFound) {
+                return res.status(404).json({
+                    "status" : "success",
+                    "message" : e.message,
+                    "userMessage" : "",
+                });
+            }
+
+            return res.status(500).json({
+                "status" : "failed",
+                "message" : "server error",
+                "userMessage" : "Something wrong. Try again later.",
+                "errors" : e
+            });
+        }
+    }
+
     static async getDefaultRole(req : Request, res : Response) {
 
         try {

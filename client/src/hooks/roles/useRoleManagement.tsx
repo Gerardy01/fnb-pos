@@ -115,7 +115,7 @@ export function useRoleManagement() {
     const getRoleData = async () : Promise<void> => {
 
         try {
-            const [err, data] = await roleApi.getRoleList();
+            const [err, data] = await roleApi.getRoleListWithAccountCount();
     
             if (err) {
                 if (err.status === 500) {

@@ -19,6 +19,11 @@ roleRoutes.get("/",
     validatePermission(PermissionEnum.ROLE_MANAGEMENT, 'read'),
     RoleController.getAllRole
 );
+roleRoutes.get("/action/with-account-count",
+    authenticate,
+    validatePermission(PermissionEnum.ROLE_MANAGEMENT, 'read'),
+    RoleController.getAllRoleWithCount
+);
 roleRoutes.get("/:id",
     authenticate,
     validatePermission(PermissionEnum.ROLE_MANAGEMENT, 'read'),

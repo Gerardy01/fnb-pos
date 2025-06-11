@@ -18,6 +18,15 @@ export class RoleApi {
         return [error, res.data.data];
     }
 
+    async getRoleListWithAccountCount() : Promise<[undefined, RoleDataReturn[]] | [ErrorResponse]> {
+        const [error, res] = await catchFetchError(axiosPrivate.get<FetchResponse<RoleDataReturn[]>>(
+            "role/action/with-account-count"
+        ));
+        
+        if (error) return [error];
+        return [error, res.data.data];
+    }
+
     async getOneRole(roleId : number) : Promise<[undefined, OneRoleData] | [ErrorResponse]> {
         const [error, res] = await catchFetchError(axiosPrivate.get<FetchResponse<OneRoleData>>(
             `role/${roleId}`
