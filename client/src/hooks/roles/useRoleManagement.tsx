@@ -31,6 +31,7 @@ export interface RoleTableData {
     key: number;
     roleName: string;
     description: string
+    assignedAccount : number;
 }
 
 
@@ -86,6 +87,11 @@ export function useRoleManagement() {
             dataIndex: 'description',
         },
         {
+            title: t("role:assignedAccount"),
+            dataIndex: 'assignedAccount',
+            align: 'center',
+        },
+        {
             title: t("global:action"),
             key: 'action',
             align: 'center',
@@ -123,7 +129,8 @@ export function useRoleManagement() {
                 roleListData.push({
                     key: item.roleId,
                     roleName : item.roleName,
-                    description : item.description ? item.description : "-"
+                    description : item.description ? item.description : "-",
+                    assignedAccount : item.accountCount ? item.accountCount : 0
                 });
             });
     
@@ -201,8 +208,12 @@ export function useRoleManagement() {
     }
 
     const onEditRoleSuccess = (roleId : number, roleData : RoleTableData) : void => {
+        const accountCount= roles.find(item => item.key === roleId)?.assignedAccount;
         const filtered = roles.filter(item => item.key !== roleId);
-        setRoles([...filtered, roleData]);
+        setRoles([...filtered, {
+            ...roleData,
+            assignedAccount : accountCount ? accountCount : 0
+        }]);
         setEditRoleModal(false);
     }
 
@@ -295,7 +306,8 @@ export function useAddRole(pushNewRole : (newRole : RoleTableData) => void) {
             pushNewRole({
                 key: data.roleId,
                 roleName : data.roleName,
-                description : data.description
+                description : data.description,
+                assignedAccount : 0
             });
             resetSelectedPermissions();
 
@@ -430,6 +442,7 @@ export function useEditRole(
                 key : data.roleId,
                 roleName : data.roleName,
                 description : data.description,
+                assignedAccount : 0
             });
             resetSelectedPermissions();
             navigate("/role-management")

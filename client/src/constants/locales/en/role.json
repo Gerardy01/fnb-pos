@@ -17,5 +17,6 @@
     "roleDeleteSuccess" : "Role deleted successfully",
     "roleSearchPlaceholder" : "Find by Name",
     "sureDeleteRole" : "Are you sure want to delete this role?",
-    "deleteRoleDesc" : "Please confirm that you want to permanently delete this role. This operation cannot be undone."
+    "deleteRoleDesc" : "Please confirm that you want to permanently delete this role. This operation cannot be undone.",
+    "assignedAccount" : "Assigned Account"
 }

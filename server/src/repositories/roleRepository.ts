@@ -1,8 +1,9 @@
-import { Op } from "sequelize";
+import { col, fn, Op } from "sequelize";
 import {
     Role,
     RolePermissions,
     RolePageAccessPermission,
+    Account,
 } from "../models";
 
 // utils
@@ -13,6 +14,7 @@ import { Transaction } from "sequelize"
 export interface IRoleRepository {
     findOneRole(id : number) : Promise<Role | null>
     findRoleByOrganization(organizationId : string) : Promise<Role[]>
+    findRoleByOrganizationIncludeCount(organizationId : string) : Promise<Role[]>
     findRoleByName(name : string) : Promise<Role | null>
     findRoleByIdAndOrganization(id : number, organizationId : string) : Promise<Role | null>
     findRoleByNameAndOrganization(name : string, organizationId : string) : Promise<Role | null>
@@ -43,7 +45,33 @@ export class RoleRepository implements IRoleRepository {
                 organization_id : organizationId,
                 archived : false,
             }
-        })
+        });
+    }
+
+    findRoleByOrganizationIncludeCount(organizationId: string): Promise<Role[]> {
+        return Role.findAll({
+            where: {
+                organization_id: organizationId,
+                archived: false,
+            },
+            attributes: {
+                include: [
+                    [fn("COUNT", col("account.account_id")), "account_count"],
+                ],
+            },
+            include: [
+                {
+                    model: Account,
+                    as: "account",
+                    attributes: [],
+                    where: {
+                        archived: false,
+                    },
+                    required: false,
+                },
+            ],
+            group: ["Role.role_id"],
+        });
     }
 
     findRoleByName(name: string): Promise<Role | null> {

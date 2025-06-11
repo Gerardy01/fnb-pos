@@ -27,12 +27,28 @@ export type RoleReturnData = {
     description : string;
 }
 
+export type RoleWithCountReturnData = {
+    roleId : number;
+    roleName : string;
+    description : string;
+    accountCount : number;
+}
+
 export type RoleWithPermissionReturnData = {
     roleId : number;
     roleName : string;
     description: string;
     permissions : IRolePermissionData[];
     pageAccessPermissionIds : number[];
+}
+
+export type RoleWithPermissionAndCountReturnData = {
+    roleId : number;
+    roleName : string;
+    description: string;
+    permissions : IRolePermissionData[];
+    pageAccessPermissionIds : number[];
+    accountCount : number;
 }
 
 export type PageAccessPermissionReturnData = {
