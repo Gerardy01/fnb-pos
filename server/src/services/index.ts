@@ -6,6 +6,7 @@ import { AccountService } from "./accountService";
 import { AuthService } from "./authService";
 import { RolePermissionService } from "./rolePermissionService";
 import { NotificationService } from "./notificationService";
+import { OutletService } from "./outletService";
 
 // repository
 import { OrganizationRepository } from "../repositories/organizationRepository";
@@ -18,6 +19,7 @@ import { AdminOrganizationRepository } from "../repositories/adminOrganizationRe
 import { PageAccessPermissionRepository } from "../repositories/pageAccessPermissionRepository";
 import { OtpAuthRepository } from "../repositories/otpAuthRepository";
 import { TokenAuthRepository } from "../repositories/tokenAuthRepository";
+import { OutletRepository } from "../repositories/outletRepository";
 
 // providers
 import { BcryptJsHashProvider } from "../providers/hashProvider";
@@ -39,6 +41,7 @@ const adminOrganizationRepository = new AdminOrganizationRepository();
 const pageAccessPermissionRepository = new PageAccessPermissionRepository();
 const otpAuthRepository = new OtpAuthRepository();
 const tokenAuthRepository = new TokenAuthRepository();
+const outletRepository = new OutletRepository();
 
 const bcryptJsHashProvider = new BcryptJsHashProvider();
 const jsonWebTokenJwtProvider = new JsonWebTokenJwtProvider();
@@ -67,6 +70,7 @@ export const authService = new AuthService(
     envData
 );
 export const notificationService = new NotificationService(emailProvider);
+export const outletService = new OutletService(outletRepository);
 
 
 // combined service (orchestration)

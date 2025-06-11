@@ -90,6 +90,7 @@ export function useRoleManagement() {
             title: t("role:assignedAccount"),
             dataIndex: 'assignedAccount',
             align: 'center',
+            sorter: (a, b) => a.assignedAccount - b.assignedAccount,
         },
         {
             title: t("global:action"),

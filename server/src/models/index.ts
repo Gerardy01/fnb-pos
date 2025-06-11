@@ -10,6 +10,7 @@ import RolePageAccessPermission from "./rolePageAccessPermission.model";
 import RefreshToken from "./refreshToken.model";
 import OtpAuth from "./otpAuth.model";
 import TokenAuth from "./tokenAuth.model";
+import Outlet from "./outlet.model";
 
 
 
@@ -40,8 +41,13 @@ Role.hasMany(Account, { foreignKey: 'role_id', as: 'account' });
 Account.belongsTo(Organization, { foreignKey: 'organization_id', as: 'organization' });
 Organization.hasMany(Account, { foreignKey: 'organization_id', as: 'account' });
 
+// Token-auth account
 TokenAuth.belongsTo(Account, { foreignKey: 'account_id', as: 'account' });
 Account.hasMany(TokenAuth, { foreignKey: 'id', as: 'token_auth' });
+
+// Outlet organization
+Outlet.belongsTo(Organization, { foreignKey: 'organization_id', as: 'organization' });
+Organization.hasMany(Outlet, { foreignKey: 'organization_id', as: 'outlet' });
 
 
 export {
@@ -57,4 +63,5 @@ export {
     RolePermissions,
     OtpAuth,
     TokenAuth,
+    Outlet
 }

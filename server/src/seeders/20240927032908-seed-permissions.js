@@ -19,6 +19,10 @@ module.exports = {
       {
         permission_name: 'Role Management',
         description: '',
+      },
+      {
+        permission_name: 'Outlet Management',
+        description: '',
       }
     ], {});
   },

@@ -1,4 +1,4 @@
-import { col, fn, Op } from "sequelize";
+import { col, fn, Op, Transaction } from "sequelize";
 import {
     Role,
     RolePermissions,
@@ -10,7 +10,6 @@ import {
 import { DefaultRoleEnum } from "../utility/enums"
 
 // types and interfaces
-import { Transaction } from "sequelize"
 export interface IRoleRepository {
     findOneRole(id : number) : Promise<Role | null>
     findRoleByOrganization(organizationId : string) : Promise<Role[]>

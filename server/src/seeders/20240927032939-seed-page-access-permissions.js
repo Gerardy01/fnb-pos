@@ -20,6 +20,10 @@ module.exports = {
         permission_name: 'POS Page',
         description: ''
       },
+      {
+        permission_name: 'Outlet Page',
+        description: ''
+      },
     ]);
   },
 

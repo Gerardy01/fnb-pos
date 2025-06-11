@@ -18,6 +18,7 @@ module.exports = {
       },
     ]);
     await queryInterface.bulkInsert('role_permission', [
+      // For super admin
       {
         role_id: 1,
         permission_id: 1,
@@ -43,6 +44,13 @@ module.exports = {
         write: true
       },
       {
+        role_id: 1,
+        permission_id: 5,
+        read: true,
+        write: true
+      },
+      // For admin
+      {
         role_id: 2,
         permission_id: 2,
         read: true,
@@ -60,8 +68,15 @@ module.exports = {
         read: true,
         write: true
       },
+      {
+        role_id: 2,
+        permission_id: 5,
+        read: true,
+        write: true
+      },
     ]);
     await queryInterface.bulkInsert('role_page_access_permission', [
+      // For super admin
       {
         role_id: 1,
         permission_id: 1
@@ -79,6 +94,11 @@ module.exports = {
         permission_id: 4
       },
       {
+        role_id: 1,
+        permission_id: 5
+      },
+      // For admin
+      {
         role_id: 2,
         permission_id: 1
       },
@@ -93,6 +113,10 @@ module.exports = {
       {
         role_id: 2,
         permission_id: 4
+      },
+      {
+        role_id: 2,
+        permission_id: 5
       },
     ]);
   },

@@ -25,13 +25,7 @@ export type RoleReturnData = {
     roleId : number;
     roleName : string;
     description : string;
-}
-
-export type RoleWithCountReturnData = {
-    roleId : number;
-    roleName : string;
-    description : string;
-    accountCount : number;
+    accountCount? : string;
 }
 
 export type RoleWithPermissionReturnData = {

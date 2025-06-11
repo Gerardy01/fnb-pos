@@ -11,14 +11,14 @@ import RolePageAccessPermission from "../models/rolePageAccessPermission.model";
 
 // types and interfaces
 import { Transaction } from "sequelize";
-import { ICreateRoleData, IEditRoleData, RoleWithPermissionReturnData, IRolePermissionData, RoleReturnData, PageAccessPermissionReturnData, PermissionReturnData, RoleWithCountReturnData, RoleWithPermissionAndCountReturnData } from "../interfaces/IRolePermission";
+import { ICreateRoleData, IEditRoleData, RoleWithPermissionReturnData, IRolePermissionData, RoleReturnData, PageAccessPermissionReturnData, PermissionReturnData } from "../interfaces/IRolePermission";
 import { IRoleRepository } from "../repositories/roleRepository";
 import { IPermissionRepository } from "../repositories/permissionRepository";
 import { IPageAccessPermissionRepository } from "../repositories/pageAccessPermissionRepository";
 import { IAccountRepository } from "../repositories/accountRepository";
 export interface IRolePermissionService {
     getAllRole(organizationId : string) : Promise<RoleReturnData[]>
-    getAllRoleWithCount(organizationId : string) : Promise<RoleWithCountReturnData[]>
+    getAllRoleWithCount(organizationId : string) : Promise<RoleReturnData[]>
     getDefaultRole(userRole : string) : Promise<RoleReturnData[]>
     getOneRole(roleId : number, organizationId : string, userRole : string) : Promise<RoleReturnData>
     getRoleById(roleId : number) : Promise<RoleReturnData>
@@ -59,13 +59,13 @@ export class RolePermissionService implements IRolePermissionService {
         return roleList
     }
 
-    async getAllRoleWithCount(organizationId : string): Promise<RoleWithCountReturnData[]> {
+    async getAllRoleWithCount(organizationId : string): Promise<RoleReturnData[]> {
         
         const allRole = await this.roleRepository.findRoleByOrganizationIncludeCount(organizationId);
         
         if (allRole.length === 0) throw new DataNotFound("No role data");
 
-        const roleList : RoleWithCountReturnData[] = [];
+        const roleList : RoleReturnData[] = [];
         allRole.forEach(item => {
             roleList.push({
                 roleId: item.role_id,
