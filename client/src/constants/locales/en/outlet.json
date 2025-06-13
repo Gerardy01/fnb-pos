@@ -1,0 +1,19 @@
+
+
+{
+    "outletManagement" : "Outlet Management",
+    "newOutlet" : "New Outlet",
+    "statusFilter" : "Status Filter",
+    "outletSearchPlaceholder" : "Find by Name/City/Province/Postal Code",
+    "outletName" : "Outlet Name",
+    "address" : "Address",
+    "addressOptional" : "Address (Optional)",
+    "yourAddress" : "Your address",
+    "city" : "City",
+    "cityOptional" : "City (Optional)",
+    "province" : "Province",
+    "provinceOptional" : "Province (Optional)",
+    "postalCode" : "Postal Code",
+    "postalCodeOptional" : "Postal Code (Optional)",
+    "addNewOutlet" : "Add New Outlet"
+}

@@ -527,7 +527,8 @@ function usePermissionSetHandling() {
             pageAccessId: PageAccessPermissionEnum.ACCOUNT_MANAGEMENT,
             requiredPermissions: [
                 { permissionId: PermissionEnum.ACCOUNT_MANAGEMENT, read: true, write: true },
-                { permissionId: PermissionEnum.ROLE_MANAGEMENT, read: true }
+                { permissionId: PermissionEnum.ROLE_MANAGEMENT, read: true },
+                { permissionId: PermissionEnum.OUTLET_MANAGEMENT, read: true }
             ]
         },
         {
@@ -541,7 +542,13 @@ function usePermissionSetHandling() {
             requiredPermissions: [
                 { permissionId: PermissionEnum.ORGANIZATION_MANAGEMENT, read: true, write: true },
             ]
-        }
+        },
+        {
+            pageAccessId: PageAccessPermissionEnum.OUTLET_MANAGEMENT,
+            requiredPermissions: [
+                { permissionId: PermissionEnum.OUTLET_MANAGEMENT, read: true, write: true }
+            ]
+        },
     ];
 
     const checkPageAccessRequirements = (pageAccessId: number, currentPermissions: RolePermission[]): boolean => {

@@ -36,5 +36,9 @@
     "description" : "Description",
     "read": "Read",
     "write": "Write",
-    "advanced" : "Advanced"
+    "advanced" : "Advanced",
+    "active" : "Active",
+    "unactive" : "Unactive",
+    "outlet" : "Outlet",
+    "status" : "Status"
 }

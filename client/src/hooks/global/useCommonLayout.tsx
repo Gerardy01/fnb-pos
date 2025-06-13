@@ -153,14 +153,23 @@ export default function useCommonLayout() {
             key: 'config',
             label: t('configuration'),
             icon: <ToolOutlined />,
-            permissions: [PageAccessPermissionEnum.ORGANIZATION_SETTINGS],
+            permissions: [
+                PageAccessPermissionEnum.ORGANIZATION_SETTINGS,
+                PageAccessPermissionEnum.OUTLET_MANAGEMENT,
+            ],
             children: [
+                {
+                    key: '/outlet',
+                    label: t('outlet'),
+                    permissions: [PageAccessPermissionEnum.OUTLET_MANAGEMENT],
+                    onClick: () => handleClick("/outlet")
+                },
                 {
                     key: '/organization-settings',
                     label: t('organization'),
                     permissions: [PageAccessPermissionEnum.ORGANIZATION_SETTINGS],
                     onClick: () => handleClick("/organization-settings"),
-                }
+                },
             ]
         }
     ];

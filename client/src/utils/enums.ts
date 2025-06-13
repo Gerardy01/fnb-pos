@@ -4,7 +4,8 @@ export enum PageAccessPermissionEnum {
     ORGANIZATION_SETTINGS = 1,
     ACCOUNT_MANAGEMENT = 2,
     ROLE_MANAGEMENT = 3,
-    POS = 4
+    POS = 4,
+    OUTLET_MANAGEMENT = 5,
 }
 
 export enum PermissionEnum {
@@ -12,4 +13,5 @@ export enum PermissionEnum {
     ORGANIZATION_MANAGEMENT = 2,
     ACCOUNT_MANAGEMENT = 3,
     ROLE_MANAGEMENT = 4,
+    OUTLET_MANAGEMENT = 5,
 }

@@ -7,6 +7,7 @@ import enGlobal from "./constants/locales/en/global.json";
 import enAuth from "./constants/locales/en/auth.json";
 import enAccount from "./constants/locales/en/account.json";
 import enRole from "./constants/locales/en/role.json";
+import enOutlet from "./constants/locales/en/outlet.json";
 
 import idGlobal from "./constants/locales/id/global.json";
 import idAuth from "./constants/locales/id/auth.json";
@@ -22,7 +23,8 @@ i18n
                 global : enGlobal,
                 auth : enAuth,
                 account : enAccount,
-                role : enRole
+                role : enRole,
+                outlet : enOutlet,
             },
             id: {
                 auth : idAuth,
@@ -36,6 +38,7 @@ i18n
             "auth",
             "account",
             "role",
+            "outlet",
         ],
         interpolation: {
             escapeValue: false

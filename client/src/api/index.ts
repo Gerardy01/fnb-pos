@@ -3,6 +3,7 @@ import { AccountApi } from "./accountApi";
 import { OrganizationApi } from "./organizationApi";
 import { RoleApi } from "./roleApi";
 import { PermissionApi } from "./permissionApi";
+import { OutletApi } from "./outletApi";
 
 
 
@@ -11,3 +12,4 @@ export const accountApi = new AccountApi();
 export const organizationApi = new OrganizationApi();
 export const roleApi = new RoleApi();
 export const permissionApi = new PermissionApi();
+export const outletApi = new OutletApi();

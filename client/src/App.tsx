@@ -16,6 +16,7 @@ import ForgotPasswordChange from "./pages/ForgotPasswordChange";
 import Dashboard from "./pages/Dashboard";
 import POS from "./pages/POS";
 import AccountManagement from "./pages/AccountManagement";
+import OutletManagement from "./pages/OutletManagement";
 import ChangePassword from "./pages/ChangePassword";
 import Profile from "./pages/Profile";
 import RoleManagement from "./pages/RoleManagement";
@@ -49,6 +50,10 @@ export default function App() {
 							
 							<Route element={<PermissionProtectedRoutes requiredPermission={[PageAccessPermissionEnum.ORGANIZATION_SETTINGS]} />}>
 								<Route path="/organization-settings" element={<Dashboard />} />
+							</Route>
+
+							<Route element={<PermissionProtectedRoutes requiredPermission={[PageAccessPermissionEnum.OUTLET_MANAGEMENT]} />}>
+								<Route path="/outlet" element={<OutletManagement />} />
 							</Route>
 						</Route>
 
