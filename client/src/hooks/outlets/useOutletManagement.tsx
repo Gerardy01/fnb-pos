@@ -1,14 +1,22 @@
 import { useEffect, useState } from "react"
 
-import { Button, Form, SelectProps, Space, TableColumnsType, Tag } from "antd";
+import { Button, Form, FormProps, SelectProps, Space, TableColumnsType, Tag } from "antd";
 import { EditOutlined } from "@ant-design/icons";
 
 import { useTranslation } from "react-i18next";
 import useStaticModal from "../useStaticModal";
+import useNotification from "../useNotification";
 
 import { outletApi } from "../../api";
 
 // types and interfaces
+export interface OutletForm {
+    outletName : string;
+    address : string;
+    city : string;
+    province : string;
+    postalCode : string;
+}
 export interface OutletTableData {
     key: string;
     outletName: string;
@@ -37,6 +45,10 @@ export function useOutletManagement()  {
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
+
+    useEffect(() => {
+        setFilteredOutlets(outlets);
+    }, [outlets])
 
     const statusOptions : SelectProps['options'] = [
         {
@@ -169,6 +181,11 @@ export function useOutletManagement()  {
         setAddOutletModal(open);
     }
 
+    const onAddOutletSuccess = (newOutlet : OutletTableData) : void => {
+        setOutlets(prev => [...prev, newOutlet]);
+        setAddOutletModal(false);
+    }
+
     return {
         contentLoad,
         statusOptions,
@@ -178,14 +195,69 @@ export function useOutletManagement()  {
         handleSearch,
         handleChangeStatusFilter,
         addOutletOpen,
+        onAddOutletSuccess,
     }
 }
 
-export function addOutlet() {
+export function useAddOutlet(onAddOutletSuccess : (newOutlet : OutletTableData) => void) {
+
+    const { t } = useTranslation(["global", "outlet"]);
+
+    const { serverErrorModal, errorModal } = useStaticModal();
+    const { successnotification } = useNotification();
+
+    const [loading, setLoading] = useState<boolean>(false);
     
     const [form] = Form.useForm();
+
+    const resetData = () : void => {
+        form.resetFields();
+    }
+
+    const handleAddOutlet : FormProps<OutletForm>['onFinish'] = async (values) : Promise<void> => {
+        
+        setLoading(true);
+
+        try {
+            const [err, data] = await outletApi.createOutlet({
+                outletName : values.outletName,
+                address : values.address,
+                city : values.city,
+                province : values.province,
+                postalCode : values.postalCode,
+            });
+            
+            if (err) {
+
+                if (err.status === 409) {
+                    errorModal(t('global:failed'), t(`outlet:${err.response.data.message}`));
+                    return;
+                }
+
+                serverErrorModal();
+                return;
+            }
+
+            successnotification(t("outlet:addSuccess"));
+            onAddOutletSuccess({
+                key : data.outletId,
+                outletName: data.outletName != "" ? data.outletName : "-",
+                address : data.address != "" ? data.address : "-",
+                city : data.city != "" ? data.city : "-",
+                province : data.province != "" ? data.province : "-",
+                postalCode : data.postalCode != "" ? data.postalCode : "-",
+                status : data.status ? t("global:active") : t("global:unactive"),
+            });
+
+        } finally {
+            setLoading(false);
+        }
+    }
     
     return {
         form,
+        loading,
+        resetData,
+        handleAddOutlet
     }
 }

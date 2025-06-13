@@ -26,6 +26,7 @@ export default function OutletManagement() {
         handleSearch,
         handleChangeStatusFilter,
         addOutletOpen,
+        onAddOutletSuccess,
     } = useOutletManagement();
 
     return (
@@ -78,6 +79,7 @@ export default function OutletManagement() {
             <AddOutletModal
                 open={addOutletModal}
                 onClose={() => addOutletOpen(false)}
+                onAddOutletSuccess={onAddOutletSuccess}
             />
         </div>
     )

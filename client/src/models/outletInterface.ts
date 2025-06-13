@@ -10,3 +10,12 @@ export interface OutletDataReturn {
     postalCode : string;
     status : boolean;
 }
+
+
+export interface CreateOutletBodyData {
+    outletName : string;
+    address : string;
+    city : string;
+    province : string;
+    postalCode : string;
+}

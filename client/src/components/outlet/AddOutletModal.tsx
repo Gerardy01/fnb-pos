@@ -2,17 +2,22 @@ import { Button, Form, Input, Modal } from "antd";
 import TextArea from "antd/es/input/TextArea";
 
 import { useTranslation } from "react-i18next";
+import { useAddOutlet } from "../../hooks/outlets/useOutletManagement";
 
 // types and interfaces
+import { OutletTableData } from "../../hooks/outlets/useOutletManagement";
 interface Props {
     open : boolean;
     onClose : () => void;
+    onAddOutletSuccess : (newOutlet : OutletTableData) => void;
 }
 
 
-export default function AddOutletModal({ open, onClose } : Props) {
+export default function AddOutletModal({ open, onClose, onAddOutletSuccess } : Props) {
 
     const { t } = useTranslation(["global", "outlet"]);
+
+    const { form, loading, resetData, handleAddOutlet } = useAddOutlet(onAddOutletSuccess);
 
     return (
         <Modal
@@ -21,6 +26,7 @@ export default function AddOutletModal({ open, onClose } : Props) {
             open={open}
             onCancel={() => {
                 onClose();
+                resetData();
             }}  
             footer={null}
             maskClosable={false}
@@ -28,11 +34,11 @@ export default function AddOutletModal({ open, onClose } : Props) {
         >
             <Form
                 name="addOutlet"
-                // onFinish={onSubmit}
+                onFinish={handleAddOutlet}
                 autoComplete="off"  
                 layout='vertical'
                 style={styles.form}
-                // form={form}
+                form={form}
             >
                 <Form.Item
                     name="outletName"
@@ -95,8 +101,7 @@ export default function AddOutletModal({ open, onClose } : Props) {
                         type="primary"
                         htmlType="submit"
                         size="large"
-                        // loading={submitLoad}
-                        // disabled={emailCheckLoad || usernameCheckLoad}
+                        loading={loading}
                     >
                         {t("global:submit")}
                     </Button>

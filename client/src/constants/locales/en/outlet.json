@@ -1,6 +1,8 @@
 
 
 {
+    "OUTLET409-1" : "Outlet name already exist",
+
     "outletManagement" : "Outlet Management",
     "newOutlet" : "New Outlet",
     "statusFilter" : "Status Filter",
@@ -15,5 +17,6 @@
     "provinceOptional" : "Province (Optional)",
     "postalCode" : "Postal Code",
     "postalCodeOptional" : "Postal Code (Optional)",
-    "addNewOutlet" : "Add New Outlet"
+    "addNewOutlet" : "Add New Outlet",
+    "addSuccess" : "Outlet added successfully"
 }
