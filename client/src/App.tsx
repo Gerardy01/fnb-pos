@@ -54,6 +54,7 @@ export default function App() {
 
 							<Route element={<PermissionProtectedRoutes requiredPermission={[PageAccessPermissionEnum.OUTLET_MANAGEMENT]} />}>
 								<Route path="/outlet" element={<OutletManagement />} />
+								<Route path="/outlet/:outletId" element={<OutletManagement />} />
 							</Route>
 						</Route>
 

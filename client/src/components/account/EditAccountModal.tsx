@@ -1,5 +1,5 @@
 import { Button, Form, FormInstance, FormProps, Input, Modal, Select, SelectProps, Space, Typography } from "antd";
-import { CheckOutlined, CopyOutlined, LockOutlined } from "@ant-design/icons";
+import { CheckOutlined, CopyOutlined, DeleteFilled, LockOutlined } from "@ant-design/icons";
 
 import { useTranslation } from "react-i18next";
 import { useCheckEmailAvailability, useCheckUsernameAvailability } from "../../hooks/global/useCheckAvailability";
@@ -296,6 +296,7 @@ export default function EditAccountModal({
                                         style={styles.deleteBtn}
                                         disabled={submitLoad}
                                         onClick={onDeleteAccount}
+                                        icon={<DeleteFilled />}
                                     >
                                         {t("global:delete")}
                                     </Button>

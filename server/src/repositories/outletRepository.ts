@@ -4,6 +4,7 @@ import { Outlet } from "../models";
 
 // types and interfaces
 export interface IOutletRepository {
+    findOutletById(outletId : string) : Promise<Outlet | null>;
     findOutletByOrganization(organizationId : string) : Promise<Outlet[]>;
     findOutletByNameAndOrganization(outletName : string, organizationId : string) : Promise<Outlet | null>;
     createOutlet(data : Partial<Outlet>) : Promise<Outlet>;
@@ -11,6 +12,15 @@ export interface IOutletRepository {
 
 
 export class OutletRepository implements IOutletRepository {
+    async findOutletById(outletId: string): Promise<Outlet | null> {
+        return Outlet.findOne({
+            where: {
+                outlet_id : outletId,
+                archived : false,
+            }
+        });
+    }
+
     async findOutletByOrganization(organizationId: string): Promise<Outlet[]> {
         return Outlet.findAll({
             where: {
@@ -24,7 +34,9 @@ export class OutletRepository implements IOutletRepository {
         return Outlet.findOne({
             where: {
                 organization_id : organizationId,
-                outlet_name : outletName,
+                outlet_name : {
+                    [Op.iLike] : outletName,
+                },
                 archived : false,
             }
         });

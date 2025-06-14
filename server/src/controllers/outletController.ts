@@ -4,7 +4,7 @@ import { Request, Response } from 'express';
 import { outletService } from '../services';
 
 // exceptions
-import { ExistData } from '../utility/exceptions';
+import { DataNotFound, ExistData } from '../utility/exceptions';
 
 
 class OutletController {
@@ -21,6 +21,37 @@ class OutletController {
             });
 
         } catch(e) {
+            
+            return res.status(500).json({
+                "status" : "failed",
+                "message" : "server error",
+                "userMessage" : "Something wrong. Try again later.",
+                "errors" : e
+            });
+        }
+    }
+
+    static async getOneOutlet(req : Request, res : Response) {
+         try {
+
+            const outletId : string = req.params.id;
+            const organizationId = req.user ? req.user.organizationId : "";
+            const outletData = await outletService.getOneOutlet(outletId, organizationId);
+
+            return res.status(200).json({
+                "status" : "success",
+                "data" : outletData,
+            });
+
+        } catch(e) {
+
+            if (e instanceof DataNotFound) {
+                return res.status(404).json({
+                    "status" : "failed",
+                    "message" : e.message,
+                    "userMessage" : e.message,
+                });
+            }
             
             return res.status(500).json({
                 "status" : "failed",
@@ -48,6 +79,113 @@ class OutletController {
 
             if (e instanceof ExistData) {
                 return res.status(409).json({
+                    "status" : "failed",
+                    "message" : e.message,
+                    "userMessage" : e.message,
+                });
+            }
+
+            return res.status(500).json({
+                "status" : "failed",
+                "message" : "server error",
+                "userMessage" : "Something wrong. Try again later.",
+                "errors" : e
+            });
+        }
+    }
+
+    static async editOutlet(req : Request, res : Response) {
+        try {
+
+            const organizationId = req.user ? req.user.organizationId : "";
+            const editedOutlet = await outletService.editOutlet(req.body, organizationId);
+
+            return res.status(200).json({
+                "status" : "success",
+                "message" : "outlet edited",
+                "userMessage" : "",
+                "data" : editedOutlet,
+            });
+
+        } catch(e) {
+
+            if (e instanceof DataNotFound) {
+                return res.status(404).json({
+                    "status" : "failed",
+                    "message" : e.message,
+                    "userMessage" : e.message,
+                });
+            }
+
+            if (e instanceof ExistData) {
+                return res.status(409).json({
+                    "status" : "failed",
+                    "message" : e.message,
+                    "userMessage" : e.message,
+                });
+            }
+
+            return res.status(500).json({
+                "status" : "failed",
+                "message" : "server error",
+                "userMessage" : "Something wrong. Try again later.",
+                "errors" : e
+            });
+        }
+    }
+
+    static async deleteOutlet(req : Request, res : Response) {
+        try {
+            
+            const outletId : string = req.params.id;
+            const organizationId = req.user ? req.user.organizationId : "";
+            const outletDeleted = await outletService.deleteOutlet(outletId, organizationId);
+
+            return res.status(200).json({
+                "status" : "success",
+                "message" : "outlet deleted",
+                "userMessage" : "",
+                "data" : outletDeleted,
+            });
+
+        } catch(e) {
+
+            if (e instanceof DataNotFound) {
+                return res.status(404).json({
+                    "status" : "failed",
+                    "message" : e.message,
+                    "userMessage" : e.message,
+                });
+            }
+
+            return res.status(500).json({
+                "status" : "failed",
+                "message" : "server error",
+                "userMessage" : "Something wrong. Try again later.",
+                "errors" : e
+            });
+        }
+    }
+
+    static async changeOutletStatus(req : Request, res : Response) {
+        try {
+            
+            const organizationId = req.user ? req.user.organizationId : "";
+            const newStatus = await outletService.changeOutletStatus(req.body, organizationId);
+
+            return res.status(200).json({
+                "status" : "success",
+                "message" : "status changed",
+                "userMessage" : "",
+                "data" : {
+                    "newStatus" : newStatus
+                },
+            });
+
+        } catch(e) {
+
+            if (e instanceof DataNotFound) {
+                return res.status(404).json({
                     "status" : "failed",
                     "message" : e.message,
                     "userMessage" : e.message,

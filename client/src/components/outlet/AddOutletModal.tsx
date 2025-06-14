@@ -17,7 +17,7 @@ export default function AddOutletModal({ open, onClose, onAddOutletSuccess } : P
 
     const { t } = useTranslation(["global", "outlet"]);
 
-    const { form, loading, resetData, handleAddOutlet } = useAddOutlet(onAddOutletSuccess);
+    const { addOutletForm, loading, resetData, handleAddOutlet } = useAddOutlet(onAddOutletSuccess);
 
     return (
         <Modal
@@ -38,7 +38,7 @@ export default function AddOutletModal({ open, onClose, onAddOutletSuccess } : P
                 autoComplete="off"  
                 layout='vertical'
                 style={styles.form}
-                form={form}
+                form={addOutletForm}
             >
                 <Form.Item
                     name="outletName"
@@ -132,5 +132,5 @@ const styles : { [key: string]: React.CSSProperties } = {
     },
     twoFormItem: {
         width: '48%'
-    }
+    },
 }

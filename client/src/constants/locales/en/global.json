@@ -39,6 +39,8 @@
     "advanced" : "Advanced",
     "active" : "Active",
     "unactive" : "Unactive",
+    "activate" : "Activate",
+    "deactivate" : "Deactivate",
     "outlet" : "Outlet",
     "status" : "Status"
 }

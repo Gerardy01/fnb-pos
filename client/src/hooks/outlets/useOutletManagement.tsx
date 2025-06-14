@@ -6,10 +6,12 @@ import { EditOutlined } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import useStaticModal from "../useStaticModal";
 import useNotification from "../useNotification";
+import { useNavigate, useParams } from "react-router-dom";
 
 import { outletApi } from "../../api";
 
 // types and interfaces
+import { OutletDataReturn } from "../../models/outletInterface";
 export interface OutletForm {
     outletName : string;
     address : string;
@@ -30,11 +32,15 @@ export interface OutletTableData {
 
 export function useOutletManagement()  {
 
+    const { outletId : outletIdFormParams } = useParams();
+
+    const navigate = useNavigate();
     const { t } = useTranslation(["global", "outlet"]);
 
     const { serverErrorModal } = useStaticModal();
 
     const [addOutletModal, setAddOutletModal] = useState<boolean>(false);
+    const [editOutletModal, setEditOutletModal] = useState<boolean>(false);
 
     const [contentLoad, setContentLoad] = useState<boolean>(true);
     const [outlets, setOutlets] = useState<OutletTableData[]>([]);
@@ -43,6 +49,7 @@ export function useOutletManagement()  {
     useEffect(() => {
         getOutletData();
 
+        if (outletIdFormParams) editOutletOpen(true);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
@@ -111,7 +118,7 @@ export function useOutletManagement()  {
                             icon={<EditOutlined />}
                             color="default"
                             variant='outlined'
-                            onClick={() => handleSelectEdit()}
+                            onClick={() => handleSelectEdit(record.key)}
                         >
                             {t("global:edit")}
                         </Button>
@@ -173,17 +180,48 @@ export function useOutletManagement()  {
         setFilteredOutlets(filtered);
     }
 
-    const handleSelectEdit = () : void => {
-
+    const handleSelectEdit = (outletId : string) : void => {
+        navigate(`/outlet/${outletId}`, { replace: false });
+        editOutletOpen(true);
     }
 
     const addOutletOpen = (open : boolean) => {
         setAddOutletModal(open);
     }
 
+    const editOutletOpen = (open : boolean) => {
+        setEditOutletModal(open);
+
+        if (!open) {
+            navigate(`/outlet`);
+        }
+    }
+
     const onAddOutletSuccess = (newOutlet : OutletTableData) : void => {
         setOutlets(prev => [...prev, newOutlet]);
-        setAddOutletModal(false);
+        addOutletOpen(false);
+    }
+
+    const onEditOutletSuccess = (newValue : OutletTableData) : void => {
+        const filtered = outlets.filter(item => item.key !== newValue.key);
+        setOutlets([...filtered, newValue]);
+        editOutletOpen(false);
+    }
+
+    const onDeleteOutletSuccess = (outletId : string) : void => {
+        const filtered = outlets.filter(item => item.key !== outletId);
+        setOutlets(filtered);
+        editOutletOpen(false);
+    }
+
+    const onChangeStatusSuccess = (outletId : string, newStatus : boolean) : void => {
+        setOutlets(prevOutlets =>
+            prevOutlets.map(outlet =>
+                outlet.key === outletId
+                    ? { ...outlet, status: newStatus ? t("global:active") : t("global:unactive") }
+                    : outlet
+            )
+        );
     }
 
     return {
@@ -192,10 +230,16 @@ export function useOutletManagement()  {
         columns,
         outlets : filteredOutlets,
         addOutletModal,
+        editOutletModal,
+        outletIdFormParams,
         handleSearch,
         handleChangeStatusFilter,
         addOutletOpen,
+        editOutletOpen,
         onAddOutletSuccess,
+        onEditOutletSuccess,
+        onDeleteOutletSuccess,
+        onChangeStatusSuccess,
     }
 }
 
@@ -255,9 +299,175 @@ export function useAddOutlet(onAddOutletSuccess : (newOutlet : OutletTableData) 
     }
     
     return {
-        form,
+        addOutletForm : form,
         loading,
         resetData,
         handleAddOutlet
+    }
+}
+
+export function useEditOutlet(
+    onEditSuccess : (newValue : OutletTableData) => void,
+    onDeleteSuccess : (outletId : string) => void,
+    onChangeStatusSuccess : (outletId : string, newStatus : boolean) => void,
+) {
+    
+    const { outletId : outletIdFormParams } = useParams();
+
+    const { t } = useTranslation(["global", "outlet"]);
+
+    const { serverErrorModal, errorModal, confirmationModal } = useStaticModal();
+    const { successnotification } = useNotification();
+
+    const [contentLoad, setContentLoad] = useState<boolean>(true);
+    const [submitLoad, setSubmitLoad] = useState<boolean>(false);
+    const [loading, setLoading] = useState<boolean>(false);
+    
+    const [outletData, setOutletData] = useState<OutletDataReturn | null>(null);
+
+    const [form] = Form.useForm();
+
+    useEffect(() => {
+        getOutletData();
+        
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    const getOutletData = async () : Promise<void> => {
+        if (!outletIdFormParams) return;
+
+        try {
+            const [err, data] = await outletApi.getOneOutlet(outletIdFormParams);
+
+            if (err) {
+
+                if (err.status === 404) return;
+
+                serverErrorModal();
+                return;
+            }
+
+            setOutletData(data);
+
+        } finally {
+            setContentLoad(false);
+        }
+    }
+
+    const handleEditOutlet : FormProps<OutletForm>['onFinish'] = async (values) : Promise<void> => {
+        setSubmitLoad(true);
+
+        try {
+            const [err, data] = await outletApi.editOutlet({
+                outletId : outletIdFormParams ? outletIdFormParams : "",
+                outletName : values.outletName,
+                address : values.address,
+                city : values.city,
+                province : values.province,
+                postalCode : values.postalCode,
+            });
+
+            if (err) {
+
+                if (err.status === 409) {
+                    errorModal(t('global:failed'), t(`outlet:${err.response.data.message}`));
+                    return;
+                }
+
+                serverErrorModal();
+                return;
+            }
+
+            successnotification(t("outlet:editSuccess"));
+            onEditSuccess({
+                key : data.outletId,
+                outletName: data.outletName != "" ? data.outletName : "-",
+                address : data.address != "" ? data.address : "-",
+                city : data.city != "" ? data.city : "-",
+                province : data.province != "" ? data.province : "-",
+                postalCode : data.postalCode != "" ? data.postalCode : "-",
+                status : data.status ? t("global:active") : t("global:unactive"),
+            });
+
+        } finally {
+            setSubmitLoad(false);
+        }
+    }
+
+    const clickDeleteBtn = async () : Promise<void> => {
+        confirmationModal({
+            title : t("outlet:sureDeleteOutlet"),
+            content: t("outlet:deleteOutletDesc"),
+            okBtn: t("global:yes"),
+            cancelBtn: t("global:cancel"),
+            centered: true,
+            okBtnDanger: true,
+            onOkWithPromise : handleDeleteOutlet,
+        });
+    }
+
+    const handleDeleteOutlet = async () : Promise<void> => {
+        if (!outletIdFormParams) return;
+
+        setLoading(true);
+
+        try {
+            
+            const [err] = await outletApi.deleteOutlet(outletIdFormParams);
+
+            if (err) {
+                serverErrorModal();
+                return;
+            }
+
+            onDeleteSuccess(outletIdFormParams);
+            successnotification(t("outlet:deleteSuccess"));
+
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    const handleChangeStatus = async (newStatus : boolean) : Promise<void> => {
+        if (!outletIdFormParams) return;
+
+        setLoading(true);
+
+        try {
+            const [err, data] = await outletApi.changeOutletStatus({
+                outletId : outletIdFormParams,
+                newStatus : newStatus,
+            });
+
+            if (err) {
+                serverErrorModal();
+                return; 
+            }
+
+            onChangeStatusSuccess(outletIdFormParams, data.newStatus);
+            successnotification(`${t("outlet:statusChanged")} ${data.newStatus ? t("global:active") : t("global:unactive")}`);
+
+            setOutletData(prev => {
+                if (!prev) return null;
+                return {
+                    ...prev,
+                    status : newStatus
+                }
+            });
+
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    return {
+        contentLoad,
+        outletData,
+        editOutletForm : form,
+        submitLoad,
+        loading,
+        handleEditOutlet,
+        clickDeleteBtn,
+        handleChangeStatus,
     }
 }

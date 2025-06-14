@@ -6,6 +6,7 @@ import { useOutletManagement } from '../hooks/outlets/useOutletManagement';
 
 // components
 import AddOutletModal from '../components/outlet/AddOutletModal';
+import EditOutletModal from '../components/outlet/EditOutletModal';
 
 // types and interfaces
 import { OutletTableData } from '../hooks/outlets/useOutletManagement';
@@ -23,10 +24,16 @@ export default function OutletManagement() {
         columns,
         outlets,
         addOutletModal,
+        editOutletModal,
+        outletIdFormParams,
         handleSearch,
         handleChangeStatusFilter,
         addOutletOpen,
+        editOutletOpen,
         onAddOutletSuccess,
+        onEditOutletSuccess,
+        onDeleteOutletSuccess,
+        onChangeStatusSuccess,
     } = useOutletManagement();
 
     return (
@@ -81,6 +88,15 @@ export default function OutletManagement() {
                 onClose={() => addOutletOpen(false)}
                 onAddOutletSuccess={onAddOutletSuccess}
             />
+            {outletIdFormParams && (
+                <EditOutletModal
+                    open={editOutletModal}
+                    onClose={() => editOutletOpen(false)}
+                    onEditOutletSuccess={onEditOutletSuccess}
+                    onDeleteOutletSuccess={onDeleteOutletSuccess}
+                    onChangeStatusSuccess={onChangeStatusSuccess}
+                />
+            )}
         </div>
     )
 }

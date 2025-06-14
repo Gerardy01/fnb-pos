@@ -5,6 +5,7 @@
 
     "outletManagement" : "Outlet Management",
     "newOutlet" : "New Outlet",
+    "editOutlet" : "Edit Outlet",
     "statusFilter" : "Status Filter",
     "outletSearchPlaceholder" : "Find by Name/City/Province/Postal Code",
     "outletName" : "Outlet Name",
@@ -18,5 +19,10 @@
     "postalCode" : "Postal Code",
     "postalCodeOptional" : "Postal Code (Optional)",
     "addNewOutlet" : "Add New Outlet",
-    "addSuccess" : "Outlet added successfully"
+    "addSuccess" : "Outlet added successfully",
+    "editSuccess" : "Outlet edited successfully",
+    "deleteSuccess" : "Outlet deleted successfully",
+    "statusChanged" : "Status changed to",
+    "sureDeleteOutlet" : "Are you sure want to delete this outlet?",
+    "deleteOutletDesc" : "Please confirm that you want to permanently delete this outlet. This operation cannot be undone."
 }

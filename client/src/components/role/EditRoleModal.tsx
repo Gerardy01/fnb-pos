@@ -1,4 +1,5 @@
 import { Alert, Button, Checkbox, Form, Input, Modal, Switch, Typography } from "antd";
+import { DeleteFilled } from "@ant-design/icons";
 
 import { useTranslation } from "react-i18next";
 import { RoleTableData, useEditRole } from "../../hooks/roles/useRoleManagement";
@@ -207,6 +208,7 @@ export default function EditRoleModal({
                                 color="danger"
                                 disabled={submitLoad}
                                 onClick={clickDeleteBtn}
+                                icon={<DeleteFilled />}
                             >
                                 {t("global:delete")}
                             </Button>
@@ -223,9 +225,7 @@ export default function EditRoleModal({
                     
                 </Form>
             ) : (
-                <div
-                    style={styles.notContentHolder}
-                >
+                <div style={styles.notContentHolder}>
                     <ContentNotFound />
                 </div>
             )}

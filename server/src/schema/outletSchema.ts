@@ -7,3 +7,17 @@ export const CreateOutletSchema = z.object({
     province : z.string().max(50).nullable().optional(),
     postalCode : z.string().max(10).nullable().optional(),
 });
+
+export const EditOutletSchema = z.object({
+    outletId : z.string().min(1),
+    outletName : z.string().min(1).max(100),
+    address : z.string().max(200).nullable().optional(),
+    city : z.string().max(50).nullable().optional(),
+    province : z.string().max(50).nullable().optional(),
+    postalCode : z.string().max(10).nullable().optional(),
+});
+
+export const ChangeOutletStatusSchema = z.object({
+    outletId : z.string().min(1),
+    newStatus : z.boolean(),
+});
