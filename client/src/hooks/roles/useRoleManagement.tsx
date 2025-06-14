@@ -209,12 +209,16 @@ export function useRoleManagement() {
     }
 
     const onEditRoleSuccess = (roleId : number, roleData : RoleTableData) : void => {
-        const accountCount= roles.find(item => item.key === roleId)?.assignedAccount;
-        const filtered = roles.filter(item => item.key !== roleId);
-        setRoles([...filtered, {
-            ...roleData,
-            assignedAccount : accountCount ? accountCount : 0
-        }]);
+        setRoles(prevRoles =>
+            prevRoles.map(role =>
+                role.key === roleId
+                    ? {
+                        ...roleData,
+                        assignedAccount: role.assignedAccount ?? 0
+                    }
+                    : role
+            )
+        );
         setEditRoleModal(false);
     }
 

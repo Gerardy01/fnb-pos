@@ -203,8 +203,11 @@ export function useOutletManagement()  {
     }
 
     const onEditOutletSuccess = (newValue : OutletTableData) : void => {
-        const filtered = outlets.filter(item => item.key !== newValue.key);
-        setOutlets([...filtered, newValue]);
+        setOutlets(prevOutlets =>
+            prevOutlets.map(item =>
+                item.key === newValue.key ? newValue : item
+            )
+        );
         editOutletOpen(false);
     }
 
