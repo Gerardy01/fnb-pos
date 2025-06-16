@@ -1,4 +1,5 @@
-import { Button, Form, FormInstance, FormProps, Input, Modal, Select, SelectProps, Space } from "antd";
+import { Alert, Button, Empty, Form, FormInstance, FormProps, Input, List, Modal, Select, SelectProps, Space, Table, Typography } from "antd";
+import { EditOutlined } from "@ant-design/icons";
 
 import { useTranslation } from "react-i18next";
 
@@ -23,6 +24,10 @@ interface Props {
     onClose : () => void;
     onSubmit : (data : CreateAccountData) => void;
 }
+
+
+const { Text } = Typography
+
 
 export default function AddAccountModal({ form, roleOptions, open, submitLoad, onClose, onSubmit : submitAddAccount } : Props) {
 
@@ -51,6 +56,8 @@ export default function AddAccountModal({ form, roleOptions, open, submitLoad, o
             }}  
             footer={null}
             maskClosable={false}
+            width={700}
+            style={styles.modalHolder}
         >
             <Form
                 name="addAccount"
@@ -239,6 +246,57 @@ export default function AddAccountModal({ form, roleOptions, open, submitLoad, o
                         }
                     />
                 </Form.Item>
+
+                <div style={styles.outletAssignationHolder}>
+                    <div style={styles.subTitleHolder} >
+                        <Text strong>{t("account:assignOutlets")}</Text>
+                        <Button
+                            icon={<EditOutlined />}
+                        >
+                            {t("global:assign")}
+                        </Button>
+                    </div>
+
+                    {/* <Alert
+                        message={t("account:noOutletErrMsg")}
+                        type="error"
+                        showIcon
+                        style={styles.alert}
+                    /> */}
+
+                    <div style={styles.noOutletHolder}>
+                        <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
+                    </div>
+
+                    {/* <List
+                        bordered
+                        dataSource={[
+                            {
+                                id: "teasdasd",
+                                outletName : "Kebon Jeruk"
+                            },
+                            {
+                                id: "teasdasasasddsd",
+                                outletName : "asdadada a dhs dasdad"
+                            },
+                            {
+                                id: "sd",
+                                outletName : "Jakarta"
+                            },
+                        ]}
+                        renderItem={(item) => (
+                            <List.Item>
+                                {item.outletName}
+                            </List.Item>
+                        )}
+                    /> */}
+
+                </div>
+                    
+                <div style={styles.subTitleHolder} >
+                    <Text strong>{t("account:accountPass")}</Text>
+                </div>
+
                 <Form.Item
                     name="password"
                     label={t('account:password')}
@@ -315,6 +373,10 @@ const styles : { [key: string]: React.CSSProperties } = {
     form : {
         paddingTop: '1rem',
     },
+    modalHolder : {
+        marginTop: '2rem',
+        marginBottom: '2rem'
+    },
     emailGroupFormHolder : {
         display: 'flex'
     },
@@ -332,4 +394,23 @@ const styles : { [key: string]: React.CSSProperties } = {
         justifyContent: 'center',
         display: 'flex'
     },
+    subTitleHolder: {
+        marginBottom: '10px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+    },
+    outletAssignationHolder: {
+        marginBottom: '2rem',
+        marginTop: '2rem'
+    },
+    noOutletHolder: {
+        width: '100%',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+    alert : {
+        width: '100%',
+    }
 }
