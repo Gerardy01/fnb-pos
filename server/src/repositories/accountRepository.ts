@@ -1,6 +1,9 @@
 import { Op } from "sequelize";
 import { Account, Organization, Role } from "../models";
 
+// utils
+import { DefaultRoleEnum } from "../utility/enums";
+
 // types and interfaces
 import { Transaction } from "sequelize"
 export interface IAccountRepository {
@@ -11,6 +14,7 @@ export interface IAccountRepository {
     findAccountByEmail(email : string) : Promise<Account | null>
     findAccountByEmailOrUsername(identifier: string) : Promise<Account | null>
     findAllAccountByRoleId(roleId : number) : Promise<Account[]>
+    findAdminAccount(organizationId : string) : Promise<Account | null>
     createAccount(data : Partial<Account>, transaction? : Transaction) : Promise<Account>
 }
 
@@ -123,7 +127,27 @@ export class AccountRepository implements IAccountRepository {
                 role_id : roleId,
                 archived : false
             }
-        })
+        });
+    }
+
+    findAdminAccount(organizationId: string): Promise<Account | null> {
+        return Account.findOne({
+            where: {
+                organization_id : organizationId,
+                archived : false
+            },
+            include: [
+                {
+                    model: Role,
+                    as: 'role',
+                    attributes: [],
+                    where: {
+                        role_name : DefaultRoleEnum.ADMIN,
+                    },
+                    required: true
+                },
+            ]
+        });
     }
 
     createAccount(data: Partial<Account>, transaction?: Transaction): Promise<Account> {

@@ -298,6 +298,14 @@ export function useAddRole(pushNewRole : (newRole : RoleTableData) => void) {
             });
     
             if (err) {
+
+                if (err.status === 400) {
+                    const error = err.response.data.schemaErrors ? err.response.data.schemaErrors[0] : undefined;
+                    if (!error) return;
+                    errorModal(undefined, `${error.field} is ${error.message}`);
+                    return;
+                }
+
                 if (err.status === 409) {
                     errorModal(t('global:failed'), err.response.data.message);
                     return;
@@ -432,6 +440,13 @@ export function useEditRole(
             });
 
             if (err) {
+
+                if (err.status === 400) {
+                    const error = err.response.data.schemaErrors ? err.response.data.schemaErrors[0] : undefined;
+                    if (!error) return;
+                    errorModal(undefined, `${error.field} is ${error.message}`);
+                    return;
+                }
 
                 if (err.status === 409) {
                     errorModal(t('global:failed'), err.response.data.message);

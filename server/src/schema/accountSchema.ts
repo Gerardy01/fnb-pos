@@ -7,6 +7,9 @@ export const CreateAccountSchema = z.object({
     password : z.string().min(1),
     roleId : z.number().min(1),
     otpCode : z.number().min(6).optional().nullable(),
+    outletIds : z.array(z.string()).min(
+        1, { message: "Must contain at least 1 outlet" }
+    ),
 });
 
 export const EditAccountManagementSchema = z.object({
@@ -16,6 +19,9 @@ export const EditAccountManagementSchema = z.object({
     email : z.string().max(50).nullable(),
     roleId : z.number().min(1),
     otpCode : z.number().min(6).optional().nullable(),
+    outletIds : z.array(z.string()).min(
+        1, { message: "Must contain at least 1 outlet" }
+    ),
 });
 
 export const CreateSuperadminSchema = z.object({

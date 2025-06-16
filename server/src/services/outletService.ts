@@ -5,10 +5,13 @@ import { DataNotFound, ExistData } from "../utility/exceptions";
 // types and interfaces
 import { IChangeOutletStatusData, ICreateOutletData, IEditOutletData, OutletReturnData } from "../interfaces/IOutlet";
 import { IOutletRepository } from "../repositories/outletRepository";
+import { Transaction } from "sequelize";
+import { IAccountRepository } from "../repositories/accountRepository";
+import { IAccountOutletRepository } from "../repositories/accountOutletRepository";
 export interface IOutletService {
-    getAllOutlet(organizationId : string) : Promise<OutletReturnData[]>
+    getAllOutlet(organizationId : string, accountId? : string) : Promise<OutletReturnData[]>
     getOneOutlet(outletId : string, organizationId : string) : Promise<OutletReturnData>
-    createOutlet(data : ICreateOutletData, organizationId : string) : Promise<OutletReturnData>
+    createOutlet(data : ICreateOutletData, organizationId : string, transaction? : Transaction) : Promise<OutletReturnData>
     editOutlet(data : IEditOutletData, organizationId : string) : Promise<OutletReturnData>
     deleteOutlet(outletId : string, organizationId : string) : Promise<boolean>
     changeOutletStatus(data : IChangeOutletStatusData, organizationId : string) : Promise<boolean>
@@ -18,11 +21,19 @@ export interface IOutletService {
 export class OutletService implements IOutletService {
     constructor(
         private outletRepository : IOutletRepository,
+        private accountRepository : IAccountRepository,
+        private accountOutletRepository : IAccountOutletRepository,
     ) {}
 
-    async getAllOutlet(organizationId: string): Promise<OutletReturnData[]> {
+    async getAllOutlet(organizationId: string, accountId? : string): Promise<OutletReturnData[]> {
 
-        const outlets = await this.outletRepository.findOutletByOrganization(organizationId);
+        let outlets = [];
+
+        if (accountId) {
+            outlets = await this.outletRepository.findOutletByAccountId(accountId, organizationId)
+        } else {
+            outlets = await this.outletRepository.findOutletByOrganization(organizationId);
+        }
 
         const outletList : OutletReturnData[] = [];
         outlets.forEach(item => {
@@ -59,7 +70,7 @@ export class OutletService implements IOutletService {
 
     }
 
-    async createOutlet(data: ICreateOutletData, organizationId: string): Promise<OutletReturnData> {
+    async createOutlet(data: ICreateOutletData, organizationId: string, transaction? : Transaction): Promise<OutletReturnData> {
 
         // check outlet name exist
         const outletNameExist = await this.outletRepository.findOutletByNameAndOrganization(data.outletName, organizationId);
@@ -72,7 +83,15 @@ export class OutletService implements IOutletService {
             city : data.city ? data.city : "",
             province : data.province ? data.province : "",
             postal_code : data.postalCode ? data.postalCode : ""
-        });
+        }, transaction);
+
+        const adminAccount = await this.accountRepository.findAdminAccount(organizationId);
+        if (!adminAccount) throw new Error("something wrong when getting admin account");
+
+        await this.accountOutletRepository.createAccountOutlet({
+            account_id : adminAccount.account_id,
+            outlet_id : newOutlet.outlet_id,
+        }, transaction);
 
         return {
             outletId : newOutlet.outlet_id,

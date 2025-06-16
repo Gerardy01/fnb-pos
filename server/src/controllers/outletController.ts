@@ -1,10 +1,14 @@
 import { Request, Response } from 'express';
+import sequelize from '../config/database';
 
 // services
 import { outletService } from '../services';
 
 // exceptions
 import { DataNotFound, ExistData } from '../utility/exceptions';
+
+// types and interfaces
+import { Transaction } from 'sequelize';
 
 
 class OutletController {
@@ -13,7 +17,8 @@ class OutletController {
         try {
 
             const organizationId = req.user ? req.user.organizationId : "";
-            const outletData = await outletService.getAllOutlet(organizationId);
+            const accountId = req.query.accountId as string | undefined;
+            const outletData = await outletService.getAllOutlet(organizationId, accountId);
 
             return res.status(200).json({
                 "status" : "success",
@@ -63,10 +68,14 @@ class OutletController {
     }
 
     static async createOutlet(req : Request, res : Response) {
+        const transaction : Transaction = await sequelize.transaction();
+
         try {
 
             const organizationId = req.user ? req.user.organizationId : "";
-            const newOutlet = await outletService.createOutlet(req.body, organizationId);
+            const newOutlet = await outletService.createOutlet(req.body, organizationId, transaction);
+
+            transaction.commit();
 
             return res.status(201).json({
                 "status" : "success",
@@ -76,6 +85,8 @@ class OutletController {
             });
 
         } catch(e) {
+
+            transaction.rollback();
 
             if (e instanceof ExistData) {
                 return res.status(409).json({

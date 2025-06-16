@@ -276,6 +276,13 @@ export function useAddOutlet(onAddOutletSuccess : (newOutlet : OutletTableData) 
             
             if (err) {
 
+                if (err.status === 400) {
+                    const error = err.response.data.schemaErrors ? err.response.data.schemaErrors[0] : undefined;
+                    if (!error) return;
+                    errorModal(undefined, `${error.field} is ${error.message}`);
+                    return;
+                }
+
                 if (err.status === 409) {
                     errorModal(t('global:failed'), t(`outlet:${err.response.data.message}`));
                     return;
@@ -371,6 +378,13 @@ export function useEditOutlet(
             });
 
             if (err) {
+
+                if (err.status === 400) {
+                    const error = err.response.data.schemaErrors ? err.response.data.schemaErrors[0] : undefined;
+                    if (!error) return;
+                    errorModal(undefined, `${error.field} is ${error.message}`);
+                    return;
+                }
 
                 if (err.status === 409) {
                     errorModal(t('global:failed'), t(`outlet:${err.response.data.message}`));

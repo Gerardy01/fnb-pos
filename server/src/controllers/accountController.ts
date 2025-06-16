@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import sequelize from '../config/database';
 
 // services
 import { accountService, organizationAccountService } from '../services';
@@ -8,6 +9,7 @@ import { ExistData, DataNotFound, WrongFormat, NotValid, Forbidden } from '../ut
 
 // types and interfaces
 import { CheckAvailabilityQueryParams } from '../interfaces/IAccount';
+import { Transaction } from 'sequelize';
 
 
 
@@ -124,11 +126,15 @@ class AccountController {
     }
 
     static async createAccounts(req : Request, res : Response) {
+        const transaction : Transaction = await sequelize.transaction();
+
         try {
             const organizationId = req.user ? req.user.organizationId : "";
             const userRoleName = req.user ? req.user.accountRoleName : "";
-            const newAccount = await accountService.createAccount(req.body, organizationId, userRoleName);
+            const newAccount = await accountService.createAccount(req.body, organizationId, userRoleName, transaction);
             
+            transaction.commit();
+
             return res.status(201).json({
                 "status" : "success",
                 "message" : "account created",
@@ -137,6 +143,8 @@ class AccountController {
             });
 
         } catch(e) {
+
+            transaction.rollback();
 
             if (e instanceof ExistData) {
                 return res.status(409).json({
@@ -412,10 +420,14 @@ class AccountController {
     }
 
     static async editAccountManagement(req : Request, res : Response) {
+        const transaction : Transaction = await sequelize.transaction();
+
         try {
             const roleName = req.user ? req.user.accountRoleName : "";
             const organizationId = req.user ? req.user.organizationId : "";
-            const editedAccount = await accountService.editAccountManagement(req.body, organizationId, roleName);
+            const editedAccount = await accountService.editAccountManagement(req.body, organizationId, roleName, transaction);
+
+            transaction.commit();
 
             return res.status(200).json({
                 "status" : "success",
@@ -424,6 +436,8 @@ class AccountController {
             })
 
         } catch(e) {
+
+            transaction.rollback();
 
             if (e instanceof NotValid) {
                 return res.status(403).json({

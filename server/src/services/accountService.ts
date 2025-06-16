@@ -31,6 +31,9 @@ import { IHashProvider } from "../providers/hashProvider";
 import { IRolePermissionService } from "./rolePermissionService";
 import { IOtpAuthRepository } from "../repositories/otpAuthRepository";
 import { ITokenAuthRepository } from "../repositories/tokenAuthRepository";
+import { IAccountOutletRepository } from "../repositories/accountOutletRepository";
+import { IOutletRepository } from "../repositories/outletRepository";
+import AccountOutlets from "../models/accountOutlet.model";
 export interface IAccountService {
     getAllAccount(organizationId : string, userRole : string, userAccountId : string) : Promise<AccountDataReturn[]>
     getAccountById(accountId : string) : Promise<AccountDataReturn>
@@ -47,7 +50,7 @@ export interface IAccountService {
     resetPassword(accountId : string, userRole : string) : Promise<string>
     changePassword(data : IChangePassword, accountId : string) : Promise<boolean>
     forgotPasswordChange(data : IForgotPasswordChange) : Promise<boolean>
-    editAccountManagement(data : IEditAccountManagementData, organizationId : string, userRole : string) : Promise<AccountDataReturn>
+    editAccountManagement(data : IEditAccountManagementData, organizationId : string, userRole : string, transaction? : Transaction) : Promise<AccountDataReturn>
     deleteAccount(accountId : string, organizationId : string) : Promise<boolean>
 }
 
@@ -59,6 +62,8 @@ export class AccountService implements IAccountService {
         private accountRepository : IAccountRepository,
         private otpAuthRepository : IOtpAuthRepository,
         private tokenAuthRepository : ITokenAuthRepository,
+        private outletRepository : IOutletRepository,
+        private accountOutletRepository : IAccountOutletRepository,
         private hashProvider : IHashProvider,
     ) {}
 
@@ -196,8 +201,19 @@ export class AccountService implements IAccountService {
             if (!otpValid) throw new NotValid("ACCOUNT403-6");
         }
 
+        // outlet validation
+        const outletIds = this.removeDuplicateOutlets(data.outletIds);
+        let outlets = await this.outletRepository.findOutletByIds(outletIds);
+        outlets = outlets.filter(outlet => outlet.organization_id === organizationId);
+        const foundOutlets = outlets.map(outlet => outlet.outlet_id);
+        if (foundOutlets.length !== outletIds.length) {
+            const missingOutletIds = outletIds.filter(id => !foundOutlets.includes(id));
+            throw new DataNotFound(`Outlet with id ${missingOutletIds.join(', ')} does not exist`)
+        }
+
         const hashedPassword = await this.hashProvider.hashString(data.password);
 
+        // create account
         const account = await this.accountRepository.createAccount({
             username : data.username,
             name : data.name,
@@ -206,6 +222,16 @@ export class AccountService implements IAccountService {
             organization_id : organizationId,
             role_id: role.roleId,
         }, transaction);
+        
+        // create outlet
+        const accountOutletList : Partial<AccountOutlets>[] = [];
+        outletIds.forEach(item => {
+            accountOutletList.push({
+                account_id : account.account_id,
+                outlet_id : item
+            });
+        });
+        await this.accountOutletRepository.bulkCreateAccountOutlet(accountOutletList, transaction);
 
         return {
             accountId : account.account_id,
@@ -461,7 +487,7 @@ export class AccountService implements IAccountService {
         return true;
     }
 
-    async editAccountManagement(data : IEditAccountManagementData, organizationId : string, userRole : string) : Promise<AccountDataReturn> {
+    async editAccountManagement(data : IEditAccountManagementData, organizationId : string, userRole : string, transaction? : Transaction) : Promise<AccountDataReturn> {
         
         const account = await this.accountRepository.findAccountByIdAndOrganization(data.accountId, organizationId);
         if (!account) throw new DataNotFound("account not found");
@@ -501,14 +527,34 @@ export class AccountService implements IAccountService {
             const otpValid = await this.validateOtpValid(data.otpCode, inputedEmail);
             if (!otpValid) throw new NotValid("ACCOUNT403-6");
         }
+
+        // outlet validation
+        const outletIds = this.removeDuplicateOutlets(data.outletIds);
+        let outlets = await this.outletRepository.findOutletByIds(outletIds);
+        outlets = outlets.filter(outlet => outlet.organization_id === organizationId);
+        const foundOutlets = outlets.map(outlet => outlet.outlet_id);
+        if (foundOutlets.length !== outletIds.length) {
+            const missingOutletIds = outletIds.filter(id => !foundOutlets.includes(id));
+            throw new DataNotFound(`Outlet with id ${missingOutletIds.join(', ')} does not exist`)
+        }
         
         account.username = data.username;
         account.name = data.name;
         account.email = data.email;
         account.role_id = role.roleId;
 
-        const editedAccount = await account.save();
+        const editedAccount = await account.save({ transaction });
 
+        await this.accountOutletRepository.destroyAccountOutlet(account.account_id, transaction);
+        const accountOutletList : Partial<AccountOutlets>[] = [];
+        outletIds.forEach(item => {
+            accountOutletList.push({
+                account_id : account.account_id,
+                outlet_id : item
+            });
+        });
+        await this.accountOutletRepository.bulkCreateAccountOutlet(accountOutletList, transaction);
+        
         return {
             accountId : editedAccount.account_id,
             username : editedAccount.username,
@@ -569,5 +615,10 @@ export class AccountService implements IAccountService {
 
         await this.otpAuthRepository.revokeActiveOtpByAddress(address);
         return true;
+    }
+
+    private removeDuplicateOutlets(outletIds : string[]) : string[] {
+        const uniqueOutletIds = new Set(outletIds);
+        return Array.from(uniqueOutletIds);
     }
 }

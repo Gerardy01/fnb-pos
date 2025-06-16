@@ -453,9 +453,6 @@ export class RolePermissionService implements IRolePermissionService {
         targetRole.archived = true;
         targetRole.save({ transaction });
 
-        await this.roleRepository.destroyRolePermission(targetRole.role_id, transaction);
-        await this.roleRepository.destroyRolePageAccessPermission(targetRole.role_id, transaction);
-
         return true;
     }
 }

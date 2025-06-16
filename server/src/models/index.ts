@@ -11,6 +11,7 @@ import RefreshToken from "./refreshToken.model";
 import OtpAuth from "./otpAuth.model";
 import TokenAuth from "./tokenAuth.model";
 import Outlet from "./outlet.model";
+import AccountOutlets from "./accountOutlet.model";
 
 
 
@@ -49,6 +50,20 @@ Account.hasMany(TokenAuth, { foreignKey: 'id', as: 'token_auth' });
 Outlet.belongsTo(Organization, { foreignKey: 'organization_id', as: 'organization' });
 Organization.hasMany(Outlet, { foreignKey: 'organization_id', as: 'outlet' });
 
+// Account outlet relation
+Outlet.belongsToMany(Account, {
+    through: AccountOutlets,
+    foreignKey: 'outlet_id',
+    otherKey: 'account_id',
+    as: 'accounts',
+});
+Account.belongsToMany(Outlet, {
+    through: AccountOutlets,
+    foreignKey: 'account_id',
+    otherKey: 'outlet_id',
+    as: 'outlets',
+});
+
 
 export {
     Account,
@@ -63,5 +78,6 @@ export {
     RolePermissions,
     OtpAuth,
     TokenAuth,
-    Outlet
+    Outlet,
+    AccountOutlets,
 }
