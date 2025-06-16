@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next';
 // components
 import AddAccountModal from '../components/account/AddAccountModal';
 import EditAccountModal from '../components/account/EditAccountModal';
+import AssignOutletModal from '../components/account/AssignOutletModal';
 
 // types and interfaces
 import { AccountTableData } from '../hooks/accounts/useAccountManagement';
@@ -33,6 +34,11 @@ export default function AccountManagement() {
         addAccountSubmitLoad,
         editAccountSubmitLoad,
         newPassword,
+        outletSelection,
+        selectOutletErrorMsg,
+        assignOutletModal,
+        selectedOutlet,
+        tempSelectedOutlet,
         handleChangeRoleFilter,
         handleSearch,
         openAddAccount,
@@ -42,6 +48,11 @@ export default function AccountManagement() {
         clickDeleteAccount,
         clickResetPassword,
         clearNewPass,
+        handleSelectOutletTemp,
+        resetData,
+        openAssignOutletModal,
+        handleAssignSelectedOutlet,
+        handleSelectAllOutletTemp,
     } = useAccountManagement();
 
     return (
@@ -97,10 +108,13 @@ export default function AccountManagement() {
                 roleOptions={roleOptions}
                 open={addAccountModal}
                 submitLoad={addAccountSubmitLoad}
+                selectOutletErrorMsg={selectOutletErrorMsg}
+                selectedOutlet={selectedOutlet}
                 onClose={() => openAddAccount(false)}
                 onSubmit={submitAddAccount}
+                resetData={resetData}
+                openAssignOutletModal={openAssignOutletModal}
             />
-            
             <EditAccountModal
                 form={editAccountForm}
                 roleOptions={roleOptions}
@@ -114,6 +128,15 @@ export default function AccountManagement() {
                 onDeleteAccount={clickDeleteAccount}
                 onResetPass={clickResetPassword}
                 clearNewPass={clearNewPass}
+            />
+            <AssignOutletModal
+                open={assignOutletModal}
+                onClose={() => openAssignOutletModal(false)}
+                outletSelection={outletSelection}
+                tempSelectedOutlet={tempSelectedOutlet}
+                handleSelectOutlet={handleSelectOutletTemp}
+                handleAssignSelectedOutlet={handleAssignSelectedOutlet}
+                handleSelectAllOutletTemp={handleSelectAllOutletTemp}
             />
         </div>
     )

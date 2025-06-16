@@ -1,10 +1,6 @@
 import { Op, Transaction } from "sequelize";
 import { Account, Outlet } from "../models";
 
-// models
-import { AccountOutlets } from "../models";
-
-
 // types and interfaces
 export interface IOutletRepository {
     findOutletById(outletId : string) : Promise<Outlet | null>;

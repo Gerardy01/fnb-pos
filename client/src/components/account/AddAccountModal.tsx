@@ -1,4 +1,4 @@
-import { Alert, Button, Empty, Form, FormInstance, FormProps, Input, List, Modal, Select, SelectProps, Space, Table, Typography } from "antd";
+import { Alert, Button, Form, FormInstance, FormProps, Input, List, Modal, Select, SelectProps, Space, Typography } from "antd";
 import { EditOutlined } from "@ant-design/icons";
 
 import { useTranslation } from "react-i18next";
@@ -7,7 +7,7 @@ import { useCheckEmailAvailability, useCheckUsernameAvailability } from "../../h
 import useGenerateOtp from "../../hooks/authentication/useGenerateOtp";
 
 // types and interfaces
-import { CreateAccountData } from "../../models/accountInterface";
+import { CreateAccountData, OutletSelectionData } from "../../models/accountInterface";
 type AddAccountForm = {
     username : string;
     name : string;
@@ -21,15 +21,30 @@ interface Props {
     roleOptions : SelectProps['options'];
     open : boolean;
     submitLoad : boolean;
+    selectOutletErrorMsg : string;
+    selectedOutlet : OutletSelectionData[];
     onClose : () => void;
     onSubmit : (data : CreateAccountData) => void;
+    resetData : () => void;
+    openAssignOutletModal : (open : boolean) => void;
 }
 
 
 const { Text } = Typography
 
 
-export default function AddAccountModal({ form, roleOptions, open, submitLoad, onClose, onSubmit : submitAddAccount } : Props) {
+export default function AddAccountModal({
+    form,
+    roleOptions,
+    open,
+    submitLoad,
+    selectOutletErrorMsg,
+    selectedOutlet,
+    onClose,
+    onSubmit : submitAddAccount,
+    resetData,
+    openAssignOutletModal,
+} : Props) {
 
     const { t } = useTranslation(["account", "global", "auth"]);
 
@@ -53,6 +68,7 @@ export default function AddAccountModal({ form, roleOptions, open, submitLoad, o
                 clearUsernameValidated();
                 clearEmailalidated();
                 restartCountdown();
+                resetData();
             }}  
             footer={null}
             maskClosable={false}
@@ -252,44 +268,31 @@ export default function AddAccountModal({ form, roleOptions, open, submitLoad, o
                         <Text strong>{t("account:assignOutlets")}</Text>
                         <Button
                             icon={<EditOutlined />}
+                            onClick={() => openAssignOutletModal(true)}
                         >
                             {t("global:assign")}
                         </Button>
                     </div>
+                    
+                    {selectOutletErrorMsg !== "" && (
+                        <Alert
+                            message={t("account:noOutletErrMsg")}
+                            type="error"
+                            showIcon
+                            style={styles.alert}
+                        />
+                    )}
 
-                    {/* <Alert
-                        message={t("account:noOutletErrMsg")}
-                        type="error"
-                        showIcon
-                        style={styles.alert}
-                    /> */}
-
-                    <div style={styles.noOutletHolder}>
-                        <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
-                    </div>
-
-                    {/* <List
+                    <List
                         bordered
-                        dataSource={[
-                            {
-                                id: "teasdasd",
-                                outletName : "Kebon Jeruk"
-                            },
-                            {
-                                id: "teasdasasasddsd",
-                                outletName : "asdadada a dhs dasdad"
-                            },
-                            {
-                                id: "sd",
-                                outletName : "Jakarta"
-                            },
-                        ]}
+                        size="small"
+                        dataSource={selectedOutlet}
                         renderItem={(item) => (
                             <List.Item>
                                 {item.outletName}
                             </List.Item>
                         )}
-                    /> */}
+                    />
 
                 </div>
                     
@@ -412,5 +415,6 @@ const styles : { [key: string]: React.CSSProperties } = {
     },
     alert : {
         width: '100%',
+        marginBottom: '1rem'
     }
 }

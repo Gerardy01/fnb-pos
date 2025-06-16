@@ -76,5 +76,6 @@
     "sureDeleteAccount" : "Are you sure want to delete this account?",
     "deleteAccountDesc" : "Please confirm that you want to permanently delete this account. This operation cannot be undone.",
     "sureResetPass" : "Are you sure want to reset this account's password?",
-    "noOutletErrMsg" : "Please assign at least one outlet"
+    "noOutletErrMsg" : "Please assign at least one outlet",
+    "outletList" : "Outlet List"
 }

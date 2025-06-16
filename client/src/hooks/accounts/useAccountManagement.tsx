@@ -8,10 +8,10 @@ import useNotification from '../useNotification';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
-import { accountApi, roleApi } from '../../api';
+import { accountApi, outletApi, roleApi } from '../../api';
 
 // types and interfaces
-import { CreateAccountData, EditAccountManagementBodyData } from '../../models/accountInterface';
+import { CreateAccountData, EditAccountManagementBodyData, OutletSelectionData } from '../../models/accountInterface';
 export interface AccountTableData {
     key: string;
     name: string;
@@ -44,9 +44,16 @@ export default function useAccountManagement() {
 
     const [getRoleLoad, setGetRoleLoad] = useState<boolean>(true);
     const [getAccountLoad, setGetAccountLoad] = useState<boolean>(true);
+    const [getOutletLoad, setGetOutletLoad] = useState<boolean>(true);
     const [contentLoad, setContentLoad] = useState<boolean>(true);
     const [addAccountSubmitLoad, setAddAccountSubmitLoad] = useState<boolean>(false);
     const [editAccountSubmitLoad, setEditAccountSubmitLoad] = useState<boolean>(false);
+
+    const [assignOutletModal, setAssignOutletModal] = useState<boolean>(false);
+    const [outletSelection, setOutletSelection] = useState<OutletSelectionData[]>([]);
+    const [selectedOutlet, setSelectedOutlet] = useState<OutletSelectionData[]>([]);
+    const [tempSelectedOutlet, setTempSelectedOutlet] = useState<OutletSelectionData[]>([]);
+    const [selectOutletErrorMsg, setSelectOutletErrorMsg] = useState<string>("");
 
     const [addAccountForm] = Form.useForm();
     const [editAccountForm] = Form.useForm();
@@ -54,14 +61,15 @@ export default function useAccountManagement() {
     useEffect(() => {
         getRoleData();
         getAccountList();
+        getOutletList();
         if (accountIdFromParams) setEditAccountModal(true);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     useEffect(() => {
-        if (getAccountLoad || getRoleLoad) return;
+        if (getAccountLoad || getRoleLoad || getOutletLoad) return;
         setContentLoad(false);
-    }, [getRoleLoad, getAccountLoad]);
+    }, [getRoleLoad, getAccountLoad, getOutletLoad]);
 
     useEffect(() => {
         setFilteredAccounts(accounts);
@@ -203,6 +211,31 @@ export default function useAccountManagement() {
         }
     }
 
+    const getOutletList = async () : Promise<void> => {
+
+        try {
+            const [err, data] = await outletApi.getAllOutlet();
+
+            if (err) {
+                serverErrorModal();
+                return;
+            }
+
+            const outletSelectionList : OutletSelectionData[] = [];
+            data.forEach(item => {
+                outletSelectionList.push({
+                    outletId : item.outletId,
+                    outletName : item.outletName,
+                });
+            });
+
+            setOutletSelection(outletSelectionList);
+
+        } finally {
+            setGetOutletLoad(false);
+        }
+    }
+
     const handleChangeRoleFilter = (value: number[]) : void => {
         if (value.length === 0) return setFilteredAccounts(accounts);
 
@@ -236,7 +269,14 @@ export default function useAccountManagement() {
     }
 
     const submitAddAccount = async (value : CreateAccountData) => {
+        if (selectedOutlet.length === 0) {
+            setSelectOutletErrorMsg(t("account:noOutletErrMsg"));
+            return;
+        }
+
         setAddAccountSubmitLoad(true);
+
+        const outletIds : string[] = selectedOutlet.map(item => item.outletId);
 
         try {
             const [err, data] = await accountApi.createAccount({
@@ -245,7 +285,8 @@ export default function useAccountManagement() {
                 email : value.email !== undefined ? value.email : null,
                 roleId : value.role,
                 password : value.password,
-                otpCode : Number(value.otpCode)
+                otpCode : Number(value.otpCode),
+                outletIds : outletIds,
             });
     
             if (err) {
@@ -404,6 +445,51 @@ export default function useAccountManagement() {
         setNewPassword("");
     }
 
+    const handleSelectOutletTemp = (outletId : string, isSelected : boolean) : void => {
+        if (isSelected) {
+            const selected = outletSelection.find(data => data.outletId === outletId);
+            if (!selected) return;
+
+            setTempSelectedOutlet(prev => [...prev, selected]);
+            return;
+        }
+
+        const filtered = tempSelectedOutlet.filter(item => item.outletId !== outletId);
+        setTempSelectedOutlet(filtered);
+    }
+
+    const handleAssignSelectedOutlet = () : void => {
+        setSelectedOutlet(tempSelectedOutlet);
+        openAssignOutletModal(false);
+        setSelectOutletErrorMsg("");
+    }
+
+    const resetData = () : void => {
+        setSelectOutletErrorMsg("");
+        setSelectedOutlet([]);
+    }
+
+    const openAssignOutletModal = (open : boolean) : void => {
+        setAssignOutletModal(open);
+
+        if (!open) {
+            setTempSelectedOutlet([]);
+        }
+
+        if (open) {
+            setTempSelectedOutlet(selectedOutlet);
+        }
+    }
+
+    const handleSelectAllOutletTemp = (selectAll : boolean) => {
+        if (selectAll) {
+            setTempSelectedOutlet(outletSelection);
+            return;
+        }
+
+        setTempSelectedOutlet([]);
+    }
+
     return {
         roleOptions,
         contentLoad,
@@ -417,6 +503,11 @@ export default function useAccountManagement() {
         addAccountSubmitLoad,
         editAccountSubmitLoad,
         newPassword,
+        outletSelection,
+        selectOutletErrorMsg,
+        assignOutletModal,
+        selectedOutlet,
+        tempSelectedOutlet,
         handleChangeRoleFilter,
         handleSearch,
         openAddAccount,
@@ -426,5 +517,10 @@ export default function useAccountManagement() {
         clickDeleteAccount,
         clickResetPassword,
         clearNewPass,
+        handleSelectOutletTemp,
+        resetData,
+        openAssignOutletModal,
+        handleAssignSelectedOutlet,
+        handleSelectAllOutletTemp,
     }
 }

@@ -42,5 +42,7 @@
     "activate" : "Activate",
     "deactivate" : "Deactivate",
     "outlet" : "Outlet",
-    "status" : "Status"
+    "status" : "Status",
+    "selectAll" : "Select All",
+    "assign" : "Assign"
 }
