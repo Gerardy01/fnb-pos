@@ -49,6 +49,12 @@ module.exports = {
         read: true,
         write: true
       },
+      {
+        role_id: 1,
+        permission_id: 6,
+        read: true,
+        write: true
+      },
       // For admin
       {
         role_id: 2,
@@ -71,6 +77,12 @@ module.exports = {
       {
         role_id: 2,
         permission_id: 5,
+        read: true,
+        write: true
+      },
+      {
+        role_id: 2,
+        permission_id: 6,
         read: true,
         write: true
       },
@@ -97,6 +109,10 @@ module.exports = {
         role_id: 1,
         permission_id: 5
       },
+      {
+        role_id: 1,
+        permission_id: 6
+      },
       // For admin
       {
         role_id: 2,
@@ -117,6 +133,10 @@ module.exports = {
       {
         role_id: 2,
         permission_id: 5
+      },
+      {
+        role_id: 2,
+        permission_id: 6
       },
     ]);
   },

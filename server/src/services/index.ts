@@ -7,6 +7,7 @@ import { AuthService } from "./authService";
 import { RolePermissionService } from "./rolePermissionService";
 import { NotificationService } from "./notificationService";
 import { OutletService } from "./outletService";
+import { TableService } from "./tableService";
 
 // repository
 import { OrganizationRepository } from "../repositories/organizationRepository";
@@ -21,6 +22,7 @@ import { OtpAuthRepository } from "../repositories/otpAuthRepository";
 import { TokenAuthRepository } from "../repositories/tokenAuthRepository";
 import { OutletRepository } from "../repositories/outletRepository";
 import { AccountOutletRepository } from "../repositories/accountOutletRepository";
+import { TableGroupRepository } from "../repositories/tableGroupRepository";
 
 // providers
 import { BcryptJsHashProvider } from "../providers/hashProvider";
@@ -44,6 +46,7 @@ const otpAuthRepository = new OtpAuthRepository();
 const tokenAuthRepository = new TokenAuthRepository();
 const outletRepository = new OutletRepository();
 const accountOutletRepository = new AccountOutletRepository();
+const tableGroupRepository = new TableGroupRepository();
 
 const bcryptJsHashProvider = new BcryptJsHashProvider();
 const jsonWebTokenJwtProvider = new JsonWebTokenJwtProvider();
@@ -81,6 +84,7 @@ export const authService = new AuthService(
 );
 export const notificationService = new NotificationService(emailProvider);
 export const outletService = new OutletService(outletRepository, accountRepository, accountOutletRepository);
+export const tableService = new TableService(tableGroupRepository, outletRepository);
 
 
 // combined service (orchestration)

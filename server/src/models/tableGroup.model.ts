@@ -3,6 +3,7 @@ import sequelize from "../config/database";
 
 // models
 import Outlet from "./outlet.model";
+import Organization from "./organization.model";
 
 
 
@@ -10,12 +11,14 @@ class TableGroup extends Model {
     public id! : number;
     public group_name! : string;
     public outlet_id! : string;
+    public organization_id!: string;
     public status! : boolean;
     public archived! : boolean;
     public readonly created_at! : Date;
     public readonly updated_at! : Date;
 
-    public outlet? : Outlet
+    public outlet? : Outlet;
+    public organization? : Organization;
 }
 
 TableGroup.init({
@@ -36,6 +39,15 @@ TableGroup.init({
         references: {
             model: Outlet,
             key: 'outlet_id',
+        },
+        onDelete: 'CASCADE'
+    },
+    organization_id: {
+        type: DataTypes.UUID,
+        allowNull: false,
+        references: {
+            model: Organization,
+            key: 'organization_id',
         },
         onDelete: 'CASCADE'
     },

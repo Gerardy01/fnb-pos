@@ -24,6 +24,10 @@ module.exports = {
         permission_name: 'Outlet Page',
         description: ''
       },
+      {
+        permission_name: 'Table Page',
+        description: ''
+      },
     ]);
   },
 

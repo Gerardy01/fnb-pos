@@ -16,6 +16,7 @@ export enum PermissionEnum {
     ACCOUNT_MANAGEMENT = 3,
     ROLE_MANAGEMENT = 4,
     OUTLET_MANAGEMENT = 5,
+    TABLE_MANAGEMENT = 6,
 }
 
 export enum EditAccountProcessEnum {

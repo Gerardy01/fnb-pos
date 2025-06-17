@@ -12,6 +12,7 @@ import OtpAuth from "./otpAuth.model";
 import TokenAuth from "./tokenAuth.model";
 import Outlet from "./outlet.model";
 import AccountOutlets from "./accountOutlet.model";
+import TableGroup from "./tableGroup.model";
 
 
 
@@ -64,6 +65,11 @@ Account.belongsToMany(Outlet, {
     as: 'outlets',
 });
 
+// TableGroup Outlet relation
+TableGroup.belongsTo(Outlet, { foreignKey: 'outlet_id', as: 'outlets' });
+Outlet.hasMany(TableGroup, { foreignKey: 'id', as: 'table_groups' });
+
+
 
 export {
     Account,
@@ -80,4 +86,5 @@ export {
     TokenAuth,
     Outlet,
     AccountOutlets,
+    TableGroup,
 }

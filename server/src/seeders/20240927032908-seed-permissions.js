@@ -23,7 +23,11 @@ module.exports = {
       {
         permission_name: 'Outlet Management',
         description: '',
-      }
+      },
+      {
+        permission_name: 'Table Management',
+        description: '',
+      },
     ], {});
   },
 
