@@ -25,7 +25,6 @@ interface Props {
     selectedOutlet : OutletSelectionData[];
     onClose : () => void;
     onSubmit : (data : CreateAccountData) => void;
-    resetData : () => void;
     openAssignOutletModal : (open : boolean) => void;
 }
 
@@ -42,7 +41,6 @@ export default function AddAccountModal({
     selectedOutlet,
     onClose,
     onSubmit : submitAddAccount,
-    resetData,
     openAssignOutletModal,
 } : Props) {
 
@@ -68,7 +66,6 @@ export default function AddAccountModal({
                 clearUsernameValidated();
                 clearEmailalidated();
                 restartCountdown();
-                resetData();
             }}  
             footer={null}
             maskClosable={false}

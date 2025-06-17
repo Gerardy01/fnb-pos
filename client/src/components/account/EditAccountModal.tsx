@@ -1,5 +1,5 @@
-import { Button, Form, FormInstance, FormProps, Input, Modal, Select, SelectProps, Space, Typography } from "antd";
-import { CheckOutlined, CopyOutlined, DeleteFilled, LockOutlined } from "@ant-design/icons";
+import { Alert, Button, Form, FormInstance, FormProps, Input, List, Modal, Select, SelectProps, Space, Typography } from "antd";
+import { CheckOutlined, CopyOutlined, DeleteFilled, EditOutlined, LockOutlined } from "@ant-design/icons";
 
 import { useTranslation } from "react-i18next";
 import { useCheckEmailAvailability, useCheckUsernameAvailability } from "../../hooks/global/useCheckAvailability";
@@ -10,7 +10,7 @@ import ContentLoading from "../loading/ContentLoading";
 import ContentNotFound from "../global/ContentNotFound";
 
 // types and interfaces
-import { EditAccountManagementBodyData } from "../../models/accountInterface";
+import { EditAccountManagementBodyData, OutletSelectionData } from "../../models/accountInterface";
 type EditAccountForm = {
     username : string;
     name : string;
@@ -24,13 +24,17 @@ interface Props {
     open : boolean;
     selectedAccountData : EditAccountManagementBodyData | null;
     submitLoad : boolean;
+    getCurrentAccountOutletLoad : boolean;
     newPassword : string;
     contentLoad : boolean;
+    selectOutletErrorMsg : string;
+    selectedOutlet : OutletSelectionData[];
     onClose : () => void;
     onSubmit : (data : EditAccountManagementBodyData) => void;
     onDeleteAccount : () => void;
     onResetPass : () => void;
     clearNewPass : () => void;
+    openAssignOutletModal : (open : boolean) => void;
 }
 
 
@@ -45,11 +49,15 @@ export default function EditAccountModal({
     submitLoad,
     newPassword,
     contentLoad,
+    getCurrentAccountOutletLoad,
+    selectOutletErrorMsg,
+    selectedOutlet,
     onClose,
     onSubmit : submitEditAccount,
     onDeleteAccount,
     onResetPass,
-    clearNewPass
+    clearNewPass,
+    openAssignOutletModal,
 } : Props) {
 
     const { t } = useTranslation(["account", "global", "auth"]);
@@ -85,12 +93,14 @@ export default function EditAccountModal({
                 }}
                 footer={null}
                 maskClosable={false}
+                width={700}
+                style={styles.modalHolder}
             >
-                {contentLoad ? (
+                {contentLoad || getCurrentAccountOutletLoad ? (
                     <div style={styles.notContentHolder}>
                         <ContentLoading />
                     </div>
-                ) : !contentLoad && selectedAccountData ? (
+                ) : !contentLoad && !getCurrentAccountOutletLoad && selectedAccountData ? (
                     <Form
                         name="editAccountManagement"
                         onFinish={onSubmit}
@@ -285,6 +295,40 @@ export default function EditAccountModal({
                                 }
                             />
                         </Form.Item>
+
+                        <div style={styles.outletAssignationHolder}>
+                            <div style={styles.subTitleHolder} >
+                                <Text strong>{t("account:assignOutlets")}</Text>
+                                <Button
+                                    icon={<EditOutlined />}
+                                    onClick={() => openAssignOutletModal(true)}
+                                >
+                                    {t("global:assign")}
+                                </Button>
+                            </div>
+                            
+                            {selectOutletErrorMsg !== "" && (
+                                <Alert
+                                    message={t("account:noOutletErrMsg")}
+                                    type="error"
+                                    showIcon
+                                    style={styles.alert}
+                                />
+                            )}
+
+                            <List
+                                bordered
+                                size="small"
+                                dataSource={selectedOutlet}
+                                renderItem={(item) => (
+                                    <List.Item>
+                                        {item.outletName}
+                                    </List.Item>
+                                )}
+                            />
+
+                        </div>
+
                         <Form.Item>
                             <div style={styles.submitBtnHolder}>
                                 <div style={styles.extraBtnHolder}>
@@ -364,6 +408,10 @@ const styles : { [key: string]: React.CSSProperties } = {
     form : {
         paddingTop: '1rem',
     },
+    modalHolder : {
+        marginTop: '2rem',
+        marginBottom: '2rem'
+    },
     emailGroupFormHolder : {
         display: 'flex'
     },
@@ -404,5 +452,25 @@ const styles : { [key: string]: React.CSSProperties } = {
     },
     notContentHolder : {
         height: '30rem',
+    },
+    subTitleHolder: {
+        marginBottom: '10px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+    },
+    outletAssignationHolder: {
+        marginBottom: '2rem',
+        marginTop: '2rem'
+    },
+    noOutletHolder: {
+        width: '100%',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center'
+    },
+    alert : {
+        width: '100%',
+        marginBottom: '1rem'
     }
 }

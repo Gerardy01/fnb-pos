@@ -4,7 +4,7 @@ import { catchFetchError } from "../utils/utility";
 
 // types and interfaces
 import { FetchResponse, ErrorResponse } from "../models/globalInterface";
-import { AccountDataReturn, AccountInfoReturn, ChangePasswordBodyData, CheckAvailabilityQueryParams, CheckAvailabilityReturn, CreateAccountBodyData, EditAccountBodyData, EditAccountManagementBodyData, EditAccountReturn, ForgotPassChange, ResetPasswordData } from "../models/accountInterface";
+import { AccountDataReturn, AccountInfoReturn, ChangePasswordBodyData, CheckAvailabilityQueryParams, CheckAvailabilityReturn, CreateAccountBodyData, EditAccountApiBodyData, EditAccountBodyData, EditAccountReturn, ForgotPassChange, ResetPasswordData } from "../models/accountInterface";
 
 
 export class AccountApi {
@@ -72,7 +72,7 @@ export class AccountApi {
         return [error, res.data.data]
     }
 
-    async editAccountManagementApi(data : EditAccountManagementBodyData) : Promise<[undefined, AccountDataReturn] | [ErrorResponse]> {
+    async editAccountManagementApi(data : EditAccountApiBodyData) : Promise<[undefined, AccountDataReturn] | [ErrorResponse]> {
         const [error, res] = await catchFetchError(axiosPrivate.put<FetchResponse<AccountDataReturn>>(
             "account/action/management",
             data,

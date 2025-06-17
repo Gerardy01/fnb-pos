@@ -45,6 +45,7 @@ export default function useAccountManagement() {
     const [getRoleLoad, setGetRoleLoad] = useState<boolean>(true);
     const [getAccountLoad, setGetAccountLoad] = useState<boolean>(true);
     const [getOutletLoad, setGetOutletLoad] = useState<boolean>(true);
+    const [getCurrentAccountOutletLoad, setGetCurrentAccountOutletLoad] = useState<boolean>(false);
     const [contentLoad, setContentLoad] = useState<boolean>(true);
     const [addAccountSubmitLoad, setAddAccountSubmitLoad] = useState<boolean>(false);
     const [editAccountSubmitLoad, setEditAccountSubmitLoad] = useState<boolean>(false);
@@ -74,6 +75,12 @@ export default function useAccountManagement() {
     useEffect(() => {
         setFilteredAccounts(accounts);
     }, [accounts]);
+
+    useEffect(() => {
+        if (accountIdFromParams) {
+            getSelectedAccountsOutlet();
+        }
+    }, [accountIdFromParams])
 
     useEffect(() => {
         if (!editAccountData) return;
@@ -236,6 +243,33 @@ export default function useAccountManagement() {
         }
     }
 
+    const getSelectedAccountsOutlet = async () : Promise<void> => {
+
+        setGetCurrentAccountOutletLoad(true);
+
+        try {
+            const [err, data] = await outletApi.getAllOutlet(`accountId=${accountIdFromParams}`);
+
+            if (err) {
+                serverErrorModal();
+                return;
+            }
+
+            const selectedOutletList : OutletSelectionData[] = [];
+            data.forEach(item => {
+                selectedOutletList.push({
+                    outletId : item.outletId,
+                    outletName : item.outletName,
+                });
+            });
+
+            setSelectedOutlet(selectedOutletList);
+
+        } finally {
+            setGetCurrentAccountOutletLoad(false);
+        }
+    }
+
     const handleChangeRoleFilter = (value: number[]) : void => {
         if (value.length === 0) return setFilteredAccounts(accounts);
 
@@ -336,10 +370,18 @@ export default function useAccountManagement() {
     }
 
     const submitEditAccount = async (values : EditAccountManagementBodyData) => {
+        if (selectedOutlet.length === 0) {
+            setSelectOutletErrorMsg(t("account:noOutletErrMsg"));
+            return;
+        }
+
         setEditAccountSubmitLoad(true);
         
         try {
-            const [err, data] = await accountApi.editAccountManagementApi(values);
+            const [err, data] = await accountApi.editAccountManagementApi({
+                ...values,
+                outletIds: selectedOutlet.map(item => item.outletId),
+            });
     
             if (err) {
                 if (err.status === 400) {
@@ -367,17 +409,21 @@ export default function useAccountManagement() {
                 serverErrorModal();
                 return;
             }
-    
-            const accountsFiltered = accounts.filter(item => item.key !== data.accountId);
-    
-            setAccounts([...accountsFiltered, {
-                key : data.accountId,
-                name: data.name,
-                username : data.username,
-                email : data.email,
-                roleName : data.roleName,
-                roleId : data.roleId
-            }]);
+
+            setAccounts(prevAccount => 
+                prevAccount.map(account =>
+                    account.key === data.accountId
+                        ? {
+                            key : data.accountId,
+                            name: data.name,
+                            username : data.username,
+                            email : data.email,
+                            roleName : data.roleName,
+                            roleId : data.roleId,
+                        }
+                        : account
+                )
+            );
     
             openEditAccount(false);
             successnotification(t("account:accountChangedSuccess"));
@@ -502,6 +548,7 @@ export default function useAccountManagement() {
         editAccountData,
         addAccountSubmitLoad,
         editAccountSubmitLoad,
+        getCurrentAccountOutletLoad,
         newPassword,
         outletSelection,
         selectOutletErrorMsg,

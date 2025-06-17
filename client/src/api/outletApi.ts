@@ -8,9 +8,9 @@ import { ChangeOutletStatusBodyData, ChangeOutletStatusDataReturn, CreateOutletB
 
 
 export class OutletApi {
-    async getAllOutlet() : Promise<[undefined, OutletDataReturn[]] | [ErrorResponse]> {
+    async getAllOutlet(params? : string) : Promise<[undefined, OutletDataReturn[]] | [ErrorResponse]> {
         const [error, res] = await catchFetchError(axiosPrivate.get<FetchResponse<OutletDataReturn[]>>(
-            "outlet/"
+            `outlet${params ? `?${params}` : ""}`
         ));
 
         if (error) return [error];

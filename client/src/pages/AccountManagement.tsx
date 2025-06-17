@@ -33,6 +33,7 @@ export default function AccountManagement() {
         editAccountData,
         addAccountSubmitLoad,
         editAccountSubmitLoad,
+        getCurrentAccountOutletLoad,
         newPassword,
         outletSelection,
         selectOutletErrorMsg,
@@ -110,9 +111,11 @@ export default function AccountManagement() {
                 submitLoad={addAccountSubmitLoad}
                 selectOutletErrorMsg={selectOutletErrorMsg}
                 selectedOutlet={selectedOutlet}
-                onClose={() => openAddAccount(false)}
+                onClose={() => {
+                    openAddAccount(false);
+                    resetData();
+                }}
                 onSubmit={submitAddAccount}
-                resetData={resetData}
                 openAssignOutletModal={openAssignOutletModal}
             />
             <EditAccountModal
@@ -123,21 +126,30 @@ export default function AccountManagement() {
                 submitLoad={editAccountSubmitLoad}
                 newPassword={newPassword}
                 contentLoad={contentLoad}
-                onClose={() => openEditAccount(false)}
+                getCurrentAccountOutletLoad={getCurrentAccountOutletLoad}
+                selectOutletErrorMsg={selectOutletErrorMsg}
+                selectedOutlet={selectedOutlet}
+                onClose={() => {
+                    openEditAccount(false)
+                    resetData();
+                }}
                 onSubmit={submitEditAccount}
                 onDeleteAccount={clickDeleteAccount}
                 onResetPass={clickResetPassword}
                 clearNewPass={clearNewPass}
+                openAssignOutletModal={openAssignOutletModal}
             />
-            <AssignOutletModal
-                open={assignOutletModal}
-                onClose={() => openAssignOutletModal(false)}
-                outletSelection={outletSelection}
-                tempSelectedOutlet={tempSelectedOutlet}
-                handleSelectOutlet={handleSelectOutletTemp}
-                handleAssignSelectedOutlet={handleAssignSelectedOutlet}
-                handleSelectAllOutletTemp={handleSelectAllOutletTemp}
-            />
+            {assignOutletModal && (
+                <AssignOutletModal
+                    open={assignOutletModal}
+                    onClose={() => openAssignOutletModal(false)}
+                    outletSelection={outletSelection}
+                    tempSelectedOutlet={tempSelectedOutlet}
+                    handleSelectOutlet={handleSelectOutletTemp}
+                    handleAssignSelectedOutlet={handleAssignSelectedOutlet}
+                    handleSelectAllOutletTemp={handleSelectAllOutletTemp}
+                />
+            )}
         </div>
     )
 }

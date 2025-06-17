@@ -50,6 +50,16 @@ export interface EditAccountManagementBodyData {
     otpCode? : number;
 }
 
+export interface EditAccountApiBodyData {
+    accountId : string;
+    username : string;
+    name : string;
+    email : string | null;
+    roleId : number;
+    otpCode? : number;
+    outletIds : string[];
+}
+
 export interface ChangePasswordBodyData {
     currentPassword : string;
     newPassword : string;
