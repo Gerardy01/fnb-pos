@@ -8,7 +8,7 @@ import { ICreateTableGroupData, IEditTableGroupData, TableGroupReturnData } from
 import { ITableGroupRepository } from "../repositories/tableGroupRepository";
 import { IOutletRepository } from "../repositories/outletRepository";
 export interface ITableService {
-    getAllTableGroup(organizationId : string) : Promise<TableGroupReturnData[]>
+    getAllTableGroup(organizationId : string, outletId? : string) : Promise<TableGroupReturnData[]>
     createTableGroup(data : ICreateTableGroupData, organizationId : string, transaction? : Transaction) : Promise<TableGroupReturnData>
     editTableGroup(data : IEditTableGroupData, organizationId : string, transaction? : Transaction) : Promise<TableGroupReturnData>
 }
@@ -21,9 +21,15 @@ export class TableService implements ITableService {
         private outletRepository : IOutletRepository,
     ) {}
 
-    async getAllTableGroup(organizationId: string): Promise<TableGroupReturnData[]> {
+    async getAllTableGroup(organizationId: string, outletId? : string): Promise<TableGroupReturnData[]> {
 
-        const tableGroups = await this.tableGroupRepository.findAllTableGroup(organizationId);
+        let tableGroups = [];
+
+        if (outletId) {
+            tableGroups = await this.tableGroupRepository.findTableGroupByOutlet(outletId, organizationId);
+        } else {
+            tableGroups = await this.tableGroupRepository.findAllTableGroup(organizationId);
+        }
 
         const tableGroupList : TableGroupReturnData[] = [];
         tableGroups.forEach(item => {

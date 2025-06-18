@@ -1,12 +1,20 @@
 import { useEffect, useState } from "react";
-import { SelectProps } from "antd";
+import { Button, SelectProps, Space, TableColumnsType, Tag } from "antd";
+import { EditOutlined } from "@ant-design/icons";
 
-import { outletApi } from "../../api";
+import { outletApi, tableApi } from "../../api";
 
 import useStaticModal from "../useStaticModal";
 import useNotification from "../useNotification";
 import { useTranslation } from "react-i18next";
 
+// types and interfaces
+export interface TableGroupsTableData {
+    key: number;
+    groupName : string;
+    assignedTable : number;
+    status : string;
+}
 
 
 export function useTableGroupManagement() {
@@ -17,8 +25,12 @@ export function useTableGroupManagement() {
     const { successnotification } = useNotification();
 
     const [contentLoad, setContentLoad] = useState<boolean>(true);
+    const [getTableGroupLoad, setGetTableGroupLoad] = useState<boolean>(false);
+
     const [outletSelection, setOutletSelection] = useState<SelectProps['options']>([]);
     const [selectedOutlet, setSelectedOutlet] = useState<string>("");
+
+    const [tableGroups, setTableGroups] = useState<TableGroupsTableData[]>([]);
 
     useEffect(() => {
         getOutletList();
@@ -29,6 +41,8 @@ export function useTableGroupManagement() {
     useEffect(() => {
         if (selectedOutlet === "") return;
         getTableGroupData();
+
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selectedOutlet]);
 
     const statusOptions : SelectProps['options'] = [
@@ -41,6 +55,50 @@ export function useTableGroupManagement() {
             value : 0
         },
     ];
+
+    const columns: TableColumnsType<TableGroupsTableData> = [
+        {
+            title: t("table:groupName"),
+            dataIndex: 'groupName',
+            sorter: (a, b) => a.groupName.localeCompare(b.groupName),
+        },
+        {
+            title: t("table:assignedTable"),
+            dataIndex: 'assignedTable',
+        },
+        {
+            title: t("global:status"),
+            dataIndex: 'status',
+            key: 'status',
+            align: 'center',
+            render: (status: string) => {
+                return (
+                    <Tag color={status === t("global:active") ? "green" : "red"}>
+                        {status}
+                    </Tag>
+                )
+            }
+        },
+        {
+            title: t("global:action"),
+            key: 'action',
+            align: 'center',
+            render: (_, record) => {
+                return (
+                    <Space size="middle">
+                        <Button
+                            icon={<EditOutlined />}
+                            color="default"
+                            variant='outlined'
+                            // onClick={}
+                        >
+                            {t("global:edit")}
+                        </Button>
+                    </Space>
+                )
+            }
+        }
+    ]
 
     const getOutletList = async () : Promise<void> => {
 
@@ -89,8 +147,34 @@ export function useTableGroupManagement() {
         }
     }
 
-    const getTableGroupData = () => {
-        console.log(selectedOutlet);
+    const getTableGroupData = async () : Promise<void> => {
+        
+        setGetTableGroupLoad(true);
+
+        try {
+            
+            const [err, data] = await tableApi.getAllTableGroup(`outletId=${selectedOutlet}`);
+
+            if (err) {
+                serverErrorModal();
+                return;
+            }
+
+            const tableGroupList : TableGroupsTableData[] = [];
+            data.forEach(item => {
+                tableGroupList.push({
+                    key: item.id,
+                    groupName : item.groupName,
+                    assignedTable : item.tableCount,
+                    status : item.status ? t("global:active") : t("global:inactive"),
+                });
+            });
+
+            setTableGroups(tableGroupList);
+
+        } finally {
+            setGetTableGroupLoad(false);
+        }
     }
 
     const handleChangeOutlet = async (outletId : string) : Promise<void> => {
@@ -102,6 +186,9 @@ export function useTableGroupManagement() {
         outletSelection,
         selectedOutlet,
         statusOptions,
+        columns,
+        tableGroups,
+        getTableGroupLoad,
         handleChangeOutlet,
     }
 }

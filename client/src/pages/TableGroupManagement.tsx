@@ -6,6 +6,9 @@ import { useTableGroupManagement } from '../hooks/tables/useTableGroupManagement
 
 // components
 
+// types and interfaces
+import { TableGroupsTableData } from '../hooks/tables/useTableGroupManagement';
+
 const { Title, Text } = Typography;
 const { Search } = Input;
 
@@ -19,6 +22,9 @@ export default function TableGroupManagement() {
         outletSelection,
         selectedOutlet,
         statusOptions,
+        columns,
+        tableGroups,
+        getTableGroupLoad,
         handleChangeOutlet,
     } = useTableGroupManagement();
 
@@ -63,7 +69,7 @@ export default function TableGroupManagement() {
                                 size='large'
                                 icon={<PlusOutlined />}
                                 // onClick={() => addOutletOpen(true)}
-                                disabled={!selectedOutlet}
+                                disabled={!selectedOutlet || getTableGroupLoad}
                             >
                                 {t("outlet:newOutlet")}
                             </Button>
@@ -86,7 +92,7 @@ export default function TableGroupManagement() {
                     </div>
                 </div>
             )}
-            <Table loading={contentLoad} />
+            <Table<TableGroupsTableData> columns={columns} dataSource={tableGroups} size='middle' loading={contentLoad || getTableGroupLoad} />
         </div>
     )
 }

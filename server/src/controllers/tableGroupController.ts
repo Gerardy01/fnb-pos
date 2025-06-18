@@ -15,9 +15,10 @@ class TableGroupController {
     static async getAllTableGroup(req : Request, res : Response) {
 
         try {
-
+            
             const organizationId = req.user ? req.user.organizationId : "";
-            const tableGroups = await tableService.getAllTableGroup(organizationId);
+            const outletId = req.query.outletId as string | undefined;
+            const tableGroups = await tableService.getAllTableGroup(organizationId, outletId);
 
             return res.status(200).json({
                 "status" : "success",
