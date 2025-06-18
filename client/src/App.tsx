@@ -20,6 +20,7 @@ import OutletManagement from "./pages/OutletManagement";
 import ChangePassword from "./pages/ChangePassword";
 import Profile from "./pages/Profile";
 import RoleManagement from "./pages/RoleManagement";
+import TableGroupManagement from "./pages/TableGroupManagement";
 import NotFound from "./pages/NotFound";
 
 
@@ -55,6 +56,12 @@ export default function App() {
 							<Route element={<PermissionProtectedRoutes requiredPermission={[PageAccessPermissionEnum.OUTLET_MANAGEMENT]} />}>
 								<Route path="/outlet" element={<OutletManagement />} />
 								<Route path="/outlet/:outletId" element={<OutletManagement />} />
+							</Route>
+
+							<Route element={<PermissionProtectedRoutes requiredPermission={[PageAccessPermissionEnum.TABLE_MANAGEMENT]} />}>
+								<Route path="/table" element={<Dashboard />} />
+
+								<Route path="/table-group" element={<TableGroupManagement />} />
 							</Route>
 						</Route>
 

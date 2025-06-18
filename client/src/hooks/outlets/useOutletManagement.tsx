@@ -63,7 +63,7 @@ export function useOutletManagement()  {
             value : 1
         },
         {
-            label : t("global:unactive"),
+            label : t("global:inactive"),
             value : 0
         },
     ];
@@ -147,7 +147,7 @@ export function useOutletManagement()  {
                     city : item.city != "" ? item.city : "-",
                     province : item.province != "" ? item.province : "-",
                     postalCode : item.postalCode != "" ? item.postalCode : "-",
-                    status : item.status ? t("global:active") : t("global:unactive")
+                    status : item.status ? t("global:active") : t("global:inactive")
                 });
             });
 
@@ -163,7 +163,7 @@ export function useOutletManagement()  {
     const handleChangeStatusFilter = (value : number) : void => {
         if (value === undefined) return setFilteredOutlets(outlets);
 
-        const stringValue : string = value == 1 ? t("global:active") : t("global:unactive")
+        const stringValue : string = value == 1 ? t("global:active") : t("global:inactive")
         const filtered = outlets.filter(data => data.status === stringValue);
         setFilteredOutlets(filtered);
     }
@@ -221,7 +221,7 @@ export function useOutletManagement()  {
         setOutlets(prevOutlets =>
             prevOutlets.map(outlet =>
                 outlet.key === outletId
-                    ? { ...outlet, status: newStatus ? t("global:active") : t("global:unactive") }
+                    ? { ...outlet, status: newStatus ? t("global:active") : t("global:inactive") }
                     : outlet
             )
         );
@@ -300,7 +300,7 @@ export function useAddOutlet(onAddOutletSuccess : (newOutlet : OutletTableData) 
                 city : data.city != "" ? data.city : "-",
                 province : data.province != "" ? data.province : "-",
                 postalCode : data.postalCode != "" ? data.postalCode : "-",
-                status : data.status ? t("global:active") : t("global:unactive"),
+                status : data.status ? t("global:active") : t("global:inactive"),
             });
 
         } finally {
@@ -403,7 +403,7 @@ export function useEditOutlet(
                 city : data.city != "" ? data.city : "-",
                 province : data.province != "" ? data.province : "-",
                 postalCode : data.postalCode != "" ? data.postalCode : "-",
-                status : data.status ? t("global:active") : t("global:unactive"),
+                status : data.status ? t("global:active") : t("global:inactive"),
             });
 
         } finally {
@@ -462,7 +462,7 @@ export function useEditOutlet(
             }
 
             onChangeStatusSuccess(outletIdFormParams, data.newStatus);
-            successnotification(`${t("outlet:statusChanged")} ${data.newStatus ? t("global:active") : t("global:unactive")}`);
+            successnotification(`${t("outlet:statusChanged")} ${data.newStatus ? t("global:active") : t("global:inactive")}`);
 
             setOutletData(prev => {
                 if (!prev) return null;

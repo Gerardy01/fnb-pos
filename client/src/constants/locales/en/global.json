@@ -38,11 +38,14 @@
     "write": "Write",
     "advanced" : "Advanced",
     "active" : "Active",
-    "unactive" : "Unactive",
+    "inactive" : "Inactive",
     "activate" : "Activate",
     "deactivate" : "Deactivate",
     "outlet" : "Outlet",
     "status" : "Status",
     "selectAll" : "Select All",
-    "assign" : "Assign"
+    "assign" : "Assign",
+    "tableManagement" : "Table Management",
+    "table" : "Table",
+    "tableGroup" : "Table Group"
 }

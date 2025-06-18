@@ -9,6 +9,7 @@ declare module 'i18next' {
       account: typeof import('./locales/en.json');
       role: typeof import('./locales/en.json');
       outlet: typeof import('./locales/en.json');
+      table: typeof import('./locales/en.json');
     };
   }
 }

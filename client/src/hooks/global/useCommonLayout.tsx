@@ -4,6 +4,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import {
     // ApartmentOutlined,
     DesktopOutlined,
+    GroupOutlined,
     HomeOutlined,
     ToolOutlined,
     UserSwitchOutlined,
@@ -125,6 +126,28 @@ export default function useCommonLayout() {
             label: t('pos'),
             permissions: [PageAccessPermissionEnum.POS],
             onClick: () => handleClick("/pos"),
+        },
+        {
+            key: 'tableManagement',
+            label: t('tableManagement'),
+            icon: <GroupOutlined />,
+            permissions: [
+                PageAccessPermissionEnum.TABLE_MANAGEMENT,
+            ],
+            children: [
+                {
+                    key: '/table',
+                    label: t('table'),
+                    permissions: [PageAccessPermissionEnum.TABLE_MANAGEMENT],
+                    onClick: () => handleClick("/table"),
+                },
+                {
+                    key: '/table-group',
+                    label: t('tableGroup'),
+                    permissions: [PageAccessPermissionEnum.TABLE_MANAGEMENT],
+                    onClick: () => handleClick("/table-group"),
+                },
+            ]
         },
         {
             key: 'accountSettings',
