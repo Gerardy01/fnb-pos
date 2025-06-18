@@ -65,6 +65,8 @@ export function useTableGroupManagement() {
         {
             title: t("table:assignedTable"),
             dataIndex: 'assignedTable',
+            align: 'center',
+            sorter: (a, b) => a.assignedTable - b.assignedTable,
         },
         {
             title: t("global:status"),
@@ -111,15 +113,15 @@ export function useTableGroupManagement() {
             }
 
             const activeOptions = data
-                .filter((item: any) => item.status === true)
-                .map((item: any) => ({
+                .filter(item => item.status === true)
+                .map(item => ({
                     label: item.outletName,
                     value: item.outletId,
                 }));
 
             const inactiveOptions = data
-                .filter((item: any) => item.status === false)
-                .map((item: any) => ({
+                .filter(item => item.status === false)
+                .map(item => ({
                     label: item.outletName,
                     value: item.outletId,
                 }));
@@ -148,7 +150,7 @@ export function useTableGroupManagement() {
     }
 
     const getTableGroupData = async () : Promise<void> => {
-        
+
         setGetTableGroupLoad(true);
 
         try {

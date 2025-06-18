@@ -5,5 +5,8 @@
     "tableGroupManagement" : "Table Group Management",
     "tableGroupSearchPlaceholder" : "Search by Group Name",
     "selectOutlet" : "Select Outlet",
-    "outletSelection" : "Outlet Selection"
+    "outletSelection" : "Outlet Selection",
+    "groupName" : "Group Name",
+    "assignedTable" : "Assigned Table"
+
 }
