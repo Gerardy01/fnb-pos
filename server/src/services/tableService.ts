@@ -9,6 +9,7 @@ import { ITableGroupRepository } from "../repositories/tableGroupRepository";
 import { IOutletRepository } from "../repositories/outletRepository";
 export interface ITableService {
     getAllTableGroup(organizationId : string, outletId? : string) : Promise<TableGroupReturnData[]>
+    getOneTableGroup(tableGroupId : number, organizationId : string) : Promise<TableGroupReturnData>
     createTableGroup(data : ICreateTableGroupData, organizationId : string, transaction? : Transaction) : Promise<TableGroupReturnData>
     editTableGroup(data : IEditTableGroupData, organizationId : string, transaction? : Transaction) : Promise<TableGroupReturnData>
 }
@@ -36,12 +37,27 @@ export class TableService implements ITableService {
             tableGroupList.push({
                 id : item.id,
                 groupName : item.group_name,
+                outletId : item.outlet_id,
                 status : item.status,
                 tableCount : 0
             });
         });
 
         return tableGroupList;
+    }
+
+    async getOneTableGroup(tableGroupId : number, organizationId: string): Promise<TableGroupReturnData> {
+
+        const tableGroup = await this.tableGroupRepository.findTableGroupById(tableGroupId);
+        if (!tableGroup || tableGroup.organization_id !== organizationId) throw new DataNotFound("Data not found");
+
+        return {
+            id : tableGroup.id,
+            groupName : tableGroup.group_name,
+            outletId : tableGroup.outlet_id,
+            status : tableGroup.status,
+            tableCount : 0
+        }
     }
 
     async createTableGroup(data: ICreateTableGroupData, organizationId: string, transaction?: Transaction): Promise<TableGroupReturnData> {
@@ -63,6 +79,7 @@ export class TableService implements ITableService {
         return {
             id : newTableGroup.id,
             groupName : newTableGroup.group_name,
+            outletId : newTableGroup.outlet_id,
             status : newTableGroup.status,
             tableCount : 0
         }
@@ -79,11 +96,12 @@ export class TableService implements ITableService {
         if (tableGroupExist && tableGroupExist.id !== targetTableGroup.id) throw new ExistData("TABLE409-1");
 
         targetTableGroup.group_name = data.groupName;
-        targetTableGroup.save({ transaction });
+        await targetTableGroup.save({ transaction });
 
         return {
             id : targetTableGroup.id,
             groupName : targetTableGroup.group_name,
+            outletId : targetTableGroup.outlet_id,
             status : targetTableGroup.status,
         }
     }

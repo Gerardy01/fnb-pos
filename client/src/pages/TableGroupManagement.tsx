@@ -5,6 +5,8 @@ import { useTranslation } from "react-i18next";
 import { useTableGroupManagement } from '../hooks/tables/useTableGroupManagement';
 
 // components
+import AddTableGroupModal from '../components/table/AddTableGroupModal';
+import EditTableGroupModal from '../components/table/EditTableGroupModal';
 
 // types and interfaces
 import { TableGroupsTableData } from '../hooks/tables/useTableGroupManagement';
@@ -25,7 +27,15 @@ export default function TableGroupManagement() {
         columns,
         tableGroups,
         getTableGroupLoad,
+        addTableGroupModal,
+        editTableGroupModal,
         handleChangeOutlet,
+        addTableGroupModalOpen,
+        editTableGroupModalOpen,
+        handleChangeStatusFilter,
+        handleSearch,
+        onAddTableGroupSuccess,
+        onEditTableGroupSuccess,
     } = useTableGroupManagement();
 
     return (
@@ -50,7 +60,7 @@ export default function TableGroupManagement() {
                             size='large'
                             allowClear
                             placeholder={t("table:tableGroupSearchPlaceholder")}
-                            // onChange={(e) => handleSearch(e.target.value)}
+                            onChange={(e) => handleSearch(e.target.value)}
                         />
                         <div style={styles.rightSide}>
                             <Select
@@ -59,7 +69,7 @@ export default function TableGroupManagement() {
                                 placeholder={t("outlet:statusFilter")}
                                 allowClear
                                 options={statusOptions}
-                                // onChange={handleChangeStatusFilter}
+                                onChange={handleChangeStatusFilter}
                                 filterOption={(input, option) =>
                                     (option?.label as string).toLowerCase().includes(input.toLowerCase())
                                 }
@@ -68,10 +78,10 @@ export default function TableGroupManagement() {
                                 type="primary"
                                 size='large'
                                 icon={<PlusOutlined />}
-                                // onClick={() => addOutletOpen(true)}
+                                onClick={() => addTableGroupModalOpen(true)}
                                 disabled={!selectedOutlet || getTableGroupLoad}
                             >
-                                {t("outlet:newOutlet")}
+                                {t("table:addTableGroup")}
                             </Button>
                         </div>
                     </div>
@@ -93,6 +103,19 @@ export default function TableGroupManagement() {
                 </div>
             )}
             <Table<TableGroupsTableData> columns={columns} dataSource={tableGroups} size='middle' loading={contentLoad || getTableGroupLoad} />
+            <AddTableGroupModal
+                open={addTableGroupModal}
+                selectedOutlet={selectedOutlet}
+                onClose={() => addTableGroupModalOpen(false)}
+                onAddTableGroupSuccess={onAddTableGroupSuccess}
+            />
+            {editTableGroupModal && (
+                <EditTableGroupModal
+                    open={editTableGroupModal}
+                    onClose={() => editTableGroupModalOpen(false)}
+                    onEditTableGroupSuccess={onEditTableGroupSuccess}
+                />
+            )}
         </div>
     )
 }

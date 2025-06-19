@@ -37,7 +37,7 @@ class OutletController {
     }
 
     static async getOneOutlet(req : Request, res : Response) {
-         try {
+        try {
 
             const outletId : string = req.params.id;
             const organizationId = req.user ? req.user.organizationId : "";

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Button, SelectProps, Space, TableColumnsType, Tag } from "antd";
+import { Button, Form, FormProps, SelectProps, Space, TableColumnsType, Tag } from "antd";
 import { EditOutlined } from "@ant-design/icons";
 
 import { outletApi, tableApi } from "../../api";
@@ -7,8 +7,13 @@ import { outletApi, tableApi } from "../../api";
 import useStaticModal from "../useStaticModal";
 import useNotification from "../useNotification";
 import { useTranslation } from "react-i18next";
+import { useParams, useNavigate } from "react-router-dom";
+import { TableGroupDataReturn } from "../../models/tableInterface";
 
 // types and interfaces
+export interface TableGroupForm {
+    groupName : string;
+}
 export interface TableGroupsTableData {
     key: number;
     groupName : string;
@@ -19,10 +24,15 @@ export interface TableGroupsTableData {
 
 export function useTableGroupManagement() {
 
+    const { tableGroupId : tableGroupIdFromParams } = useParams();
+    const navigate = useNavigate();
+
     const { t } = useTranslation(['global', 'table']);
 
-    const { serverErrorModal, errorModal, confirmationModal } = useStaticModal();
-    const { successnotification } = useNotification();
+    const { serverErrorModal } = useStaticModal();
+
+    const [addTableGroupModal, setAddTableGroupModal] = useState<boolean>(false);
+    const [editTableGroupModal, setEditTableGroupModal] = useState<boolean>(false);
 
     const [contentLoad, setContentLoad] = useState<boolean>(true);
     const [getTableGroupLoad, setGetTableGroupLoad] = useState<boolean>(false);
@@ -31,10 +41,12 @@ export function useTableGroupManagement() {
     const [selectedOutlet, setSelectedOutlet] = useState<string>("");
 
     const [tableGroups, setTableGroups] = useState<TableGroupsTableData[]>([]);
+    const [filteredTableGroups, setFilteredTableGroups] = useState<TableGroupsTableData[]>([]);
 
     useEffect(() => {
         getOutletList();
 
+        if (tableGroupIdFromParams) editTableGroupModalOpen(true);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
@@ -44,6 +56,10 @@ export function useTableGroupManagement() {
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selectedOutlet]);
+
+    useEffect(() => {
+        setFilteredTableGroups(tableGroups);
+    }, [tableGroups]);
 
     const statusOptions : SelectProps['options'] = [
         {
@@ -92,7 +108,7 @@ export function useTableGroupManagement() {
                             icon={<EditOutlined />}
                             color="default"
                             variant='outlined'
-                            // onClick={}
+                            onClick={() => handleSelectEdit(record.key)}
                         >
                             {t("global:edit")}
                         </Button>
@@ -126,18 +142,23 @@ export function useTableGroupManagement() {
                     value: item.outletId,
                 }));
 
-            const groupedOptions: SelectProps['options'] = [
-                {
+            const groupedOptions: SelectProps['options'] = [];
+
+            if (activeOptions.length > 0) {
+                groupedOptions.push({
                     label: t("global:active"),
                     title: t("global:active"),
                     options: activeOptions,
-                },
-                {
+                });
+            }
+
+            if (inactiveOptions.length > 0) {
+                groupedOptions.push({
                     label: t("global:inactive"),
                     title: t("global:inactive"),
                     options: inactiveOptions,
-                },
-            ];
+                });
+            }
 
             setOutletSelection(groupedOptions);
 
@@ -173,14 +194,67 @@ export function useTableGroupManagement() {
             });
 
             setTableGroups(tableGroupList);
+            setFilteredTableGroups(tableGroupList);
 
         } finally {
             setGetTableGroupLoad(false);
         }
     }
 
+    const handleChangeStatusFilter = (value : number) : void => {
+        if (value === undefined) return setFilteredTableGroups(tableGroups);
+
+        const stringValue : string = value == 1 ? t("global:active") : t("global:inactive")
+        const filtered = tableGroups.filter(data => data.status === stringValue);
+        setFilteredTableGroups(filtered);
+    }
+
+    const handleSearch = (value : string) : void => {
+        const filtered = tableGroups.filter(data => {
+            const input = value.toLocaleLowerCase();
+            return data.groupName.toLocaleLowerCase().includes(input);
+        });
+        setFilteredTableGroups(filtered);
+    }
+
+    const handleSelectEdit = (tableGroupId : number) : void => {
+        navigate(`/table-group/${tableGroupId}`, { replace: false });
+        editTableGroupModalOpen(true);
+    }
+
     const handleChangeOutlet = async (outletId : string) : Promise<void> => {
         setSelectedOutlet(outletId);
+    }
+
+    const addTableGroupModalOpen = (open : boolean) : void => {
+        setAddTableGroupModal(open);
+    }
+
+    const editTableGroupModalOpen = (open : boolean) : void => {
+        setEditTableGroupModal(open);
+
+        if (!open) {
+            navigate(`/table-group`);
+        }
+    }
+
+    const onAddTableGroupSuccess = (newTableGroup : TableGroupsTableData) : void => {
+        setTableGroups(prev => [...prev, newTableGroup]);
+        addTableGroupModalOpen(false);
+    }
+
+    const onEditTableGroupSuccess = (newData : TableGroupsTableData) : void => {
+        setTableGroups(prevData =>
+            prevData.map(item =>
+                item.key === newData.key
+                    ? {
+                        ...newData,
+                        assignedTable: item.assignedTable ?? 0
+                    }
+                    : item
+            )
+        );
+        editTableGroupModalOpen(false);
     }
 
     return {
@@ -189,8 +263,185 @@ export function useTableGroupManagement() {
         selectedOutlet,
         statusOptions,
         columns,
-        tableGroups,
+        tableGroups : filteredTableGroups,
         getTableGroupLoad,
+        addTableGroupModal,
+        editTableGroupModal,
         handleChangeOutlet,
+        addTableGroupModalOpen,
+        editTableGroupModalOpen,
+        handleChangeStatusFilter,
+        handleSearch,
+        onAddTableGroupSuccess,
+        onEditTableGroupSuccess,
+    }
+}
+
+
+
+export function useAddTableGroup(
+    selectedOutlet : string,
+    onAddTableGroupSuccess : (newTableGroup : TableGroupsTableData) => void,
+) {
+
+    const { t } = useTranslation(['global', 'table']);
+
+    const { serverErrorModal, errorModal } = useStaticModal();
+    const { successnotification } = useNotification();
+
+    const [loading, setLoading] = useState<boolean>(false);
+
+    const [addTableGroupForm] = Form.useForm();
+
+    const handleAddTableGroup : FormProps<TableGroupForm>['onFinish'] = async (values) : Promise<void> => {
+        
+        setLoading(true);
+
+        try {
+
+            const [err, data] = await tableApi.createTableGroup({
+                groupName: values.groupName,
+                outletId: selectedOutlet,
+            });
+
+            if (err) {
+
+                if (err.status === 400) {
+                    const error = err.response.data.schemaErrors ? err.response.data.schemaErrors[0] : undefined;
+                    if (!error) return;
+                    errorModal(undefined, `${error.field} is ${error.message}`);
+                    return;
+                }
+
+                if (err.status === 409) {
+                    errorModal(t('global:failed'), t(`table:${err.response.data.message}`));
+                    return;
+                }
+
+                serverErrorModal();
+                return;
+            }
+
+            successnotification(t("table:addTableGroupSuccess"));   
+            onAddTableGroupSuccess({
+                key : data.id,
+                groupName : data.groupName,
+                assignedTable : data.tableCount,
+                status : data.status ? t("global:active") : t("global:inactive"),
+            });
+
+            resetData();
+
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    const resetData = () : void => {
+        addTableGroupForm.resetFields();
+    }
+
+    return {
+        addTableGroupForm,
+        loading,
+        handleAddTableGroup,
+        resetData,
+    }
+}
+
+export function useEditTableGroup(
+    onEditTableGroupSuccess : (newData : TableGroupsTableData) => void,
+) {
+
+    const { tableGroupId : tableGroupIdFromParams } = useParams();
+
+    const { t } = useTranslation(['global', 'table']);
+
+    const { serverErrorModal, errorModal } = useStaticModal();
+    const { successnotification } = useNotification();
+
+    const [contentLoad, setContentLoad] = useState<boolean>(true);
+    const [submitLoad, setSubmitLoad] = useState<boolean>(false);
+    const [loading, setLoading] = useState<boolean>(false);
+
+    const [tableGroupData, setTableGroupData] = useState<TableGroupDataReturn | null>(null);
+
+    const [editTableGroupForm] = Form.useForm();
+
+    useEffect(() => {
+        getTableGroupData();
+
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    const getTableGroupData = async () : Promise<void> => {
+        if (!tableGroupIdFromParams) return;
+
+        try {
+
+            const [err, data] = await tableApi.getOneTableGroup(Number(tableGroupIdFromParams));
+
+            if (err) {
+                serverErrorModal();
+                return;
+            }
+
+            setTableGroupData(data);
+
+        } finally {
+            setContentLoad(false);
+        }
+    }
+
+    const handleEditTableGroup : FormProps<TableGroupForm>['onFinish'] = async (values) : Promise<void> => {
+        if (!tableGroupIdFromParams) return;
+
+        setSubmitLoad(true);
+
+        try {
+            
+            const [err, data] = await tableApi.editTableGroup({
+                id : Number(tableGroupIdFromParams),
+                groupName : values.groupName,
+            });
+
+            if (err) {
+
+                if (err.status === 400) {
+                    const error = err.response.data.schemaErrors ? err.response.data.schemaErrors[0] : undefined;
+                    if (!error) return;
+                    errorModal(undefined, `${error.field} is ${error.message}`);
+                    return;
+                }
+
+                if (err.status === 409) {
+                    errorModal(t('global:failed'), t(`table:${err.response.data.message}`));
+                    return;
+                }
+
+                serverErrorModal();
+                return;
+            }
+            
+            successnotification(t("table:editTableGroupSuccess"));
+            onEditTableGroupSuccess({
+                key: data.id,
+                groupName : data.groupName,
+                assignedTable : 0,
+                status : data.status ? t("global:active") : t("global:inactive"),
+            });
+
+        } finally {
+            setSubmitLoad(false);
+        }
+    }
+
+    return {
+        contentLoad,
+        tableGroupData,
+        editTableGroupForm,
+        submitLoad,
+        loading,
+        handleEditTableGroup,
     }
 }

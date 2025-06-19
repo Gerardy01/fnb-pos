@@ -391,7 +391,7 @@ export class RolePermissionService implements IRolePermissionService {
         targetRole.role_name = data.roleName;
         targetRole.description = data.description ? data.description : "";
 
-        targetRole.save({ transaction });
+        await targetRole.save({ transaction });
 
         await this.roleRepository.destroyRolePermission(targetRole.role_id, transaction);
         await this.roleRepository.destroyRolePageAccessPermission(targetRole.role_id, transaction);

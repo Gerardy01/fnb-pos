@@ -62,6 +62,7 @@ export default function App() {
 								<Route path="/table" element={<Dashboard />} />
 
 								<Route path="/table-group" element={<TableGroupManagement />} />
+								<Route path="/table-group/:tableGroupId" element={<TableGroupManagement />} />
 							</Route>
 						</Route>
 

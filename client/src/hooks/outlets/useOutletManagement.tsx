@@ -303,6 +303,8 @@ export function useAddOutlet(onAddOutletSuccess : (newOutlet : OutletTableData) 
                 status : data.status ? t("global:active") : t("global:inactive"),
             });
 
+            resetData();
+
         } finally {
             setLoading(false);
         }

@@ -2,11 +2,17 @@
 
 
 {
+    "TABLE409-1" : "Group name already used. Please use another name.",
+
     "tableGroupManagement" : "Table Group Management",
     "tableGroupSearchPlaceholder" : "Search by Group Name",
     "selectOutlet" : "Select Outlet",
     "outletSelection" : "Outlet Selection",
     "groupName" : "Group Name",
-    "assignedTable" : "Assigned Table"
-
+    "assignedTable" : "Assigned Table",
+    "addTableGroup" : "Add Table Group",
+    "editTableGorup" : "Edit Table Group",
+    "addNewTableGroup" : "Add New Table Group",
+    "addTableGroupSuccess" : "Table Group added successfully",
+    "editTableGroupSuccess" : "Table Group edited successfully"
 }

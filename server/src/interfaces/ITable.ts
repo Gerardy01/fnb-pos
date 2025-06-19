@@ -14,6 +14,7 @@ export interface IEditTableGroupData {
 export type TableGroupReturnData = {
     id : number;
     groupName : string;
+    outletId : string;
     status : boolean;
     tableCount? : number;
 }
