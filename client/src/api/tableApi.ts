@@ -4,7 +4,7 @@ import { catchFetchError } from "../utils/utility";
 
 // types and interfaces
 import { FetchResponse, ErrorResponse } from "../models/globalInterface";
-import { CreateTableGroupBodyData, EditTableGroupBodyData, TableGroupDataReturn } from "../models/tableInterface";
+import { ChangeTableGroupStatusBodyData, ChangeTableGroupStatusDataReturn, CreateTableGroupBodyData, EditTableGroupBodyData, TableGroupDataReturn } from "../models/tableInterface";
 
 
 export class TableApi {
@@ -42,6 +42,28 @@ export class TableApi {
     async editTableGroup(data : EditTableGroupBodyData) : Promise<[undefined, TableGroupDataReturn] | [ErrorResponse]> {
         const [error, res] = await catchFetchError(axiosPrivate.put<FetchResponse<TableGroupDataReturn>>(
             "table-group/",
+            data,
+            {
+                headers : { 'Content-Type' : 'application/json' },
+            }
+        ));
+
+        if (error) return [error];
+        return [error, res.data.data];
+    }
+
+    async deleteTableGroup(tableGroupId : number) : Promise<[undefined, boolean] | [ErrorResponse]> {
+        const [error, res] = await catchFetchError(axiosPrivate.delete<FetchResponse<boolean>>(
+            `table-group/${tableGroupId}`
+        ));
+
+        if (error) return [error];
+        return [error, res.data.data];
+    }
+
+    async changeTableGroupStatus(data : ChangeTableGroupStatusBodyData) : Promise<[undefined, ChangeTableGroupStatusDataReturn] | [ErrorResponse]> {
+        const [error, res] = await catchFetchError(axiosPrivate.put<FetchResponse<ChangeTableGroupStatusDataReturn>>(
+            "table-group/action/change-status",
             data,
             {
                 headers : { 'Content-Type' : 'application/json' },

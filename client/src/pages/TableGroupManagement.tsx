@@ -36,6 +36,8 @@ export default function TableGroupManagement() {
         handleSearch,
         onAddTableGroupSuccess,
         onEditTableGroupSuccess,
+        onChangeStatusSuccess,
+        onDeleteTableGroupSuccess,
     } = useTableGroupManagement();
 
     return (
@@ -114,6 +116,8 @@ export default function TableGroupManagement() {
                     open={editTableGroupModal}
                     onClose={() => editTableGroupModalOpen(false)}
                     onEditTableGroupSuccess={onEditTableGroupSuccess}
+                    onChangeStatusSuccess={onChangeStatusSuccess}
+                    onDeleteTableGroupSuccess={onDeleteTableGroupSuccess}
                 />
             )}
         </div>

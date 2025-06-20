@@ -14,6 +14,15 @@ export interface CreateTableGroupBodyData {
     outletId : string;
 }
 
+export interface ChangeTableGroupStatusBodyData {
+    id : number;
+    newStatus : boolean;
+}
+
+export interface ChangeTableGroupStatusDataReturn {
+    newStatus : boolean;
+}
+
 export interface EditTableGroupBodyData {
     id : number;
     groupName : string;

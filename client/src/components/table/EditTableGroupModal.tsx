@@ -13,6 +13,8 @@ interface Props {
     open : boolean;
     onClose : () => void;
     onEditTableGroupSuccess : (newData : TableGroupsTableData) => void;
+    onChangeStatusSuccess : (tableGroupId : number, newStatus : boolean) => void;
+    onDeleteTableGroupSuccess : (tableGroupId : number) => void;
 }
 
 
@@ -20,6 +22,8 @@ export default function EditTableGroupModal({
     open,
     onClose,
     onEditTableGroupSuccess,
+    onChangeStatusSuccess,
+    onDeleteTableGroupSuccess,
 } : Props) {
 
     const { t } = useTranslation(["global", "table"]);
@@ -31,7 +35,9 @@ export default function EditTableGroupModal({
         submitLoad,
         loading,
         handleEditTableGroup,
-    } = useEditTableGroup(onEditTableGroupSuccess);
+        handleChangeStatus,
+        clickDeleteBtn,
+    } = useEditTableGroup(onEditTableGroupSuccess, onChangeStatusSuccess, onDeleteTableGroupSuccess);
 
     return (
         <Modal
@@ -80,7 +86,7 @@ export default function EditTableGroupModal({
                                 size="large"
                                 color="danger"
                                 disabled={submitLoad || loading}
-                                // onClick={clickDeleteBtn}
+                                onClick={clickDeleteBtn}
                                 icon={<DeleteFilled />}
                             >
                                 {t("global:delete")}
@@ -96,7 +102,7 @@ export default function EditTableGroupModal({
                                     backgroundColor: tableGroupData.status ? undefined : '#52c41a',
                                     borderColor: tableGroupData.status ? undefined : '#52c41a',
                                 }}
-                                // onClick={() => handleChangeStatus(!tableGroupData.status)}
+                                onClick={() => handleChangeStatus(!tableGroupData.status)}
                                 disabled={submitLoad}
                                 loading={loading}
                             >

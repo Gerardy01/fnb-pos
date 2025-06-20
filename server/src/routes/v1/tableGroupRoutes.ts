@@ -7,7 +7,7 @@ import { PermissionEnum } from '../../utility/enums';
 import { authenticate, validatePermission, validateRequest } from '../../utility/middleware';
 
 // schema
-import { CreateTableGroupSchema, EditTableGroupSchema } from "../../schema/tableSchema";
+import { ChangeTableGroupStatusSchema, CreateTableGroupSchema, EditTableGroupSchema } from "../../schema/tableSchema";
 
 // controllers
 import TableGroupController from "../../controllers/tableGroupController";
@@ -35,6 +35,17 @@ tableGroupRoutes.put("/",
     validatePermission(PermissionEnum.TABLE_MANAGEMENT, 'write'),
     validateRequest(EditTableGroupSchema),
     TableGroupController.editTableGroup
-)
+);
+tableGroupRoutes.put("/action/change-status",
+    authenticate,
+    validatePermission(PermissionEnum.TABLE_MANAGEMENT, 'write'),
+    validateRequest(ChangeTableGroupStatusSchema),
+    TableGroupController.changeTableGroupStatus
+);
+tableGroupRoutes.delete("/:id",
+    authenticate,
+    validatePermission(PermissionEnum.TABLE_MANAGEMENT, 'write'),
+    TableGroupController.deleteTableGroup
+);
 
 export default tableGroupRoutes;

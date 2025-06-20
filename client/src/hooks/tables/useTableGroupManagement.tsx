@@ -257,6 +257,23 @@ export function useTableGroupManagement() {
         editTableGroupModalOpen(false);
     }
 
+    const onChangeStatusSuccess = (tableGroupId : number, newStatus : boolean) : void => {
+        setTableGroups(prevData =>
+            prevData.map(item =>
+                item.key === tableGroupId
+                    ? { ...item, status: newStatus ? t("global:active") : t("global:inactive") }
+                    : item
+            )
+        )
+    }
+
+    const onDeleteTableGroupSuccess = (tableGroupId : number) : void => {
+        const filtered = tableGroups.filter(item => item.key !== tableGroupId);
+        setTableGroups(filtered);
+
+        editTableGroupModalOpen(false);
+    }
+
     return {
         contentLoad,
         outletSelection,
@@ -274,6 +291,8 @@ export function useTableGroupManagement() {
         handleSearch,
         onAddTableGroupSuccess,
         onEditTableGroupSuccess,
+        onChangeStatusSuccess,
+        onDeleteTableGroupSuccess,
     }
 }
 
@@ -351,13 +370,15 @@ export function useAddTableGroup(
 
 export function useEditTableGroup(
     onEditTableGroupSuccess : (newData : TableGroupsTableData) => void,
+    onChangeStatusSuccess : (tableGroupId : number, newStatus : boolean) => void,
+    onDeleteTableGroupSuccess : (tableGroupId : number) => void,
 ) {
 
     const { tableGroupId : tableGroupIdFromParams } = useParams();
 
     const { t } = useTranslation(['global', 'table']);
 
-    const { serverErrorModal, errorModal } = useStaticModal();
+    const { serverErrorModal, errorModal, confirmationModal } = useStaticModal();
     const { successnotification } = useNotification();
 
     const [contentLoad, setContentLoad] = useState<boolean>(true);
@@ -436,6 +457,73 @@ export function useEditTableGroup(
         }
     }
 
+    const handleChangeStatus = async (newStatus : boolean) : Promise<void> => {
+        if (!tableGroupIdFromParams) return;
+
+        setLoading(true);
+
+        try {
+
+            const [err, data] = await tableApi.changeTableGroupStatus({
+                id: Number(tableGroupIdFromParams),
+                newStatus : newStatus
+            });
+
+            if (err) {
+                serverErrorModal();
+                return; 
+            }
+
+            onChangeStatusSuccess(Number(tableGroupIdFromParams), data.newStatus);
+            successnotification(`${t("table:statusChanged")} ${data.newStatus ? t("global:active") : t("global:inactive")}`);
+
+            setTableGroupData(prev => {
+                if (!prev) return null;
+                return {
+                    ...prev,
+                    status : newStatus,
+                }
+            });
+
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    const clickDeleteBtn = async () : Promise<void> => {
+        confirmationModal({
+            title : t("table:sureDeleteTableGroup"),
+            content: t("table:deleteTableGroupDesc"),
+            okBtn: t("global:yes"),
+            cancelBtn: t("global:cancel"),
+            centered: true,
+            okBtnDanger: true,
+            onOkWithPromise : handleDeleteTableGroup,
+        });
+    }
+
+    const handleDeleteTableGroup = async () : Promise<void> => {
+        if (!tableGroupIdFromParams) return;
+
+        setLoading(true);
+
+        try {
+
+            const [err] = await tableApi.deleteTableGroup(Number(tableGroupIdFromParams));
+
+            if (err) {
+                serverErrorModal();
+                return;
+            }
+
+            onDeleteTableGroupSuccess(Number(tableGroupIdFromParams));
+            successnotification(t("table:deleteSuccess"));
+
+        } finally {
+            setLoading(false);
+        }
+    }
+
     return {
         contentLoad,
         tableGroupData,
@@ -443,5 +531,7 @@ export function useEditTableGroup(
         submitLoad,
         loading,
         handleEditTableGroup,
+        handleChangeStatus,
+        clickDeleteBtn,
     }
 }

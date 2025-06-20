@@ -11,6 +11,11 @@ export interface IEditTableGroupData {
     groupName : string;
 }
 
+export interface IChangeTableGroupStatusData {
+    id : number;
+    newStatus : boolean;
+}
+
 export type TableGroupReturnData = {
     id : number;
     groupName : string;

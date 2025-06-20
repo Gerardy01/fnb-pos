@@ -159,6 +159,79 @@ class TableGroupController {
             });
         }
     }
+
+    static async deleteTableGroup(req : Request, res : Response) {
+        const transaction : Transaction = await sequelize.transaction();
+
+        try {
+
+            const tableGroupId : number = Number(req.params.id);
+            const organizationId = req.user ? req.user.organizationId : "";
+            const tableGroupDeleted = await tableService.deleteTableGroup(tableGroupId, organizationId, transaction);
+
+            transaction.commit();
+
+            return res.status(200).json({
+                "status" : "success",
+                "message" : "table group deleted",
+                "userMessage" : "",
+                "data" : tableGroupDeleted,
+            });
+
+        } catch(e) {
+
+            transaction.rollback();
+
+            if (e instanceof DataNotFound) {
+                return res.status(404).json({
+                    "status" : "failed",
+                    "message" : e.message,
+                    "userMessage" : e.message,
+                });
+            }
+
+            return res.status(500).json({
+                "status" : "failed",
+                "message" : "server error",
+                "userMessage" : "Something wrong. Try again later.",
+                "errors" : e
+            });
+        }
+    }
+
+    static async changeTableGroupStatus(req : Request, res : Response) {
+        try {
+
+            const organizationId = req.user ? req.user.organizationId : "";
+            const newStatus = await tableService.changeTableGroupStatus(req.body, organizationId);
+
+            return res.status(200).json({
+                "status" : "success",
+                "message" : "status changed",
+                "userMessage" : "",
+                "data" : {
+                    "newStatus" : newStatus
+                },
+            });
+
+        } catch(e) {
+
+            if (e instanceof DataNotFound) {
+                return res.status(404).json({
+                    "status" : "failed",
+                    "message" : e.message,
+                    "userMessage" : e.message,
+                });
+            }
+
+            return res.status(500).json({
+                "status" : "failed",
+                "message" : "server error",
+                "userMessage" : "Something wrong. Try again later.",
+                "errors" : e
+            });
+        }
+    }
 }
 
 export default TableGroupController;

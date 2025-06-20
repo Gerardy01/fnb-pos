@@ -4,7 +4,7 @@ import { DataNotFound, ExistData } from "../utility/exceptions";
 
 // types and interfaces
 import { Transaction } from "sequelize";
-import { ICreateTableGroupData, IEditTableGroupData, TableGroupReturnData } from "../interfaces/ITable";
+import { IChangeTableGroupStatusData, ICreateTableGroupData, IEditTableGroupData, TableGroupReturnData } from "../interfaces/ITable";
 import { ITableGroupRepository } from "../repositories/tableGroupRepository";
 import { IOutletRepository } from "../repositories/outletRepository";
 export interface ITableService {
@@ -12,6 +12,8 @@ export interface ITableService {
     getOneTableGroup(tableGroupId : number, organizationId : string) : Promise<TableGroupReturnData>
     createTableGroup(data : ICreateTableGroupData, organizationId : string, transaction? : Transaction) : Promise<TableGroupReturnData>
     editTableGroup(data : IEditTableGroupData, organizationId : string, transaction? : Transaction) : Promise<TableGroupReturnData>
+    deleteTableGroup(tableGroupId : number, organizationId : string, transaction? : Transaction) : Promise<boolean>
+    changeTableGroupStatus(data : IChangeTableGroupStatusData, organizationId : string) : Promise<boolean>
 }
 
 
@@ -89,7 +91,7 @@ export class TableService implements ITableService {
         
         // check table group exist
         const targetTableGroup = await this.tableGroupRepository.findTableGroupById(data.id);
-        if (!targetTableGroup || targetTableGroup.organization_id !== organizationId) throw new DataNotFound("TableGroup not found")
+        if (!targetTableGroup || targetTableGroup.organization_id !== organizationId) throw new DataNotFound("TableGroup not found");
 
         // check name already exist
         const tableGroupExist = await this.tableGroupRepository.findTableGroupByName(data.groupName, targetTableGroup.outlet_id);
@@ -104,5 +106,35 @@ export class TableService implements ITableService {
             outletId : targetTableGroup.outlet_id,
             status : targetTableGroup.status,
         }
+    }
+
+    async deleteTableGroup(tableGroupId: number, organizationId: string, transaction? : Transaction): Promise<boolean> {
+        
+        // check table group exist
+        const targetTableGroup = await this.tableGroupRepository.findTableGroupById(tableGroupId);
+        if (!targetTableGroup || targetTableGroup.organization_id !== organizationId) throw new DataNotFound("TableGroup not found");
+
+        // TODO : Probably going to need to add another validation in the future
+
+        targetTableGroup.status = false;
+        targetTableGroup.archived = true;
+
+        await targetTableGroup.save({ transaction });
+
+        return true;
+    }
+
+    async changeTableGroupStatus(data: IChangeTableGroupStatusData, organizationId: string): Promise<boolean> {
+        
+        // check table group exist
+        const targetTableGroup = await this.tableGroupRepository.findTableGroupById(data.id);
+        if (!targetTableGroup || targetTableGroup.organization_id !== organizationId) throw new DataNotFound("TableGroup not found");
+
+        // TODO : Probably going to need to add another validation in the future
+
+        targetTableGroup.status = data.newStatus;
+        targetTableGroup.save();
+
+        return targetTableGroup.status;
     }
 }
