@@ -23,6 +23,7 @@ import { TokenAuthRepository } from "../repositories/tokenAuthRepository";
 import { OutletRepository } from "../repositories/outletRepository";
 import { AccountOutletRepository } from "../repositories/accountOutletRepository";
 import { TableGroupRepository } from "../repositories/tableGroupRepository";
+import { TableRepository } from "../repositories/tableRepository";
 
 // providers
 import { BcryptJsHashProvider } from "../providers/hashProvider";
@@ -47,6 +48,7 @@ const tokenAuthRepository = new TokenAuthRepository();
 const outletRepository = new OutletRepository();
 const accountOutletRepository = new AccountOutletRepository();
 const tableGroupRepository = new TableGroupRepository();
+const tableRepository = new TableRepository();
 
 const bcryptJsHashProvider = new BcryptJsHashProvider();
 const jsonWebTokenJwtProvider = new JsonWebTokenJwtProvider();
@@ -84,7 +86,7 @@ export const authService = new AuthService(
 );
 export const notificationService = new NotificationService(emailProvider);
 export const outletService = new OutletService(outletRepository, accountRepository, accountOutletRepository);
-export const tableService = new TableService(tableGroupRepository, outletRepository);
+export const tableService = new TableService(tableRepository, tableGroupRepository, outletRepository);
 
 
 // combined service (orchestration)

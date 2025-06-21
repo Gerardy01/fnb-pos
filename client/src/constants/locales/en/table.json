@@ -3,6 +3,7 @@
 
 {
     "TABLE409-1" : "Group name already used. Please use another name.",
+    "TABLE409-2" : "Table already used. Please use another name.",
 
     "tableGroupManagement" : "Table Group Management",
     "tableGroupSearchPlaceholder" : "Search by Group Name",

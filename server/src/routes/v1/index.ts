@@ -9,6 +9,7 @@ import roleRoutes from './roleRoutes';
 import permissionRoutes from './permissionRoutes';
 import outletRoutes from './outletRoutes';
 import tableGroupRoutes from './tableGroupRoutes';
+import tableRoutes from './tableRoutes';
 
 
 const v1Api = Router();
@@ -20,6 +21,7 @@ v1Api.use("/role", roleRoutes);
 v1Api.use("/permission", permissionRoutes);
 v1Api.use("/outlet", outletRoutes);
 v1Api.use("/table-group", tableGroupRoutes);
+v1Api.use("/table", tableRoutes);
 
 
 export default v1Api;

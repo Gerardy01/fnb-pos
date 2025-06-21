@@ -176,7 +176,7 @@ export function useTableGroupManagement() {
 
         try {
             
-            const [err, data] = await tableApi.getAllTableGroup(`outletId=${selectedOutlet}`);
+            const [err, data] = await tableApi.getAllTableGroup(`outletId=${selectedOutlet}&includeTableCount=true`);
 
             if (err) {
                 serverErrorModal();

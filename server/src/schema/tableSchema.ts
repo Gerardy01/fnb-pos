@@ -15,3 +15,9 @@ export const ChangeTableGroupStatusSchema = z.object({
     id : z.number(),
     newStatus : z.boolean(),
 });
+
+export const CreateTableSchema = z.object({
+    tableName : z.string().min(1).max(100),
+    pax : z.number().min(0).max(9999),
+    tableGroupId :  z.number(),
+});

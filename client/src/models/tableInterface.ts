@@ -9,9 +9,25 @@ export interface TableGroupDataReturn {
     tableCount : number;
 }
 
+export interface TableReturnData {
+    tableId : number
+    tableName : string;
+    pax : number;
+    tableGroupId : number;
+    operationalStatus : number;
+    status : boolean;
+    effectiveStatus : boolean;
+}
+
 export interface CreateTableGroupBodyData {
     groupName : string;
     outletId : string;
+}
+
+export interface CreateTableBodyData {
+    tableName : string;
+    pax : number;
+    tableGroupId : number;
 }
 
 export interface ChangeTableGroupStatusBodyData {

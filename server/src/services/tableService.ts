@@ -4,34 +4,40 @@ import { DataNotFound, ExistData } from "../utility/exceptions";
 
 // types and interfaces
 import { Transaction } from "sequelize";
-import { IChangeTableGroupStatusData, ICreateTableGroupData, IEditTableGroupData, TableGroupReturnData } from "../interfaces/ITable";
+import { IChangeTableGroupStatusData, ICreateTableData, ICreateTableGroupData, IEditTableGroupData, TableGroupReturnData, TableReturnData } from "../interfaces/ITable";
 import { ITableGroupRepository } from "../repositories/tableGroupRepository";
 import { IOutletRepository } from "../repositories/outletRepository";
+import { ITableRepository } from "../repositories/tableRepository";
 export interface ITableService {
-    getAllTableGroup(organizationId : string, outletId? : string) : Promise<TableGroupReturnData[]>
+    getAllTableGroup(organizationId : string, outletId? : string, includeTableCount? : string) : Promise<TableGroupReturnData[]>
     getOneTableGroup(tableGroupId : number, organizationId : string) : Promise<TableGroupReturnData>
     createTableGroup(data : ICreateTableGroupData, organizationId : string, transaction? : Transaction) : Promise<TableGroupReturnData>
     editTableGroup(data : IEditTableGroupData, organizationId : string, transaction? : Transaction) : Promise<TableGroupReturnData>
     deleteTableGroup(tableGroupId : number, organizationId : string, transaction? : Transaction) : Promise<boolean>
     changeTableGroupStatus(data : IChangeTableGroupStatusData, organizationId : string) : Promise<boolean>
+    getAllTable(organizationId : string, tableGroupId? : number) : Promise<TableReturnData[]>
+    createTable(data : ICreateTableData, organizationId : string, transaction? : Transaction) : Promise<TableReturnData>
 }
 
 
 
 export class TableService implements ITableService {
     constructor (
+        private tableRepository : ITableRepository,
         private tableGroupRepository : ITableGroupRepository,
         private outletRepository : IOutletRepository,
     ) {}
 
-    async getAllTableGroup(organizationId: string, outletId? : string): Promise<TableGroupReturnData[]> {
+    async getAllTableGroup(organizationId: string, outletId? : string, includeTableCount? : string): Promise<TableGroupReturnData[]> {
 
         let tableGroups = [];
 
+        const includeTable = includeTableCount === "true" ? true : false;
+
         if (outletId) {
-            tableGroups = await this.tableGroupRepository.findTableGroupByOutlet(outletId, organizationId);
+            tableGroups = await this.tableGroupRepository.findTableGroupByOutlet(outletId, organizationId, includeTable);
         } else {
-            tableGroups = await this.tableGroupRepository.findAllTableGroup(organizationId);
+            tableGroups = await this.tableGroupRepository.findAllTableGroup(organizationId, includeTable);
         }
 
         const tableGroupList : TableGroupReturnData[] = [];
@@ -41,7 +47,7 @@ export class TableService implements ITableService {
                 groupName : item.group_name,
                 outletId : item.outlet_id,
                 status : item.status,
-                tableCount : 0
+                tableCount : Number(item.dataValues.table_count) ?? 0
             });
         });
 
@@ -72,7 +78,7 @@ export class TableService implements ITableService {
         const tableGroupExist = await this.tableGroupRepository.findTableGroupByName(data.groupName, outlet.outlet_id);
         if (tableGroupExist) throw new ExistData("TABLE409-1");
         
-        const newTableGroup = await this.tableGroupRepository.createOutlet({
+        const newTableGroup = await this.tableGroupRepository.createTableGroup({
             group_name : data.groupName,
             outlet_id : outlet.outlet_id,
             organization_id : organizationId
@@ -136,5 +142,64 @@ export class TableService implements ITableService {
         targetTableGroup.save();
 
         return targetTableGroup.status;
+    }
+
+    async getAllTable(organizationId: string, tableGroupId?: number): Promise<TableReturnData[]> {
+        
+        let tables = [];
+
+        if (tableGroupId) {
+            tables = await this.tableRepository.findTableByTableGroup(tableGroupId, organizationId);
+        } else {
+            tables = await this.tableRepository.findAllTable(organizationId);
+        }
+
+        const tableList : TableReturnData[] = [];
+        tables.forEach(item => {
+            tableList.push({
+                tableId : item.table_id,
+                tableName : item.table_name,
+                pax : item.pax,
+                tableGroupId : item.table_group_id,
+                operationalStatus : item.operational_status,
+                status : item.status,
+                effectiveStatus : item.effective_status,
+            });
+        });
+
+        return tableList;
+    }
+
+    async createTable(data: ICreateTableData, organizationId: string, transaction? : Transaction): Promise<TableReturnData> {
+        
+        // check table group exist
+        const tableGroup = await this.tableGroupRepository.findTableGroupWithOutlet(data.tableGroupId);
+        if (!tableGroup || tableGroup.organization_id !== organizationId) throw new DataNotFound("TableGroup not found");
+
+        // check name already exist
+        const existTable = await this.tableRepository.findTableByName(data.tableName, data.tableGroupId);
+        if (existTable) throw new ExistData("TABLE409-2");
+
+        // define effective status
+        const outlet = tableGroup.outlet;
+        if (!outlet) throw new Error("something wrong when getting outlet");
+        const effectiveStatus : boolean = outlet.status && tableGroup.status;
+
+        const createdTable = await this.tableRepository.createTable({
+            table_name : data.tableName,
+            pax : data.pax,
+            table_group_id : tableGroup.id,
+            effective_status : effectiveStatus,
+        }, transaction);
+
+        return {
+            tableId : createdTable.table_id,
+            tableName : createdTable.table_name,
+            pax : createdTable.pax,
+            tableGroupId : createdTable.table_group_id,
+            operationalStatus : createdTable.operational_status,
+            status : createdTable.status,
+            effectiveStatus : createdTable.effective_status,
+        }
     }
 }

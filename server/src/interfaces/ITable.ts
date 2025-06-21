@@ -16,10 +16,26 @@ export interface IChangeTableGroupStatusData {
     newStatus : boolean;
 }
 
+export interface ICreateTableData {
+    tableName : string;
+    pax : number;
+    tableGroupId : number;
+}
+
 export type TableGroupReturnData = {
     id : number;
     groupName : string;
     outletId : string;
     status : boolean;
     tableCount? : number;
+}
+
+export type TableReturnData = {
+    tableId : number
+    tableName : string;
+    pax : number;
+    tableGroupId : number;
+    operationalStatus : number;
+    status : boolean;
+    effectiveStatus : boolean;
 }

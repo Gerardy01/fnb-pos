@@ -18,7 +18,8 @@ class TableGroupController {
             
             const organizationId = req.user ? req.user.organizationId : "";
             const outletId = req.query.outletId as string | undefined;
-            const tableGroups = await tableService.getAllTableGroup(organizationId, outletId);
+            const includeTableCount = req.query.includeTableCount as string | undefined;
+            const tableGroups = await tableService.getAllTableGroup(organizationId, outletId, includeTableCount);
 
             return res.status(200).json({
                 "status" : "success",
