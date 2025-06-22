@@ -4,11 +4,20 @@ import { catchFetchError } from "../utils/utility";
 
 // types and interfaces
 import { FetchResponse, ErrorResponse } from "../models/globalInterface";
-import { ChangeTableGroupStatusBodyData, ChangeTableGroupStatusDataReturn, CreateTableGroupBodyData, EditTableGroupBodyData, TableGroupDataReturn } from "../models/tableInterface";
+import { ChangeTableGroupStatusBodyData, ChangeTableGroupStatusDataReturn, CreateTableGroupBodyData, EditTableGroupBodyData, TableDataReturn, TableGroupDataReturn } from "../models/tableInterface";
 
 
 export class TableApi {
-    async getAllTableGroup(params : string) : Promise<[undefined, TableGroupDataReturn[]] | [ErrorResponse]> {
+    async getAllTable(params? : string) : Promise<[undefined, TableDataReturn[]] | [ErrorResponse]> {
+        const [error, res] = await catchFetchError(axiosPrivate.get<FetchResponse<TableDataReturn[]>>(
+            `table${params ? `?${params}` : ""}`
+        ));
+
+        if (error) return [error];
+        return [error, res.data.data];
+    }
+
+    async getAllTableGroup(params? : string) : Promise<[undefined, TableGroupDataReturn[]] | [ErrorResponse]> {
         const [error, res] = await catchFetchError(axiosPrivate.get<FetchResponse<TableGroupDataReturn[]>>(
             `table-group${params ? `?${params}` : ""}`
         ));

@@ -21,6 +21,7 @@ import ChangePassword from "./pages/ChangePassword";
 import Profile from "./pages/Profile";
 import RoleManagement from "./pages/RoleManagement";
 import TableGroupManagement from "./pages/TableGroupManagement";
+import TableManagement from "./pages/TableManagement";
 import NotFound from "./pages/NotFound";
 
 
@@ -59,7 +60,8 @@ export default function App() {
 							</Route>
 
 							<Route element={<PermissionProtectedRoutes requiredPermission={[PageAccessPermissionEnum.TABLE_MANAGEMENT]} />}>
-								<Route path="/table" element={<Dashboard />} />
+								<Route path="/table" element={<TableManagement />} />
+								<Route path="/table/:tableId" element={<TableManagement />} />
 
 								<Route path="/table-group" element={<TableGroupManagement />} />
 								<Route path="/table-group/:tableGroupId" element={<TableGroupManagement />} />

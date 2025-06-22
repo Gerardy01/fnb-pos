@@ -2,47 +2,34 @@ import { Skeleton, Typography, Input, Button, Table, Select } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 
 import { useTranslation } from "react-i18next";
-import { useTableGroupManagement } from '../hooks/tables/useTableGroupManagement';
-
-// components
-import AddTableGroupModal from '../components/table/AddTableGroupModal';
-import EditTableGroupModal from '../components/table/EditTableGroupModal';
-
-// types and interfaces
-import { TableGroupsTableData } from '../hooks/tables/useTableGroupManagement';
+import { TablesTableData, useTableManagement } from '../hooks/tables/useTableManagement';
 
 const { Title, Text } = Typography;
 const { Search } = Input;
 
 
-export default function TableGroupManagement() {
+export default function TableManagement() {
 
     const { t } = useTranslation(['global', 'table']);
 
-    const { 
+    const {
         contentLoad,
         outletSelection,
         selectedOutlet,
+        tableGroupSelection,
+        selectedTableGroup,
+        getTableGroupLoad,
+        getTableLoad,
         statusOptions,
         columns,
-        tableGroups,
-        getTableGroupLoad,
-        addTableGroupModal,
-        editTableGroupModal,
+        tables,
         handleChangeOutlet,
-        addTableGroupModalOpen,
-        editTableGroupModalOpen,
-        handleChangeStatusFilter,
-        handleSearch,
-        onAddTableGroupSuccess,
-        onEditTableGroupSuccess,
-        onChangeStatusSuccess,
-        onDeleteTableGroupSuccess,
-    } = useTableGroupManagement();
+        handleChangeTableGroup,
+    } = useTableManagement();
 
     return (
         <div>
-            <Title level={3}>{t("table:tableGroupManagement")}</Title>
+            <Title level={3}>{t("table:tableManagement")}</Title>
             {contentLoad ? (
                 <div style={styles.controlSection}>
                     <div style={styles.topControl}>
@@ -56,7 +43,8 @@ export default function TableGroupManagement() {
                         </div>
                     </div>
                     <div style={{...styles.botControl, ...styles.skeletonInputBotHolder}}>
-                        <Skeleton.Input active block style={styles. botSelectionItemHolder} />
+                        <Skeleton.Input active style={styles. botSelectionItemHolder} />
+                        <Skeleton.Input active style={{ ...styles.botSelectionItemHolder, ...styles.marginLeft }} />
                     </div>
                 </div>
             ) : (
@@ -67,7 +55,7 @@ export default function TableGroupManagement() {
                             size='large'
                             allowClear
                             placeholder={t("table:tableGroupSearchPlaceholder")}
-                            onChange={(e) => handleSearch(e.target.value)}
+                            // onChange={(e) => handleSearch(e.target.value)}
                         />
                         <div style={styles.rightSide}>
                             <Select
@@ -76,7 +64,7 @@ export default function TableGroupManagement() {
                                 placeholder={t("outlet:statusFilter")}
                                 allowClear
                                 options={statusOptions}
-                                onChange={handleChangeStatusFilter}
+                                // onChange={handleChangeStatusFilter}
                                 filterOption={(input, option) =>
                                     (option?.label as string).toLowerCase().includes(input.toLowerCase())
                                 }
@@ -85,10 +73,10 @@ export default function TableGroupManagement() {
                                 type="primary"
                                 size='large'
                                 icon={<PlusOutlined />}
-                                onClick={() => addTableGroupModalOpen(true)}
-                                disabled={!selectedOutlet || getTableGroupLoad}
+                                // onClick={() => addTableGroupModalOpen(true)}
+                                // disabled={!selectedOutlet || !selectedTableGroup || getTableGroupLoad}
                             >
-                                {t("table:addTableGroup")}
+                                {t("table:addTable")}
                             </Button>
                         </div>
                     </div>
@@ -104,28 +92,28 @@ export default function TableGroupManagement() {
                                 filterOption={(input, option) =>
                                     (option?.label as string).toLowerCase().includes(input.toLowerCase())
                                 }
-                                disabled={getTableGroupLoad}
+                                disabled={getTableGroupLoad || getTableLoad}
+                            />
+                        </div>
+                        <div style={{...styles.botSelectionItemHolder, ...styles.marginLeft}}>
+                            <Text>{t("table:selectTableGroup")}</Text>
+                            <Select
+                                style={styles.botSelectionItem}
+                                placeholder={t("table:tableSelection")}
+                                options={tableGroupSelection}
+                                value={selectedTableGroup ? selectedTableGroup : null}
+                                onChange={handleChangeTableGroup}
+                                filterOption={(input, option) =>
+                                    (option?.label as string).toLowerCase().includes(input.toLowerCase())
+                                }
+                                disabled={getTableGroupLoad || getTableLoad}
+                                loading={getTableGroupLoad}
                             />
                         </div>
                     </div>
                 </div>
             )}
-            <Table<TableGroupsTableData> columns={columns} dataSource={tableGroups} size='middle' loading={contentLoad || getTableGroupLoad} />
-            <AddTableGroupModal
-                open={addTableGroupModal}
-                selectedOutlet={selectedOutlet}
-                onClose={() => addTableGroupModalOpen(false)}
-                onAddTableGroupSuccess={onAddTableGroupSuccess}
-            />
-            {editTableGroupModal && (
-                <EditTableGroupModal
-                    open={editTableGroupModal}
-                    onClose={() => editTableGroupModalOpen(false)}
-                    onEditTableGroupSuccess={onEditTableGroupSuccess}
-                    onChangeStatusSuccess={onChangeStatusSuccess}
-                    onDeleteTableGroupSuccess={onDeleteTableGroupSuccess}
-                />
-            )}
+            <Table<TablesTableData> columns={columns} dataSource={tables} size='middle' loading={contentLoad || getTableGroupLoad || getTableLoad} />
         </div>
     )
 }
@@ -144,15 +132,16 @@ const styles : { [key: string]: React.CSSProperties } = {
     },
     botControl : {
         width: '100%',
+        display: 'flex',
     },
     searchInput : {
-        maxWidth: '400px',
+        maxWidth: '420px',
         flex: '1'
     },
     botSelectionItemHolder : {
         maxWidth: '200px',
         flex: '1',
-    }, 
+    },
     botSelectionItem : {
         width: '100%',
         marginTop: '5px',
@@ -170,6 +159,9 @@ const styles : { [key: string]: React.CSSProperties } = {
     },
     skeletonInput : {
         minWidth: '40%'
+    },
+    marginLeft : {
+        marginLeft : '20px'
     },
     skeletonInputBotHolder : {
         marginTop: '50px'

@@ -9,7 +9,7 @@ export interface TableGroupDataReturn {
     tableCount : number;
 }
 
-export interface TableReturnData {
+export interface TableDataReturn {
     tableId : number
     tableName : string;
     pax : number;

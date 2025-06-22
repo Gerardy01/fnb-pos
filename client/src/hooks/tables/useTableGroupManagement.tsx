@@ -8,9 +8,9 @@ import useStaticModal from "../useStaticModal";
 import useNotification from "../useNotification";
 import { useTranslation } from "react-i18next";
 import { useParams, useNavigate } from "react-router-dom";
-import { TableGroupDataReturn } from "../../models/tableInterface";
 
 // types and interfaces
+import { TableGroupDataReturn } from "../../models/tableInterface";
 export interface TableGroupForm {
     groupName : string;
 }
