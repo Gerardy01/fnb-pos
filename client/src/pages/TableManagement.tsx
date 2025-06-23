@@ -4,6 +4,11 @@ import { PlusOutlined } from '@ant-design/icons';
 import { useTranslation } from "react-i18next";
 import { TablesTableData, useTableManagement } from '../hooks/tables/useTableManagement';
 
+// components
+import AddTableModal from '../components/table/AddTableModal';
+
+
+
 const { Title, Text } = Typography;
 const { Search } = Input;
 
@@ -23,8 +28,13 @@ export default function TableManagement() {
         statusOptions,
         columns,
         tables,
+        addTableModal,
         handleChangeOutlet,
         handleChangeTableGroup,
+        handleSearch,
+        handleChangeStatusFilter,
+        addTableModalOpen,
+        onAddTableSuccess,
     } = useTableManagement();
 
     return (
@@ -54,8 +64,8 @@ export default function TableManagement() {
                             style={styles.searchInput}
                             size='large'
                             allowClear
-                            placeholder={t("table:tableGroupSearchPlaceholder")}
-                            // onChange={(e) => handleSearch(e.target.value)}
+                            placeholder={t("table:tableSearchPlaceholder")}
+                            onChange={(e) => handleSearch(e.target.value)}
                         />
                         <div style={styles.rightSide}>
                             <Select
@@ -64,7 +74,7 @@ export default function TableManagement() {
                                 placeholder={t("outlet:statusFilter")}
                                 allowClear
                                 options={statusOptions}
-                                // onChange={handleChangeStatusFilter}
+                                onChange={handleChangeStatusFilter}
                                 filterOption={(input, option) =>
                                     (option?.label as string).toLowerCase().includes(input.toLowerCase())
                                 }
@@ -73,8 +83,8 @@ export default function TableManagement() {
                                 type="primary"
                                 size='large'
                                 icon={<PlusOutlined />}
-                                // onClick={() => addTableGroupModalOpen(true)}
-                                // disabled={!selectedOutlet || !selectedTableGroup || getTableGroupLoad}
+                                onClick={() => addTableModalOpen(true)}
+                                disabled={!selectedOutlet || !selectedTableGroup || getTableGroupLoad || getTableLoad}
                             >
                                 {t("table:addTable")}
                             </Button>
@@ -114,6 +124,12 @@ export default function TableManagement() {
                 </div>
             )}
             <Table<TablesTableData> columns={columns} dataSource={tables} size='middle' loading={contentLoad || getTableGroupLoad || getTableLoad} />
+            <AddTableModal
+                open={addTableModal}
+                selectedTableGroup={selectedTableGroup ?? -1}
+                onClose={() => addTableModalOpen(false)}
+                onAddTableSuccess={onAddTableSuccess}
+            />
         </div>
     )
 }

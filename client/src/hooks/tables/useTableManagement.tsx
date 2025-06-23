@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Button, SelectProps, Space, TableColumnsType, Tag } from "antd";
+import { Button, Form, FormProps, SelectProps, Space, TableColumnsType, Tag } from "antd";
 
 import { outletApi, tableApi } from "../../api";
 
@@ -10,6 +10,10 @@ import { useParams, useNavigate } from "react-router-dom";
 import { EditOutlined } from "@ant-design/icons";
 
 // types and interfaces
+export interface TableForm {
+    tableName : string;
+    pax : number;
+}
 export interface TablesTableData {
     key : number;
     tableName : string;
@@ -37,6 +41,8 @@ export function useTableManagement() {
 
     const [tables, setTables] = useState<TablesTableData[]>([]);
     const [filteredTables, setFilteredTables] = useState<TablesTableData[]>([]);
+
+    const [addTableModal, setAddTableModal] = useState<boolean>(false);
 
     useEffect(() => {
         getOutletList();
@@ -274,12 +280,37 @@ export function useTableManagement() {
         }
     }
 
+    const handleChangeStatusFilter = (value : number) : void => {
+        if (value === undefined) return setFilteredTables(tables);
+
+        const stringValue : string = value == 1 ? t("global:active") : t("global:inactive")
+        const filtered = tables.filter(data => data.status === stringValue);
+        setFilteredTables(filtered);
+    }
+
+    const handleSearch = (value : string) : void => {
+        const filtered = tables.filter(data => {
+            const input = value.toLocaleLowerCase();
+            return data.tableName.toLocaleLowerCase().includes(input);
+        });
+        setFilteredTables(filtered);
+    }
+
     const handleChangeOutlet = async (outletId : string) : Promise<void> => {
         setSelectedOutlet(outletId);
     }
 
     const handleChangeTableGroup = async (tableGroupId : number) : Promise<void> => {
         setSelectedTableGroup(tableGroupId);
+    }
+
+    const addTableModalOpen = (open : boolean) : void => {
+        setAddTableModal(open);
+    }
+
+    const onAddTableSuccess = (newTableGroup : TablesTableData) : void => {
+        setTables(prev => [...prev, newTableGroup]);
+        addTableModalOpen(false);
     }
 
     return {
@@ -293,7 +324,85 @@ export function useTableManagement() {
         statusOptions,
         columns,
         tables : filteredTables,
+        addTableModal,
         handleChangeOutlet,
         handleChangeTableGroup,
+        handleSearch,
+        handleChangeStatusFilter,
+        addTableModalOpen,
+        onAddTableSuccess,
+    }
+}
+
+
+
+export function useAddTable(
+    selectedTableGroup : number,
+    onAddTableSuccess : (newTableGroup : TablesTableData) => void,
+) {
+
+    const { t } = useTranslation(['global', 'table']);
+
+    const { serverErrorModal, errorModal } = useStaticModal();
+    const { successnotification } = useNotification();
+
+    const [loading, setLoading] = useState<boolean>(false);
+
+    const [addTableForm] = Form.useForm();
+
+    const handleAddTable : FormProps<TableForm>['onFinish'] = async (values) : Promise<void> => {
+
+        setLoading(true);
+
+        try {
+
+            const [err, data] = await tableApi.createTable({
+                tableName : values.tableName,
+                pax : values.pax,
+                tableGroupId : selectedTableGroup,
+            });
+
+            if (err) {
+
+                if (err.status === 400) {
+                    const error = err.response.data.schemaErrors ? err.response.data.schemaErrors[0] : undefined;
+                    if (!error) return;
+                    errorModal(undefined, `${error.field} is ${error.message}`);
+                    return;
+                }
+
+                if (err.status === 409) {
+                    errorModal(t('global:failed'), t(`table:${err.response.data.message}`));
+                    return;
+                }
+
+                serverErrorModal();
+                return;
+            }
+
+            successnotification(t("table:addTableSuccess"));
+            onAddTableSuccess({
+                key : data.tableId,
+                tableName : data.tableName,
+                pax : data.pax,
+                status : data.status ? t("global:active") : t("global:inactive"),
+            });
+
+            resetData();
+
+        } finally {
+            setLoading(false);
+        } 
+    }
+
+    const resetData = () : void => {
+        addTableForm.resetFields();
+    }
+
+    return {
+        loading,
+        addTableForm,
+        handleAddTable,
+        resetData,
     }
 }

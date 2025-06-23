@@ -4,13 +4,26 @@ import { catchFetchError } from "../utils/utility";
 
 // types and interfaces
 import { FetchResponse, ErrorResponse } from "../models/globalInterface";
-import { ChangeTableGroupStatusBodyData, ChangeTableGroupStatusDataReturn, CreateTableGroupBodyData, EditTableGroupBodyData, TableDataReturn, TableGroupDataReturn } from "../models/tableInterface";
+import { ChangeTableGroupStatusBodyData, ChangeTableGroupStatusDataReturn, CreateTableBodyData, CreateTableGroupBodyData, EditTableGroupBodyData, TableDataReturn, TableGroupDataReturn } from "../models/tableInterface";
 
 
 export class TableApi {
     async getAllTable(params? : string) : Promise<[undefined, TableDataReturn[]] | [ErrorResponse]> {
         const [error, res] = await catchFetchError(axiosPrivate.get<FetchResponse<TableDataReturn[]>>(
             `table${params ? `?${params}` : ""}`
+        ));
+
+        if (error) return [error];
+        return [error, res.data.data];
+    }
+
+    async createTable(data : CreateTableBodyData) : Promise<[undefined, TableDataReturn] | [ErrorResponse]> {
+        const [error, res] = await catchFetchError(axiosPrivate.post<FetchResponse<TableDataReturn>>(
+            "table/",
+            data,
+            {
+                headers : { 'Content-Type' : 'application/json' },
+            }
         ));
 
         if (error) return [error];
