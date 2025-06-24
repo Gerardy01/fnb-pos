@@ -1,6 +1,7 @@
 
 // utils
 import { DataNotFound, ExistData } from "../utility/exceptions";
+import { EventTypeEnum } from "../utility/enums";
 
 // types and interfaces
 import { IChangeOutletStatusData, ICreateOutletData, IEditOutletData, OutletReturnData } from "../interfaces/IOutlet";
@@ -8,6 +9,7 @@ import { IOutletRepository } from "../repositories/outletRepository";
 import { Transaction } from "sequelize";
 import { IAccountRepository } from "../repositories/accountRepository";
 import { IAccountOutletRepository } from "../repositories/accountOutletRepository";
+import { IEventPublisherProvider } from "../providers/eventPublisherProvider";
 export interface IOutletService {
     getAllOutlet(organizationId : string, accountId? : string) : Promise<OutletReturnData[]>
     getOneOutlet(outletId : string, organizationId : string) : Promise<OutletReturnData>
@@ -23,6 +25,7 @@ export class OutletService implements IOutletService {
         private outletRepository : IOutletRepository,
         private accountRepository : IAccountRepository,
         private accountOutletRepository : IAccountOutletRepository,
+        private eventPublisherProvider : IEventPublisherProvider,
     ) {}
 
     async getAllOutlet(organizationId: string, accountId? : string): Promise<OutletReturnData[]> {
@@ -163,11 +166,17 @@ export class OutletService implements IOutletService {
             throw new DataNotFound("Data not found");
         }
 
-        // TODO : Probably going to need to add another validation in the future
-
         targetOutlet.status = data.newStatus;
+        await targetOutlet.save();
 
-        targetOutlet.save();
+        await this.eventPublisherProvider.publish({
+            type : EventTypeEnum.OUTLET_STATUS_UPDATED,
+            payload : {
+                outletId : targetOutlet.outlet_id,
+                organizationId : organizationId,
+            },
+            timestamp : new Date(),
+        });
 
         return targetOutlet.status;
     }

@@ -30,6 +30,7 @@ import { BcryptJsHashProvider } from "../providers/hashProvider";
 import { JsonWebTokenJwtProvider } from "../providers/jwtProvider";
 import { UAParserJsUaParserProvider } from "../providers/uaParserProvider";
 import { NodemailerEmailProvider } from "../providers/emailProvider";
+import { InMemoryEventPublisher } from "../providers/eventPublisherProvider";
 
 // config
 import envData from "../config/envData";
@@ -54,6 +55,7 @@ const bcryptJsHashProvider = new BcryptJsHashProvider();
 const jsonWebTokenJwtProvider = new JsonWebTokenJwtProvider();
 const uaParserJsUaParserProvider = new UAParserJsUaParserProvider();
 const emailProvider = new NodemailerEmailProvider(envData);
+const eventPublisherProvider = new InMemoryEventPublisher();
 
 // unexposed service
 const counterService = new CounterService(counterRepository);
@@ -85,8 +87,8 @@ export const authService = new AuthService(
     envData
 );
 export const notificationService = new NotificationService(emailProvider);
-export const outletService = new OutletService(outletRepository, accountRepository, accountOutletRepository);
-export const tableService = new TableService(tableRepository, tableGroupRepository, outletRepository);
+export const outletService = new OutletService(outletRepository, accountRepository, accountOutletRepository, eventPublisherProvider);
+export const tableService = new TableService(tableRepository, tableGroupRepository, outletRepository, eventPublisherProvider);
 
 
 // combined service (orchestration)

@@ -5,6 +5,7 @@ import { Outlet, Table, TableGroup } from "../models";
 
 export interface ITableGroupRepository {
     findTableGroupById(id : number) : Promise<TableGroup | null>
+    findTableGroupByIds(ids : number[]) : Promise<TableGroup[]>
     findTableGroupWithOutlet(id : number) : Promise<TableGroup | null>
     findTableGroupByName(groupName : string, outletId : string) : Promise<TableGroup | null>
     findAllTableGroup(organizationId : string, includeTableCount? : boolean) : Promise<TableGroup[]>;
@@ -17,6 +18,16 @@ export class TableGroupRepository implements ITableGroupRepository {
         return TableGroup.findOne({
             where: {
                 id : id,
+                archived : false
+            }
+        });
+    }
+    findTableGroupByIds(ids: number[]): Promise<TableGroup[]> {
+        return TableGroup.findAll({
+            where: {
+                id : {
+                    [Op.in]: ids,
+                },
                 archived : false
             }
         });

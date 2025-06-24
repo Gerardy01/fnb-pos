@@ -29,3 +29,9 @@ export enum SendEmailTypeEnum {
     TEXT = 'text',
     HTML = 'html',
 }
+
+export enum EventTypeEnum {
+    OUTLET_STATUS_UPDATED = 'OutletStatusUpdated',
+    TABLE_GROUP_STATUS_UPDATED = 'TableGroupStatusUpdated',
+    TABLE_STATUS_UPDATED = 'TableStatusUpdated',
+}

@@ -1,6 +1,7 @@
 
 // utils
 import { DataNotFound, ExistData } from "../utility/exceptions";
+import { EventTypeEnum } from "../utility/enums";
 
 // types and interfaces
 import { Transaction } from "sequelize";
@@ -8,6 +9,8 @@ import { IChangeTableGroupStatusData, IChangeTableStatusData, ICreateTableData, 
 import { ITableGroupRepository } from "../repositories/tableGroupRepository";
 import { IOutletRepository } from "../repositories/outletRepository";
 import { ITableRepository } from "../repositories/tableRepository";
+import { DomainEvent, IEventPublisherProvider } from "../providers/eventPublisherProvider";
+import { Table } from "../models";
 export interface ITableService {
     getAllTableGroup(organizationId : string, outletId? : string, includeTableCount? : string) : Promise<TableGroupReturnData[]>
     getOneTableGroup(tableGroupId : number, organizationId : string) : Promise<TableGroupReturnData>
@@ -30,7 +33,12 @@ export class TableService implements ITableService {
         private tableRepository : ITableRepository,
         private tableGroupRepository : ITableGroupRepository,
         private outletRepository : IOutletRepository,
-    ) {}
+        private eventPublisherProvider : IEventPublisherProvider,
+    ) {
+        eventPublisherProvider.subscribe(EventTypeEnum.TABLE_GROUP_STATUS_UPDATED, this.handleTableGroupStatusUpdate.bind(this));
+        eventPublisherProvider.subscribe(EventTypeEnum.OUTLET_STATUS_UPDATED, this.handleOutletStatusUpdate.bind(this));
+        eventPublisherProvider.subscribe(EventTypeEnum.TABLE_STATUS_UPDATED, this.handleTableStatusUpdate.bind(this));
+    }
 
     async getAllTableGroup(organizationId: string, outletId? : string, includeTableCount? : string): Promise<TableGroupReturnData[]> {
 
@@ -140,10 +148,17 @@ export class TableService implements ITableService {
         const targetTableGroup = await this.tableGroupRepository.findTableGroupById(data.id);
         if (!targetTableGroup || targetTableGroup.organization_id !== organizationId) throw new DataNotFound("TableGroup not found");
 
-        // TODO : Probably going to need to add another validation in the future
-
         targetTableGroup.status = data.newStatus;
-        targetTableGroup.save();
+        await targetTableGroup.save();
+
+        await this.eventPublisherProvider.publish({
+            type : EventTypeEnum.TABLE_GROUP_STATUS_UPDATED,
+            payload : {
+                tableGroupId : targetTableGroup.id,
+                organizationId : organizationId,
+            },
+            timestamp : new Date(),
+        });
 
         return targetTableGroup.status;
     }
@@ -255,7 +270,15 @@ export class TableService implements ITableService {
         if (!targetTable || targetTable.table_group?.organization_id !== organizationId) throw new DataNotFound("Data not found");
 
         targetTable.status = data.newStatus;
-        targetTable.save();
+        await targetTable.save();
+
+        await this.eventPublisherProvider.publish({
+            type : EventTypeEnum.TABLE_STATUS_UPDATED,
+            payload : {
+                tableId : targetTable.table_id,
+            },
+            timestamp : new Date(),
+        });
 
         return targetTable.status;
     }
@@ -272,5 +295,91 @@ export class TableService implements ITableService {
         targetTable.save({ transaction });
 
         return true;
+    }
+
+    private async handleTableGroupStatusUpdate(event : DomainEvent) : Promise<void> {
+        const { tableGroupId, organizationId } = event.payload;
+
+        try {
+            const tableGroup = await this.tableGroupRepository.findTableGroupById(tableGroupId);
+            if (!tableGroup) return;
+    
+            const outlet = await this.outletRepository.findOutletById(tableGroup.outlet_id);
+            if (!outlet) return;
+    
+            const tables = await this.tableRepository.findTableByTableGroup(tableGroupId, organizationId);
+    
+            const updatedTables = tables.map(table => ({
+                table_id: table.table_id,
+                effective_status: !!(table.status && tableGroup.status && outlet.status),
+                updated_at: new Date()
+            }));
+            
+            this.tableRepository.bulkUpdateEffectiveStatus(updatedTables);
+
+        } catch(e) {
+            // ADD-ONS : Add logger if there is
+            console.log(e);
+        }
+    }
+
+    private async handleOutletStatusUpdate(event : DomainEvent) : Promise<void> {
+        const { outletId, organizationId } = event.payload;
+
+        try {
+            const outlet = await this.outletRepository.findOutletById(outletId);
+            if (!outlet) return;
+    
+            const tableGroups = await this.tableGroupRepository.findTableGroupByOutlet(outletId, organizationId);
+    
+            const allTables = await Promise.all(
+                tableGroups.map(group =>
+                    this.tableRepository.findTableByTableGroup(group.id, organizationId)
+                )
+            );
+    
+            const updates: { table_id: number; effective_status: boolean }[] = [];
+    
+            for (let i = 0; i < tableGroups.length; i++) {
+                const group = tableGroups[i];
+                const tables = allTables[i];
+    
+                tables.forEach(table => {
+                    const newEffectiveStatus = !!(table.status && group.status && outlet.status);
+                    updates.push({ table_id: table.table_id, effective_status: newEffectiveStatus });
+                });
+            }
+    
+            if (updates.length === 0) return;
+    
+            await this.tableRepository.bulkUpdateEffectiveStatus(updates);
+
+        } catch(e) {
+            // ADD-ONS : Add logger if there is
+            console.log(e);
+        }
+    }
+
+    private async handleTableStatusUpdate(event: DomainEvent): Promise<void> {
+        const { tableId } = event.payload;
+        
+        try {
+            const table = await this.tableRepository.findTableById(tableId);
+            if (!table) return;
+            
+            const tableGroup = await this.tableGroupRepository.findTableGroupById(table.table_group_id);
+            if (!tableGroup) return;
+            
+            const outlet = await this.outletRepository.findOutletById(tableGroup.outlet_id);
+            if (!outlet) return;
+            
+            const newEffectiveStatus = !!(table.status && tableGroup.status && outlet.status);
+            table.effective_status = newEffectiveStatus;
+            table.save();
+            
+        } catch(e) {
+            // ADD-ONS : Add logger if there is
+            console.log(e);
+        }
     }
 }
