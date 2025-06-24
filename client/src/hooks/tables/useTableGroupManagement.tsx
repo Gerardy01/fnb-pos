@@ -264,7 +264,7 @@ export function useTableGroupManagement() {
                     ? { ...item, status: newStatus ? t("global:active") : t("global:inactive") }
                     : item
             )
-        )
+        );
     }
 
     const onDeleteTableGroupSuccess = (tableGroupId : number) : void => {

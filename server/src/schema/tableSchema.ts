@@ -21,3 +21,14 @@ export const CreateTableSchema = z.object({
     pax : z.number().min(0).max(9999),
     tableGroupId :  z.number(),
 });
+
+export const EditTableSchema = z.object({
+    tableId : z.number(),
+    tableName : z.string().min(1).max(100),
+    pax : z.number().min(0).max(9999),
+});
+
+export const ChangeTableStatusSchema = z.object({
+    tableId : z.number(),
+    newStatus : z.boolean(),
+});

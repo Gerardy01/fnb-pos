@@ -39,7 +39,22 @@ export interface ChangeTableGroupStatusDataReturn {
     newStatus : boolean;
 }
 
+export interface ChangeTableStatusBodyData {
+    tableId : number;
+    newStatus : boolean;
+}
+
+export interface ChangeTableStatusDataReturn {
+    newStatus : boolean;
+}
+
 export interface EditTableGroupBodyData {
     id : number;
     groupName : string;
+}
+
+export interface EditTableBodyData {
+    tableId : number;
+    tableName : string;
+    pax : number;
 }

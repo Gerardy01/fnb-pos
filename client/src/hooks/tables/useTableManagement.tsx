@@ -8,6 +8,7 @@ import useNotification from "../useNotification";
 import { useTranslation } from "react-i18next";
 import { useParams, useNavigate } from "react-router-dom";
 import { EditOutlined } from "@ant-design/icons";
+import { TableDataReturn } from "../../models/tableInterface";
 
 // types and interfaces
 export interface TableForm {
@@ -23,6 +24,9 @@ export interface TablesTableData {
 
 
 export function useTableManagement() {
+
+    const { tableId : tableIdFromParams } = useParams();
+    const navigate = useNavigate();
 
     const { t } = useTranslation(['global', 'table']);
 
@@ -43,10 +47,12 @@ export function useTableManagement() {
     const [filteredTables, setFilteredTables] = useState<TablesTableData[]>([]);
 
     const [addTableModal, setAddTableModal] = useState<boolean>(false);
+    const [editTableModal, setEditTableModal] = useState<boolean>(false);
 
     useEffect(() => {
         getOutletList();
 
+        if (tableIdFromParams) editTableModalOpen(true);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
@@ -125,7 +131,7 @@ export function useTableManagement() {
                             icon={<EditOutlined />}
                             color="default"
                             variant='outlined'
-                            // onClick={() => handleSelectEdit(record.key)}
+                            onClick={() => handleSelectEdit(record.key)}
                         >
                             {t("global:edit")}
                         </Button>
@@ -296,6 +302,11 @@ export function useTableManagement() {
         setFilteredTables(filtered);
     }
 
+    const handleSelectEdit = (tableId : number) : void => {
+        navigate(`/table/${tableId}`, { replace: false });
+        editTableModalOpen(true);
+    }
+
     const handleChangeOutlet = async (outletId : string) : Promise<void> => {
         setSelectedOutlet(outletId);
     }
@@ -308,9 +319,45 @@ export function useTableManagement() {
         setAddTableModal(open);
     }
 
+    const editTableModalOpen = (open : boolean) : void => {
+        setEditTableModal(open);
+
+        if (!open) {
+            navigate(`/table`);
+        }
+    }
+
     const onAddTableSuccess = (newTableGroup : TablesTableData) : void => {
         setTables(prev => [...prev, newTableGroup]);
         addTableModalOpen(false);
+    }
+
+    const onEditTableSuccess = (newData : TablesTableData) : void => {
+        setTables(prevData =>
+            prevData.map(item =>
+                item.key === newData.key
+                    ? newData
+                    : item
+            )
+        );
+        editTableModalOpen(false);
+    }
+
+    const onChangeStatusSuccess = (tableId : number, newStatus : boolean) : void => {
+        setTables(prevData =>
+            prevData.map(item =>
+                item.key === tableId
+                    ? { ...item, status: newStatus ? t("global:active") : t("global:inactive") }
+                    : item
+            )
+        );
+    }
+
+    const onDeleteTableSuccess = (tableId : number) : void => {
+        const filtered = tables.filter(item => item.key !== tableId);
+        setTables(filtered);
+
+        editTableModalOpen(false);
     }
 
     return {
@@ -325,12 +372,17 @@ export function useTableManagement() {
         columns,
         tables : filteredTables,
         addTableModal,
+        editTableModal,
         handleChangeOutlet,
         handleChangeTableGroup,
         handleSearch,
         handleChangeStatusFilter,
         addTableModalOpen,
+        editTableModalOpen,
         onAddTableSuccess,
+        onEditTableSuccess,
+        onChangeStatusSuccess,
+        onDeleteTableSuccess,
     }
 }
 
@@ -404,5 +456,175 @@ export function useAddTable(
         addTableForm,
         handleAddTable,
         resetData,
+    }
+}
+
+
+export function useEditTable(
+    onEditTableSuccess : (newData : TablesTableData) => void,
+    onChangeStatusSuccess : (tableId : number, newStatus : boolean) => void,
+    onDeleteTableSuccess : (tableId : number) => void,
+) {
+
+    const { tableId : tableIdFromParams } = useParams();
+
+    const { t } = useTranslation(['global', 'table']);
+
+    const { serverErrorModal, errorModal, confirmationModal } = useStaticModal();
+    const { successnotification } = useNotification();
+
+    const [contentLoad, setContentLoad] = useState<boolean>(true);
+    const [submitLoad, setSubmitLoad] = useState<boolean>(false);
+    const [loading, setLoading] = useState<boolean>(false);
+
+    const [tableData, setTableData] = useState<TableDataReturn | null>(null);
+
+    const [editTableForm] = Form.useForm();
+
+    useEffect(() => {
+        getTableData();
+
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    const getTableData = async () : Promise<void> => {
+        if (!tableIdFromParams) return;
+
+        try {
+
+            const [err, data] = await tableApi.getOneTable(tableIdFromParams);
+
+            if (err) {
+                serverErrorModal();
+                return;
+            }
+
+            setTableData(data);
+
+        } finally {
+            setContentLoad(false);
+        }
+    }
+
+    const handleEditTable : FormProps<TableForm>['onFinish'] = async (values) : Promise<void> => {
+        if (!tableIdFromParams) return;
+        
+        setSubmitLoad(true);
+
+        try {
+            
+            const [err, data] = await tableApi.editTable({
+                tableId : Number(tableIdFromParams),
+                tableName : values.tableName,
+                pax : values.pax
+            });
+
+             if (err) {
+
+                if (err.status === 400) {
+                    const error = err.response.data.schemaErrors ? err.response.data.schemaErrors[0] : undefined;
+                    if (!error) return;
+                    errorModal(undefined, `${error.field} is ${error.message}`);
+                    return;
+                }
+
+                if (err.status === 409) {
+                    errorModal(t('global:failed'), t(`table:${err.response.data.message}`));
+                    return;
+                }
+
+                serverErrorModal();
+                return;
+            }
+
+            successnotification(t("table:editTableSuccess"));
+            onEditTableSuccess({
+                key : data.tableId,
+                tableName : data.tableName,
+                pax : data.pax,
+                status : data.status ? t("global:active") : t("global:inactive"),
+            });
+
+        } finally {
+            setSubmitLoad(false);
+        }
+    }
+
+    const handleChangeStatus = async (newStatus : boolean) : Promise<void> => {
+        if (!tableIdFromParams) return;
+
+        setLoading(true);
+
+        try {
+
+            const [err, data] = await tableApi.changeTableStatus({
+                tableId : Number(tableIdFromParams),
+                newStatus : newStatus
+            });
+
+            if (err) {
+                serverErrorModal();
+                return; 
+            }
+
+            onChangeStatusSuccess(Number(tableIdFromParams), data.newStatus);
+            successnotification(`${t("table:statusChanged")} ${data.newStatus ? t("global:active") : t("global:inactive")}`);
+
+            setTableData(prev => {
+                if (!prev) return null;
+                return {
+                    ...prev,
+                    status : newStatus,
+                }
+            });
+
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    const clickDeleteBtn = async () : Promise<void> => {
+        confirmationModal({
+            title : t("table:sureDeleteTableGroup"),
+            content: t("table:deleteTableGroupDesc"),
+            okBtn: t("global:yes"),
+            cancelBtn: t("global:cancel"),
+            centered: true,
+            okBtnDanger: true,
+            onOkWithPromise : handleDeleteTable,
+        });
+    }
+
+    const handleDeleteTable = async () : Promise<void> => {
+        if (!tableIdFromParams) return;
+
+        setLoading(true);
+
+        try {
+
+            const [err] = await tableApi.deleteTable(Number(tableIdFromParams));
+
+            if (err) {
+                serverErrorModal();
+                return;
+            }
+
+            onDeleteTableSuccess(Number(tableIdFromParams));
+            successnotification(t("table:deleteTableSuccess"));
+            
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    return {
+        contentLoad,
+        submitLoad,
+        loading,
+        tableData,
+        editTableForm,
+        handleEditTable,
+        handleChangeStatus,
+        clickDeleteBtn,
     }
 }

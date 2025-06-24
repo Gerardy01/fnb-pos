@@ -22,6 +22,17 @@ export interface ICreateTableData {
     tableGroupId : number;
 }
 
+export interface IEditTableData {
+    tableId : number;
+    tableName : string;
+    pax : number;
+}
+
+export interface IChangeTableStatusData {
+    tableId : number;
+    newStatus : boolean;
+}
+
 export type TableGroupReturnData = {
     id : number;
     groupName : string;

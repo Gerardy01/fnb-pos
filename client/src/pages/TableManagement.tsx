@@ -6,6 +6,7 @@ import { TablesTableData, useTableManagement } from '../hooks/tables/useTableMan
 
 // components
 import AddTableModal from '../components/table/AddTableModal';
+import EditTableModal from '../components/table/EditTableModal';
 
 
 
@@ -29,12 +30,17 @@ export default function TableManagement() {
         columns,
         tables,
         addTableModal,
+        editTableModal,
         handleChangeOutlet,
         handleChangeTableGroup,
         handleSearch,
         handleChangeStatusFilter,
         addTableModalOpen,
+        editTableModalOpen,
         onAddTableSuccess,
+        onEditTableSuccess,
+        onChangeStatusSuccess,
+        onDeleteTableSuccess,
     } = useTableManagement();
 
     return (
@@ -130,6 +136,15 @@ export default function TableManagement() {
                 onClose={() => addTableModalOpen(false)}
                 onAddTableSuccess={onAddTableSuccess}
             />
+            {editTableModal && (
+                <EditTableModal
+                    open={editTableModal}
+                    onClose={() => editTableModalOpen(false)}
+                    onEditTableSuccess={onEditTableSuccess}
+                    onChangeStatusSuccess={onChangeStatusSuccess}
+                    onDeleteTableSuccess={onDeleteTableSuccess}
+                />
+            )}
         </div>
     )
 }

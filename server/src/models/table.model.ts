@@ -19,7 +19,7 @@ class Table extends Model {
     public readonly created_at! : Date;
     public readonly updated_at! : Date;
 
-    public table_roup?: TableGroup;
+    public table_group?: TableGroup;
 }
 
 Table.init({

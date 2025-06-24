@@ -4,7 +4,7 @@ import { DataNotFound, ExistData } from "../utility/exceptions";
 
 // types and interfaces
 import { Transaction } from "sequelize";
-import { IChangeTableGroupStatusData, ICreateTableData, ICreateTableGroupData, IEditTableGroupData, TableGroupReturnData, TableReturnData } from "../interfaces/ITable";
+import { IChangeTableGroupStatusData, IChangeTableStatusData, ICreateTableData, ICreateTableGroupData, IEditTableData, IEditTableGroupData, TableGroupReturnData, TableReturnData } from "../interfaces/ITable";
 import { ITableGroupRepository } from "../repositories/tableGroupRepository";
 import { IOutletRepository } from "../repositories/outletRepository";
 import { ITableRepository } from "../repositories/tableRepository";
@@ -16,7 +16,11 @@ export interface ITableService {
     deleteTableGroup(tableGroupId : number, organizationId : string, transaction? : Transaction) : Promise<boolean>
     changeTableGroupStatus(data : IChangeTableGroupStatusData, organizationId : string) : Promise<boolean>
     getAllTable(organizationId : string, tableGroupId? : number) : Promise<TableReturnData[]>
+    getOneTable(tableId : number, organizationId : string) : Promise<TableReturnData>
     createTable(data : ICreateTableData, organizationId : string, transaction? : Transaction) : Promise<TableReturnData>
+    editTable(data : IEditTableData, organizationId : string, transaction? : Transaction) : Promise<TableReturnData>
+    changeTableStatus(data : IChangeTableStatusData, organizationId : string) : Promise<boolean>
+    deleteTable(tableId : number, organizationId : string, transaction? : Transaction) : Promise<boolean>
 }
 
 
@@ -170,6 +174,22 @@ export class TableService implements ITableService {
         return tableList;
     }
 
+    async getOneTable(tableId: number, organizationId: string): Promise<TableReturnData> {
+        
+        const table = await this.tableRepository.findTableById(tableId);
+        if (!table || table.table_group?.organization_id !== organizationId) throw new DataNotFound("Data not found");
+
+        return {
+            tableId : table.table_id,
+            tableName : table.table_name,
+            pax : table.pax,
+            tableGroupId : table.table_group_id,
+            operationalStatus : table.operational_status,
+            status : table.status,
+            effectiveStatus : table.effective_status,
+        }
+    }
+
     async createTable(data: ICreateTableData, organizationId: string, transaction? : Transaction): Promise<TableReturnData> {
         
         // check table group exist
@@ -201,5 +221,56 @@ export class TableService implements ITableService {
             status : createdTable.status,
             effectiveStatus : createdTable.effective_status,
         }
+    }
+
+    async editTable(data: IEditTableData, organizationId: string, transaction?: Transaction): Promise<TableReturnData> {
+        
+        // check table exist
+        const targetTable = await this.tableRepository.findTableById(data.tableId);
+        if (!targetTable || targetTable.table_group?.organization_id !== organizationId) throw new DataNotFound("Data not found");
+
+        // check name already exist
+        const existTable = await this.tableRepository.findTableByName(data.tableName, targetTable.table_group_id);
+        if (existTable && existTable.table_id !== targetTable.table_id) throw new ExistData("TABLE409-2");
+
+        targetTable.table_name = data.tableName;
+        targetTable.pax = data.pax;
+
+        await targetTable.save({ transaction });
+
+        return {
+            tableId : targetTable.table_id,
+            tableName : targetTable.table_name,
+            pax : targetTable.pax,
+            tableGroupId : targetTable.table_group_id,
+            operationalStatus : targetTable.operational_status,
+            status : targetTable.status,
+            effectiveStatus : targetTable.effective_status,
+        }
+    }
+
+    async changeTableStatus(data: IChangeTableStatusData, organizationId: string): Promise<boolean> {
+        
+        const targetTable = await this.tableRepository.findTableById(data.tableId);
+        if (!targetTable || targetTable.table_group?.organization_id !== organizationId) throw new DataNotFound("Data not found");
+
+        targetTable.status = data.newStatus;
+        targetTable.save();
+
+        return targetTable.status;
+    }
+
+    async deleteTable(tableId: number, organizationId: string, transaction?: Transaction): Promise<boolean> {
+        
+        const targetTable = await this.tableRepository.findTableById(tableId);
+        if (!targetTable || targetTable.table_group?.organization_id !== organizationId) throw new DataNotFound("Data not found");
+
+        targetTable.status = false;
+        targetTable.effective_status = false;
+        targetTable.archived = true;
+
+        targetTable.save({ transaction });
+
+        return true;
     }
 }

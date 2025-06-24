@@ -4,7 +4,7 @@ import { catchFetchError } from "../utils/utility";
 
 // types and interfaces
 import { FetchResponse, ErrorResponse } from "../models/globalInterface";
-import { ChangeTableGroupStatusBodyData, ChangeTableGroupStatusDataReturn, CreateTableBodyData, CreateTableGroupBodyData, EditTableGroupBodyData, TableDataReturn, TableGroupDataReturn } from "../models/tableInterface";
+import { ChangeTableGroupStatusBodyData, ChangeTableGroupStatusDataReturn, ChangeTableStatusBodyData, ChangeTableStatusDataReturn, CreateTableBodyData, CreateTableGroupBodyData, EditTableBodyData, EditTableGroupBodyData, TableDataReturn, TableGroupDataReturn } from "../models/tableInterface";
 
 
 export class TableApi {
@@ -17,9 +17,53 @@ export class TableApi {
         return [error, res.data.data];
     }
 
+    async getOneTable(tableId : string) : Promise<[undefined, TableDataReturn] | [ErrorResponse]> {
+        const [error, res] = await catchFetchError(axiosPrivate.get<FetchResponse<TableDataReturn>>(
+            `table/${tableId}`
+        ));
+
+        if (error) return [error];
+        return [error, res.data.data];
+    }
+
     async createTable(data : CreateTableBodyData) : Promise<[undefined, TableDataReturn] | [ErrorResponse]> {
         const [error, res] = await catchFetchError(axiosPrivate.post<FetchResponse<TableDataReturn>>(
             "table/",
+            data,
+            {
+                headers : { 'Content-Type' : 'application/json' },
+            }
+        ));
+
+        if (error) return [error];
+        return [error, res.data.data];
+    }
+
+    async editTable(data : EditTableBodyData) : Promise<[undefined, TableDataReturn] | [ErrorResponse]> {
+        const [error, res] = await catchFetchError(axiosPrivate.put<FetchResponse<TableDataReturn>>(
+            "table/",
+            data,
+            {
+                headers : { 'Content-Type' : 'application/json' },
+            }
+        ));
+
+        if (error) return [error];
+        return [error, res.data.data];
+    }
+
+    async deleteTable(tableId : number) : Promise<[undefined, boolean] | [ErrorResponse]> {
+        const [error, res] = await catchFetchError(axiosPrivate.delete<FetchResponse<boolean>>(
+            `table/${tableId}`
+        ));
+
+        if (error) return [error];
+        return [error, res.data.data];
+    }
+
+    async changeTableStatus(data : ChangeTableStatusBodyData) : Promise<[undefined, ChangeTableStatusDataReturn] | [ErrorResponse]> {
+        const [error, res] = await catchFetchError(axiosPrivate.put<FetchResponse<ChangeTableStatusDataReturn>>(
+            "table/action/change-status",
             data,
             {
                 headers : { 'Content-Type' : 'application/json' },

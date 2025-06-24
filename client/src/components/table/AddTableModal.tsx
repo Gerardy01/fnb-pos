@@ -72,7 +72,6 @@ export default function AddTableModal({
                     rules={[
                         { required: true, message: t("global:fieldRequired") }
                     ]}
-                    style={styles.twoFormItem}
                 >
                     <InputNumber
                         min={0}
@@ -111,13 +110,6 @@ const styles : { [key: string]: React.CSSProperties } = {
         flex: 1,
         justifyContent: 'center',
         display: 'flex'
-    },
-    twoItemHolder: {
-        display: 'flex',
-        justifyContent: 'space-between'
-    },
-    twoFormItem: {
-        width: '48%'
     },
     numberInput : {
         width: '100%'
