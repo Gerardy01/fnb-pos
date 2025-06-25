@@ -118,9 +118,9 @@ export class TableApi {
         return [error, res.data.data];
     }
 
-    async deleteTableGroup(tableGroupId : number) : Promise<[undefined, boolean] | [ErrorResponse]> {
+    async deleteTableGroup(tableGroupId : number, params? : string) : Promise<[undefined, boolean] | [ErrorResponse]> {
         const [error, res] = await catchFetchError(axiosPrivate.delete<FetchResponse<boolean>>(
-            `table-group/${tableGroupId}`
+            `table-group/${tableGroupId}${params ? `?${params}` : ""}`
         ));
 
         if (error) return [error];

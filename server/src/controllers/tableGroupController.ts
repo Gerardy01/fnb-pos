@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import sequelize from '../config/database';
 
 // utils
-import { DataNotFound, ExistData } from '../utility/exceptions';
+import { DataNotFound, ExistData, Forbidden } from '../utility/exceptions';
 
 // services
 import { tableService } from '../services';
@@ -168,7 +168,8 @@ class TableGroupController {
 
             const tableGroupId : number = Number(req.params.id);
             const organizationId = req.user ? req.user.organizationId : "";
-            const tableGroupDeleted = await tableService.deleteTableGroup(tableGroupId, organizationId, transaction);
+            const deleteUnder = req.query.deleteUnder as string | undefined;
+            const tableGroupDeleted = await tableService.deleteTableGroup(tableGroupId, organizationId, deleteUnder, transaction);
 
             transaction.commit();
 
@@ -185,6 +186,14 @@ class TableGroupController {
 
             if (e instanceof DataNotFound) {
                 return res.status(404).json({
+                    "status" : "failed",
+                    "message" : e.message,
+                    "userMessage" : e.message,
+                });
+            }
+
+            if (e instanceof Forbidden) {
+                return res.status(403).json({
                     "status" : "failed",
                     "message" : e.message,
                     "userMessage" : e.message,

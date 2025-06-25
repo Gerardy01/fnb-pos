@@ -1,6 +1,6 @@
 
 // utils
-import { DataNotFound, ExistData } from "../utility/exceptions";
+import { DataNotFound, ExistData, Forbidden } from "../utility/exceptions";
 import { EventTypeEnum } from "../utility/enums";
 
 // types and interfaces
@@ -10,12 +10,13 @@ import { Transaction } from "sequelize";
 import { IAccountRepository } from "../repositories/accountRepository";
 import { IAccountOutletRepository } from "../repositories/accountOutletRepository";
 import { IEventPublisherProvider } from "../providers/eventPublisherProvider";
+import { ITableGroupRepository } from "../repositories/tableGroupRepository";
 export interface IOutletService {
     getAllOutlet(organizationId : string, accountId? : string) : Promise<OutletReturnData[]>
     getOneOutlet(outletId : string, organizationId : string) : Promise<OutletReturnData>
     createOutlet(data : ICreateOutletData, organizationId : string, transaction? : Transaction) : Promise<OutletReturnData>
     editOutlet(data : IEditOutletData, organizationId : string) : Promise<OutletReturnData>
-    deleteOutlet(outletId : string, organizationId : string) : Promise<boolean>
+    deleteOutlet(outletId : string, organizationId : string, deleteUnder? : string) : Promise<boolean>
     changeOutletStatus(data : IChangeOutletStatusData, organizationId : string) : Promise<boolean>
 }
 
@@ -25,6 +26,7 @@ export class OutletService implements IOutletService {
         private outletRepository : IOutletRepository,
         private accountRepository : IAccountRepository,
         private accountOutletRepository : IAccountOutletRepository,
+        private tableGroupRepository : ITableGroupRepository,
         private eventPublisherProvider : IEventPublisherProvider,
     ) {}
 
@@ -140,7 +142,7 @@ export class OutletService implements IOutletService {
         }
     }
 
-    async deleteOutlet(outletId: string, organizationId: string): Promise<boolean> {
+    async deleteOutlet(outletId: string, organizationId: string, deleteUnder? : string): Promise<boolean> {
 
         // check outlet exist
         const targetOutlet = await this.outletRepository.findOutletById(outletId);
@@ -150,10 +152,28 @@ export class OutletService implements IOutletService {
 
         // TODO : Probably going to need to add another validation in the future
 
+        const deleteItemUnder = deleteUnder === "true" ? true : false;
+
+        if (!deleteItemUnder) {
+            const tableGroups = await this.tableGroupRepository.findTableGroupByOutlet(targetOutlet.outlet_id, organizationId);
+            if (tableGroups.length > 0) throw new Forbidden("Table Group with this Outlet exist")
+        }
+
         targetOutlet.status = false;
         targetOutlet.archived = true;
 
         targetOutlet.save();
+
+        if (deleteItemUnder) {
+            await this.eventPublisherProvider.publish({
+                type : EventTypeEnum.OUTLET_DELETED,
+                payload : {
+                    outletId : targetOutlet.outlet_id,
+                    organizationId : organizationId,
+                },
+                timestamp : new Date(),
+            });
+        }
 
         return true;
     }

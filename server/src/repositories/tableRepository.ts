@@ -14,6 +14,7 @@ export interface ITableRepository {
     findTableByTableGroups(tableGroupIds: number[], organizationId: string): Promise<Table[]>
     createTable(data : Partial<Table>, transaction? : Transaction) : Promise<Table>
     bulkUpdateEffectiveStatus(data : Partial<Table>[]) : Promise<void>
+    bulkDeleteTable(tableIds : number[]) : Promise<void>
 }
 
 export class TableRepository implements ITableRepository {
@@ -124,5 +125,22 @@ export class TableRepository implements ITableRepository {
         `;
 
         await sequelize.query(sql);
+    }
+
+    async bulkDeleteTable(tableIds: number[]): Promise<void> {
+        Table.update(
+            {
+                archived : true,
+                status : false,
+                effective_status : false,
+            },
+            {
+                where : {
+                    table_id : {
+                        [Op.in]: tableIds,
+                    }
+                }
+            }
+        );
     }
 }

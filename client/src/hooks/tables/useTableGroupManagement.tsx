@@ -502,16 +502,34 @@ export function useEditTableGroup(
         });
     }
 
-    const handleDeleteTableGroup = async () : Promise<void> => {
+    const deleteWithTableConfirmation = async () : Promise<void> => {
+        confirmationModal({
+            title : t("table:tableExist"),
+            content: t("table:tableExistDesc"),
+            okBtn: t("global:yes"),
+            cancelBtn: t("global:cancel"),
+            centered: true,
+            okBtnDanger: true,
+            onOkWithPromise : () => handleDeleteTableGroup(true),
+        });
+    }
+
+    const handleDeleteTableGroup = async (deleteUnder? : boolean) : Promise<void> => {
         if (!tableGroupIdFromParams) return;
 
         setLoading(true);
 
         try {
 
-            const [err] = await tableApi.deleteTableGroup(Number(tableGroupIdFromParams));
+            const [err] = await tableApi.deleteTableGroup(Number(tableGroupIdFromParams), `deleteUnder=${deleteUnder ?? false}`);
 
             if (err) {
+
+                if (err.status === 403) {
+                    deleteWithTableConfirmation();
+                    return;
+                }
+
                 serverErrorModal();
                 return;
             }

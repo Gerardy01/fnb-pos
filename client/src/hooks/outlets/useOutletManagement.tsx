@@ -425,16 +425,34 @@ export function useEditOutlet(
         });
     }
 
-    const handleDeleteOutlet = async () : Promise<void> => {
+    const deleteWithItemUnderConfirmation = async () : Promise<void> => {
+        confirmationModal({
+            title : t("outlet:tableGroupExist"),
+            content: t("outlet:tableGroupExistDesc"),
+            okBtn: t("global:yes"),
+            cancelBtn: t("global:cancel"),
+            centered: true,
+            okBtnDanger: true,
+            onOkWithPromise : () => handleDeleteOutlet(true),
+        });
+    }
+
+    const handleDeleteOutlet = async (deleteUnder? : boolean) : Promise<void> => {
         if (!outletIdFormParams) return;
 
         setLoading(true);
 
         try {
             
-            const [err] = await outletApi.deleteOutlet(outletIdFormParams);
+            const [err] = await outletApi.deleteOutlet(outletIdFormParams, `deleteUnder=${deleteUnder ?? false}`);
 
             if (err) {
+
+                if (err.status === 403) {
+                    deleteWithItemUnderConfirmation();
+                    return;
+                }
+
                 serverErrorModal();
                 return;
             }

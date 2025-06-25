@@ -33,5 +33,7 @@
     "sureDeleteTable" : "Are you sure want to delete this table?",
     "deleteTableDesc" : "Please confirm that you want to permanently delete this table. This operation cannot be undone.",
     "tableName" : "Table Name",
-    "pax" : "Pax"
+    "pax" : "Pax",
+    "tableExist" : "Table with this Table Group exist!",
+    "tableExistDesc" : "Are you sure you want to delete this Table Group with all Table under it? This operation cannot be undone."
 }

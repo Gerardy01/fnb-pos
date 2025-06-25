@@ -87,7 +87,7 @@ export const authService = new AuthService(
     envData
 );
 export const notificationService = new NotificationService(emailProvider);
-export const outletService = new OutletService(outletRepository, accountRepository, accountOutletRepository, eventPublisherProvider);
+export const outletService = new OutletService(outletRepository, accountRepository, accountOutletRepository, tableGroupRepository, eventPublisherProvider);
 export const tableService = new TableService(tableRepository, tableGroupRepository, outletRepository, eventPublisherProvider);
 
 

@@ -1,6 +1,6 @@
 
 // utils
-import { DataNotFound, ExistData } from "../utility/exceptions";
+import { DataNotFound, ExistData, Forbidden } from "../utility/exceptions";
 import { EventTypeEnum } from "../utility/enums";
 
 // types and interfaces
@@ -16,7 +16,7 @@ export interface ITableService {
     getOneTableGroup(tableGroupId : number, organizationId : string) : Promise<TableGroupReturnData>
     createTableGroup(data : ICreateTableGroupData, organizationId : string, transaction? : Transaction) : Promise<TableGroupReturnData>
     editTableGroup(data : IEditTableGroupData, organizationId : string, transaction? : Transaction) : Promise<TableGroupReturnData>
-    deleteTableGroup(tableGroupId : number, organizationId : string, transaction? : Transaction) : Promise<boolean>
+    deleteTableGroup(tableGroupId : number, organizationId : string, deleteUnder? : string, transaction? : Transaction) : Promise<boolean>
     changeTableGroupStatus(data : IChangeTableGroupStatusData, organizationId : string) : Promise<boolean>
     getAllTable(organizationId : string, tableGroupId? : number) : Promise<TableReturnData[]>
     getOneTable(tableId : number, organizationId : string) : Promise<TableReturnData>
@@ -38,6 +38,8 @@ export class TableService implements ITableService {
         eventPublisherProvider.subscribe(EventTypeEnum.TABLE_GROUP_STATUS_UPDATED, this.handleTableGroupStatusUpdate.bind(this));
         eventPublisherProvider.subscribe(EventTypeEnum.OUTLET_STATUS_UPDATED, this.handleOutletStatusUpdate.bind(this));
         eventPublisherProvider.subscribe(EventTypeEnum.TABLE_STATUS_UPDATED, this.handleTableStatusUpdate.bind(this));
+        eventPublisherProvider.subscribe(EventTypeEnum.TABLE_GROUP_DELETED, this.handleTableGroupDeleted.bind(this));
+        eventPublisherProvider.subscribe(EventTypeEnum.OUTLET_DELETED, this.handleOutletDeleted.bind(this));
     }
 
     async getAllTableGroup(organizationId: string, outletId? : string, includeTableCount? : string): Promise<TableGroupReturnData[]> {
@@ -126,18 +128,34 @@ export class TableService implements ITableService {
         }
     }
 
-    async deleteTableGroup(tableGroupId: number, organizationId: string, transaction? : Transaction): Promise<boolean> {
+    async deleteTableGroup(tableGroupId: number, organizationId: string, deleteUnder? : string, transaction? : Transaction): Promise<boolean> {
         
         // check table group exist
         const targetTableGroup = await this.tableGroupRepository.findTableGroupById(tableGroupId);
         if (!targetTableGroup || targetTableGroup.organization_id !== organizationId) throw new DataNotFound("TableGroup not found");
 
-        // TODO : Probably going to need to add another validation in the future
+        const deleteTableUnder = deleteUnder === "true" ? true : false;
+
+        if (!deleteTableUnder) {
+            const tables = await this.tableRepository.findTableByTableGroup(targetTableGroup.id, organizationId);
+            if (tables.length > 0) throw new Forbidden("Table with this Table Group exist");
+        }
 
         targetTableGroup.status = false;
         targetTableGroup.archived = true;
 
         await targetTableGroup.save({ transaction });
+
+        if (deleteTableUnder) {
+            await this.eventPublisherProvider.publish({
+                type : EventTypeEnum.TABLE_GROUP_DELETED,
+                payload : {
+                    tableGroupId : targetTableGroup.id,
+                    organizationId : organizationId,
+                },
+                timestamp : new Date(),
+            });
+        }
 
         return true;
     }
@@ -376,6 +394,51 @@ export class TableService implements ITableService {
             const newEffectiveStatus = !!(table.status && tableGroup.status && outlet.status);
             table.effective_status = newEffectiveStatus;
             table.save();
+            
+        } catch(e) {
+            // ADD-ONS : Add logger if there is
+            console.log(e);
+        }
+    }
+
+    private async handleTableGroupDeleted(event: DomainEvent): Promise<void> {
+        const { tableGroupId, organizationId } = event.payload;
+
+        try {
+
+            const tables = await this.tableRepository.findTableByTableGroup(tableGroupId, organizationId);
+            const tableIds = tables.map(item => item.table_id);
+
+            this.tableRepository.bulkDeleteTable(tableIds);
+
+        } catch(e) {
+            // ADD-ONS : Add logger if there is
+            console.log(e);
+        }
+    }
+
+    private async handleOutletDeleted(event: DomainEvent): Promise<void> {
+        const { outletId, organizationId } = event.payload;
+
+        try {
+
+            const tableGroups = await this.tableGroupRepository.findTableGroupByOutlet(outletId, organizationId);
+    
+            const allTables = await Promise.all(
+                tableGroups.map(group =>
+                    this.tableRepository.findTableByTableGroup(group.id, organizationId)
+                )
+            );
+
+            const tableIds : number[] = [];
+            allTables.forEach(e => {
+                tableIds.push(...e.map(item => item.table_id));
+            });
+
+            const tableGroupIds = tableGroups.map(item => item.id);
+
+            this.tableGroupRepository.bulkDeleteTableGroup(tableGroupIds);
+            this.tableRepository.bulkDeleteTable(tableIds);
             
         } catch(e) {
             // ADD-ONS : Add logger if there is

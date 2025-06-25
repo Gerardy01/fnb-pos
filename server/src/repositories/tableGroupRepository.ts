@@ -11,6 +11,7 @@ export interface ITableGroupRepository {
     findAllTableGroup(organizationId : string, includeTableCount? : boolean) : Promise<TableGroup[]>;
     findTableGroupByOutlet(outletId : string, organizationId : string, includeTableCount? : boolean) : Promise<TableGroup[]>;
     createTableGroup(data : Partial<TableGroup>, transaction? : Transaction) : Promise<TableGroup>;
+    bulkDeleteTableGroup(tableGroupIds : number[]) : Promise<void>;
 }
 
 export class TableGroupRepository implements ITableGroupRepository {
@@ -129,5 +130,20 @@ export class TableGroupRepository implements ITableGroupRepository {
     }
     createTableGroup(data: Partial<TableGroup>, transaction?: Transaction): Promise<TableGroup> {
         return TableGroup.create(data, { transaction });
+    }
+    async bulkDeleteTableGroup(tableGroupIds: number[]): Promise<void> {
+        TableGroup.update(
+            {
+                archived : true,
+                status : false,
+            },
+            {
+                where : {
+                    id : {
+                        [Op.in]: tableGroupIds,
+                    }
+                }
+            }
+        )
     }
 }

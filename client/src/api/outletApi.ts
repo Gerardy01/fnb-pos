@@ -52,9 +52,9 @@ export class OutletApi {
         return [error, res.data.data];
     }
 
-    async deleteOutlet(outletId : string) : Promise<[undefined, boolean] | [ErrorResponse]> {
+    async deleteOutlet(outletId : string, params? : string) : Promise<[undefined, boolean] | [ErrorResponse]> {
         const [error, res] = await catchFetchError(axiosPrivate.delete<FetchResponse<boolean>>(
-            `outlet/${outletId}`
+            `outlet/${outletId}${params ? `?${params}` : ""}`
         ));
 
         if (error) return [error];

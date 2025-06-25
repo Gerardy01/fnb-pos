@@ -5,7 +5,7 @@ import sequelize from '../config/database';
 import { outletService } from '../services';
 
 // exceptions
-import { DataNotFound, ExistData } from '../utility/exceptions';
+import { DataNotFound, ExistData, Forbidden } from '../utility/exceptions';
 
 // types and interfaces
 import { Transaction } from 'sequelize';
@@ -150,7 +150,8 @@ class OutletController {
             
             const outletId : string = req.params.id;
             const organizationId = req.user ? req.user.organizationId : "";
-            const outletDeleted = await outletService.deleteOutlet(outletId, organizationId);
+            const deleteUnder = req.query.deleteUnder as string | undefined;
+            const outletDeleted = await outletService.deleteOutlet(outletId, organizationId, deleteUnder);
 
             return res.status(200).json({
                 "status" : "success",
@@ -163,6 +164,14 @@ class OutletController {
 
             if (e instanceof DataNotFound) {
                 return res.status(404).json({
+                    "status" : "failed",
+                    "message" : e.message,
+                    "userMessage" : e.message,
+                });
+            }
+
+            if (e instanceof Forbidden) {
+                return res.status(403).json({
                     "status" : "failed",
                     "message" : e.message,
                     "userMessage" : e.message,

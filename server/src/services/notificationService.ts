@@ -35,6 +35,7 @@ export class NotificationService implements INotificationService {
             return;
         }
 
-        console.log("Wrong email contnt type")
+        // ADD-ONS : Add logger if there is
+        console.log("Wrong email contnt type");
     }
 }
