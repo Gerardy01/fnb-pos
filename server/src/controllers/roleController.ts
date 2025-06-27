@@ -44,7 +44,8 @@ class RoleController {
     static async getAllRoleWithCount(req : Request, res : Response) {
         try {
             const organizationId = req.user ? req.user.organizationId : "";
-            const allRoleData = await rolePermissionService.getAllRoleWithCount(organizationId);
+            const accountRoleId = req.user ? Number(req.user.accountRoleId) : -1;
+            const allRoleData = await rolePermissionService.getAllRoleWithCount(organizationId, accountRoleId);
             
             return res.status(200).json({
                 "status" : "success",

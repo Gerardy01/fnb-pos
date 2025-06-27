@@ -47,5 +47,8 @@
     "assign" : "Assign",
     "tableManagement" : "Table Management",
     "table" : "Table",
-    "tableGroup" : "Table Group"
+    "tableGroup" : "Table Group",
+    "sales" : "Sales",
+    "salesType" : "Sales Type",
+    "gratuity" : "Gratuity"
 }

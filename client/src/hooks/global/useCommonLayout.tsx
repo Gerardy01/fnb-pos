@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 import {
+    BarChartOutlined,
     // ApartmentOutlined,
     DesktopOutlined,
     GroupOutlined,
@@ -126,6 +127,29 @@ export default function useCommonLayout() {
             label: t('pos'),
             permissions: [PageAccessPermissionEnum.POS],
             onClick: () => handleClick("/pos"),
+        },
+        {
+            key: 'sales',
+            label: t('sales'),
+            icon: <BarChartOutlined />,
+            permissions: [
+                PageAccessPermissionEnum.GRATUITY_MANAGEMENT,
+                PageAccessPermissionEnum.SALES_TYPE_MANAGEMENT,
+            ],
+            children: [
+                {
+                    key: '/sales-type',
+                    label: t('salesType'),
+                    permissions: [PageAccessPermissionEnum.SALES_TYPE_MANAGEMENT],
+                    onClick: () => handleClick("/sales-type"),
+                },
+                {
+                    key: '/gratuity',
+                    label: t('gratuity'),
+                    permissions: [PageAccessPermissionEnum.TABLE_MANAGEMENT],
+                    onClick: () => handleClick("/gratuity"),
+                },
+            ],
         },
         {
             key: 'tableManagement',

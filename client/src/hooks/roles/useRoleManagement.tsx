@@ -547,7 +547,7 @@ function usePermissionSetHandling() {
             requiredPermissions: [
                 { permissionId: PermissionEnum.ACCOUNT_MANAGEMENT, read: true, write: true },
                 { permissionId: PermissionEnum.ROLE_MANAGEMENT, read: true },
-                { permissionId: PermissionEnum.OUTLET_MANAGEMENT, read: true }
+                { permissionId: PermissionEnum.OUTLET_MANAGEMENT, read: true },
             ]
         },
         {
@@ -565,7 +565,28 @@ function usePermissionSetHandling() {
         {
             pageAccessId: PageAccessPermissionEnum.OUTLET_MANAGEMENT,
             requiredPermissions: [
-                { permissionId: PermissionEnum.OUTLET_MANAGEMENT, read: true, write: true }
+                { permissionId: PermissionEnum.OUTLET_MANAGEMENT, read: true, write: true },
+            ]
+        },
+        {
+            pageAccessId: PageAccessPermissionEnum.TABLE_MANAGEMENT,
+            requiredPermissions: [
+                { permissionId: PermissionEnum.TABLE_MANAGEMENT, read: true, write: true },
+                { permissionId: PermissionEnum.OUTLET_MANAGEMENT, read: true },
+            ]
+        },
+        {
+            pageAccessId: PageAccessPermissionEnum.GRATUITY_MANAGEMENT,
+            requiredPermissions: [
+                { permissionId: PermissionEnum.GRATUITY_MANAGEMENT, read: true, write: true },
+            ]
+        },
+        {
+            pageAccessId: PageAccessPermissionEnum.SALES_TYPE_MANAGEMENT,
+            requiredPermissions: [
+                { permissionId: PermissionEnum.SALES_TYPE_MANAGEMENT, read: true, write: true },
+                { permissionId: PermissionEnum.GRATUITY_MANAGEMENT, read: true },
+                { permissionId: PermissionEnum.OUTLET_MANAGEMENT, read: true },
             ]
         },
     ];

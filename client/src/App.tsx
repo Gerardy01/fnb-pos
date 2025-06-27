@@ -66,6 +66,16 @@ export default function App() {
 								<Route path="/table-group" element={<TableGroupManagement />} />
 								<Route path="/table-group/:tableGroupId" element={<TableGroupManagement />} />
 							</Route>
+
+							<Route element={<PermissionProtectedRoutes requiredPermission={[PageAccessPermissionEnum.SALES_TYPE_MANAGEMENT]} />}>
+								<Route path="/sales-type" element={<Dashboard />} />
+								<Route path="/sales-type/:salesTypeId" element={<Dashboard />} />
+							</Route>
+
+							<Route element={<PermissionProtectedRoutes requiredPermission={[PageAccessPermissionEnum.GRATUITY_MANAGEMENT]} />}>
+								<Route path="/gratuity" element={<Dashboard />} />
+								<Route path="/gratuity/:gratuityId" element={<Dashboard />} />
+							</Route>
 						</Route>
 
 						<Route element={<PermissionProtectedRoutes pageLoad requiredPermission={[PageAccessPermissionEnum.POS]} />}>
