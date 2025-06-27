@@ -17,6 +17,8 @@ export enum PermissionEnum {
     ROLE_MANAGEMENT = 4,
     OUTLET_MANAGEMENT = 5,
     TABLE_MANAGEMENT = 6,
+    GRATUITY_MANAGEMENT = 7,
+    SALES_TYPE_MANAGEMENT = 8,
 }
 
 export enum EditAccountProcessEnum {
@@ -36,4 +38,9 @@ export enum EventTypeEnum {
     TABLE_STATUS_UPDATED = 'TableStatusUpdated',
     TABLE_GROUP_DELETED = 'TableGroupDeleted',
     OUTLET_DELETED = 'OutletDeleted',
+}
+
+export enum GratuityCalculationType {
+    PERCENT = 1,
+    FIXED = 2,
 }

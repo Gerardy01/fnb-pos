@@ -98,7 +98,8 @@ const styles : { [key: string]: React.CSSProperties } = {
         alignItems: 'center',
     },
     searchInput : {
-        maxWidth: '40%',
+        maxWidth: '420px',
+        flex: '1'
     },
     rightSide : {
         display: 'flex',

@@ -28,6 +28,14 @@ module.exports = {
         permission_name: 'Table Management',
         description: '',
       },
+      {
+        permission_name: 'Gratuity Management',
+        description: '',
+      },
+      {
+        permission_name: 'Sales Type Management',
+        description: '',
+      },
     ], {});
   },
 

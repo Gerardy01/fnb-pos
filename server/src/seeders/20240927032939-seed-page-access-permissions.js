@@ -28,6 +28,14 @@ module.exports = {
         permission_name: 'Table Page',
         description: ''
       },
+      {
+        permission_name: 'Gratuity Page',
+        description: ''
+      },
+      {
+        permission_name: 'Sales Type Page',
+        description: ''
+      },
     ]);
   },
 
