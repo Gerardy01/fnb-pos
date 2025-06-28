@@ -25,3 +25,9 @@ export interface ErrorResponse {
         data : BaseResponseError;
     }
 }
+
+export type OutletSelectionData = {
+    outletId : string;
+    outletName : string;
+    status : boolean;
+}

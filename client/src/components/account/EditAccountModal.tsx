@@ -10,7 +10,8 @@ import ContentLoading from "../loading/ContentLoading";
 import ContentNotFound from "../global/ContentNotFound";
 
 // types and interfaces
-import { EditAccountManagementBodyData, OutletSelectionData } from "../../models/accountInterface";
+import { EditAccountManagementBodyData } from "../../models/accountInterface";
+import { OutletSelectionData } from "../../models/globalInterface";
 type EditAccountForm = {
     username : string;
     name : string;

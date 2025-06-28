@@ -7,7 +7,8 @@ import { useCheckEmailAvailability, useCheckUsernameAvailability } from "../../h
 import useGenerateOtp from "../../hooks/authentication/useGenerateOtp";
 
 // types and interfaces
-import { CreateAccountData, OutletSelectionData } from "../../models/accountInterface";
+import { CreateAccountData } from "../../models/accountInterface";
+import { OutletSelectionData } from "../../models/globalInterface";
 type AddAccountForm = {
     username : string;
     name : string;

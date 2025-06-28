@@ -11,7 +11,8 @@ import { useTranslation } from 'react-i18next';
 import { accountApi, outletApi, roleApi } from '../../api';
 
 // types and interfaces
-import { CreateAccountData, EditAccountManagementBodyData, OutletSelectionData } from '../../models/accountInterface';
+import { CreateAccountData, EditAccountManagementBodyData } from '../../models/accountInterface';
+import { OutletSelectionData } from '../../models/globalInterface';
 export interface AccountTableData {
     key: string;
     name: string;
@@ -53,7 +54,6 @@ export default function useAccountManagement() {
     const [assignOutletModal, setAssignOutletModal] = useState<boolean>(false);
     const [outletSelection, setOutletSelection] = useState<OutletSelectionData[]>([]);
     const [selectedOutlet, setSelectedOutlet] = useState<OutletSelectionData[]>([]);
-    const [tempSelectedOutlet, setTempSelectedOutlet] = useState<OutletSelectionData[]>([]);
     const [selectOutletErrorMsg, setSelectOutletErrorMsg] = useState<string>("");
 
     const [addAccountForm] = Form.useForm();
@@ -233,6 +233,7 @@ export default function useAccountManagement() {
                 outletSelectionList.push({
                     outletId : item.outletId,
                     outletName : item.outletName,
+                    status : item.status,
                 });
             });
 
@@ -260,6 +261,7 @@ export default function useAccountManagement() {
                 selectedOutletList.push({
                     outletId : item.outletId,
                     outletName : item.outletName,
+                    status : item.status,
                 });
             });
 
@@ -491,20 +493,7 @@ export default function useAccountManagement() {
         setNewPassword("");
     }
 
-    const handleSelectOutletTemp = (outletId : string, isSelected : boolean) : void => {
-        if (isSelected) {
-            const selected = outletSelection.find(data => data.outletId === outletId);
-            if (!selected) return;
-
-            setTempSelectedOutlet(prev => [...prev, selected]);
-            return;
-        }
-
-        const filtered = tempSelectedOutlet.filter(item => item.outletId !== outletId);
-        setTempSelectedOutlet(filtered);
-    }
-
-    const handleAssignSelectedOutlet = () : void => {
+    const handleAssignSelectedOutlet = (tempSelectedOutlet : OutletSelectionData[]) : void => {
         setSelectedOutlet(tempSelectedOutlet);
         openAssignOutletModal(false);
         setSelectOutletErrorMsg("");
@@ -517,23 +506,6 @@ export default function useAccountManagement() {
 
     const openAssignOutletModal = (open : boolean) : void => {
         setAssignOutletModal(open);
-
-        if (!open) {
-            setTempSelectedOutlet([]);
-        }
-
-        if (open) {
-            setTempSelectedOutlet(selectedOutlet);
-        }
-    }
-
-    const handleSelectAllOutletTemp = (selectAll : boolean) => {
-        if (selectAll) {
-            setTempSelectedOutlet(outletSelection);
-            return;
-        }
-
-        setTempSelectedOutlet([]);
     }
 
     return {
@@ -554,7 +526,6 @@ export default function useAccountManagement() {
         selectOutletErrorMsg,
         assignOutletModal,
         selectedOutlet,
-        tempSelectedOutlet,
         handleChangeRoleFilter,
         handleSearch,
         openAddAccount,
@@ -564,10 +535,8 @@ export default function useAccountManagement() {
         clickDeleteAccount,
         clickResetPassword,
         clearNewPass,
-        handleSelectOutletTemp,
         resetData,
         openAssignOutletModal,
         handleAssignSelectedOutlet,
-        handleSelectAllOutletTemp,
     }
 }

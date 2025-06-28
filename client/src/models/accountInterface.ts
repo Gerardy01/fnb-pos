@@ -99,8 +99,3 @@ export interface CreateAccountData {
 export interface ResetPasswordData {
     newPassword : string;
 }
-
-export type OutletSelectionData = {
-    outletId : string;
-    outletName : string;
-}

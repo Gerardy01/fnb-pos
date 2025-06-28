@@ -50,5 +50,7 @@
     "tableGroup" : "Table Group",
     "sales" : "Sales",
     "salesType" : "Sales Type",
-    "gratuity" : "Gratuity"
+    "gratuity" : "Gratuity",
+    "assignOutlets" : "Assign Outlets",
+    "oultetSearchPlaceholder" : "Search by Name"
 }

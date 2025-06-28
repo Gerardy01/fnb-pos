@@ -8,7 +8,7 @@ import { useTranslation } from 'react-i18next';
 // components
 import AddAccountModal from '../components/account/AddAccountModal';
 import EditAccountModal from '../components/account/EditAccountModal';
-import AssignOutletModal from '../components/account/AssignOutletModal';
+import AssignOutletModal from '../components/global/AssignOutletModal';
 
 // types and interfaces
 import { AccountTableData } from '../hooks/accounts/useAccountManagement';
@@ -39,7 +39,6 @@ export default function AccountManagement() {
         selectOutletErrorMsg,
         assignOutletModal,
         selectedOutlet,
-        tempSelectedOutlet,
         handleChangeRoleFilter,
         handleSearch,
         openAddAccount,
@@ -49,11 +48,9 @@ export default function AccountManagement() {
         clickDeleteAccount,
         clickResetPassword,
         clearNewPass,
-        handleSelectOutletTemp,
         resetData,
         openAssignOutletModal,
         handleAssignSelectedOutlet,
-        handleSelectAllOutletTemp,
     } = useAccountManagement();
 
     return (
@@ -144,10 +141,8 @@ export default function AccountManagement() {
                     open={assignOutletModal}
                     onClose={() => openAssignOutletModal(false)}
                     outletSelection={outletSelection}
-                    tempSelectedOutlet={tempSelectedOutlet}
-                    handleSelectOutlet={handleSelectOutletTemp}
+                    selectedOutlet={selectedOutlet}
                     handleAssignSelectedOutlet={handleAssignSelectedOutlet}
-                    handleSelectAllOutletTemp={handleSelectAllOutletTemp}
                 />
             )}
         </div>
