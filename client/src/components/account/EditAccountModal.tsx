@@ -1,5 +1,5 @@
-import { Alert, Button, Form, FormInstance, FormProps, Input, List, Modal, Select, SelectProps, Space, Typography } from "antd";
-import { CheckOutlined, CopyOutlined, DeleteFilled, EditOutlined, LockOutlined } from "@ant-design/icons";
+import { Button, Form, FormInstance, FormProps, Input, Modal, Select, SelectProps, Space, Typography } from "antd";
+import { CheckOutlined, CopyOutlined, DeleteFilled, LockOutlined } from "@ant-design/icons";
 
 import { useTranslation } from "react-i18next";
 import { useCheckEmailAvailability, useCheckUsernameAvailability } from "../../hooks/global/useCheckAvailability";
@@ -8,6 +8,7 @@ import useGenerateOtp from "../../hooks/authentication/useGenerateOtp";
 // components
 import ContentLoading from "../loading/ContentLoading";
 import ContentNotFound from "../global/ContentNotFound";
+import AssignedOutletList from "../global/AssignedOutletList";
 
 // types and interfaces
 import { EditAccountManagementBodyData } from "../../models/accountInterface";
@@ -298,36 +299,11 @@ export default function EditAccountModal({
                         </Form.Item>
 
                         <div style={styles.outletAssignationHolder}>
-                            <div style={styles.subTitleHolder} >
-                                <Text strong>{t("account:assignOutlets")}</Text>
-                                <Button
-                                    icon={<EditOutlined />}
-                                    onClick={() => openAssignOutletModal(true)}
-                                >
-                                    {t("global:assign")}
-                                </Button>
-                            </div>
-                            
-                            {selectOutletErrorMsg !== "" && (
-                                <Alert
-                                    message={t("account:noOutletErrMsg")}
-                                    type="error"
-                                    showIcon
-                                    style={styles.alert}
-                                />
-                            )}
-
-                            <List
-                                bordered
-                                size="small"
-                                dataSource={selectedOutlet}
-                                renderItem={(item) => (
-                                    <List.Item>
-                                        {item.outletName}
-                                    </List.Item>
-                                )}
+                            <AssignedOutletList
+                                selectedOutlet={selectedOutlet}
+                                openAssignOutletModal={openAssignOutletModal}
+                                selectOutletErrorMsg={selectOutletErrorMsg}
                             />
-
                         </div>
 
                         <Form.Item>
@@ -470,8 +446,10 @@ const styles : { [key: string]: React.CSSProperties } = {
         justifyContent: 'center',
         alignItems: 'center'
     },
-    alert : {
-        width: '100%',
-        marginBottom: '1rem'
-    }
+    listHolder : {
+        maxHeight: 220,
+        overflow: 'auto',
+        border: '1px solid rgba(140, 140, 140, 0.35)',
+        borderRadius: '7px'
+    },
 }

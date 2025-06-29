@@ -26,5 +26,6 @@
     "sureDeleteOutlet" : "Are you sure want to delete this outlet?",
     "deleteOutletDesc" : "Please confirm that you want to permanently delete this outlet. This operation cannot be undone.",
     "tableGroupExist" : "Table Group with this Outlet exist!",
-    "tableGroupExistDesc" : "Are you sure you want to delete this Outlet with all Table Group and Table under it? This operation cannot be undone."
+    "tableGroupExistDesc" : "Are you sure you want to delete this Outlet with all Table Group and Table under it? This operation cannot be undone.",
+    "noOutletErrMsg" : "Please assign at least one outlet"
 }
