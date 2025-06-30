@@ -9,6 +9,7 @@ interface Props {
     selectOutletErrorMsg? : string;
     selectedOutlet : OutletSelectionData[];
     openAssignOutletModal : (open : boolean) => void;
+    description? : string;
 }
 
 const { Text } = Typography
@@ -17,6 +18,7 @@ export default function AssignedOutletList({
     selectedOutlet,
     openAssignOutletModal,
     selectOutletErrorMsg = "",
+    description = "",
 } : Props) {
 
     const { t } = useTranslation(["outlet", "global"]);
@@ -24,7 +26,12 @@ export default function AssignedOutletList({
     return (
         <>
             <div style={styles.subTitleHolder} >
-                <Text strong>{t("global:assignOutlets")}</Text>
+                <div style={styles.subTitle}>
+                    <Text strong>{t("global:assignOutlets")}</Text>
+                    {description && (
+                        <Text style={{ fontSize: '12px' }} type="secondary">{description}</Text>
+                    )}
+                </div>
                 <Button
                     icon={<EditOutlined />}
                     onClick={() => openAssignOutletModal(true)}
@@ -62,6 +69,11 @@ const styles : { [key: string]: React.CSSProperties } = {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
+    },
+    subTitle: {
+        display: 'flex',
+        flexDirection: 'column',
+        maxWidth: '80%'
     },
     alert : {
         width: '100%',

@@ -303,6 +303,7 @@ export default function EditAccountModal({
                                 selectedOutlet={selectedOutlet}
                                 openAssignOutletModal={openAssignOutletModal}
                                 selectOutletErrorMsg={selectOutletErrorMsg}
+                                description={t("account:assignOutletDesc")}
                             />
                         </div>
 

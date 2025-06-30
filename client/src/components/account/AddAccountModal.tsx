@@ -268,6 +268,7 @@ export default function AddAccountModal({
                         selectedOutlet={selectedOutlet}
                         openAssignOutletModal={openAssignOutletModal}
                         selectOutletErrorMsg={selectOutletErrorMsg}
+                        description={t("account:assignOutletDesc")}
                     />
                 </div>
                     
