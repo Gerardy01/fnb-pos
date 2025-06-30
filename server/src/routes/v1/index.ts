@@ -10,6 +10,7 @@ import permissionRoutes from './permissionRoutes';
 import outletRoutes from './outletRoutes';
 import tableGroupRoutes from './tableGroupRoutes';
 import tableRoutes from './tableRoutes';
+import gratuityRoutes from './gratuityRoutes';
 
 
 const v1Api = Router();
@@ -22,6 +23,7 @@ v1Api.use("/permission", permissionRoutes);
 v1Api.use("/outlet", outletRoutes);
 v1Api.use("/table-group", tableGroupRoutes);
 v1Api.use("/table", tableRoutes);
+v1Api.use("/gratuity", gratuityRoutes);
 
 
 export default v1Api;

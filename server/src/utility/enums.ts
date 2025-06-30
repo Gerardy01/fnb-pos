@@ -40,7 +40,7 @@ export enum EventTypeEnum {
     OUTLET_DELETED = 'OutletDeleted',
 }
 
-export enum GratuityCalculationType {
+export enum GratuityCalculationTypeEnum {
     PERCENT = 1,
     FIXED = 2,
 }

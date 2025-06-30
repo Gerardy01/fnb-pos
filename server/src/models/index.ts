@@ -14,6 +14,7 @@ import Outlet from "./outlet.model";
 import AccountOutlets from "./accountOutlet.model";
 import TableGroup from "./tableGroup.model";
 import Table from "./table.model";
+import Gratuity from "./gratuity.model";
 
 
 
@@ -93,4 +94,5 @@ export {
     AccountOutlets,
     TableGroup,
     Table,
+    Gratuity,
 }

@@ -8,6 +8,7 @@ import { RolePermissionService } from "./rolePermissionService";
 import { NotificationService } from "./notificationService";
 import { OutletService } from "./outletService";
 import { TableService } from "./tableService";
+import { GratuityService } from "./gratuityService";
 
 // repository
 import { OrganizationRepository } from "../repositories/organizationRepository";
@@ -24,6 +25,7 @@ import { OutletRepository } from "../repositories/outletRepository";
 import { AccountOutletRepository } from "../repositories/accountOutletRepository";
 import { TableGroupRepository } from "../repositories/tableGroupRepository";
 import { TableRepository } from "../repositories/tableRepository";
+import { GratuityRepository } from "../repositories/gratuityRepository";
 
 // providers
 import { BcryptJsHashProvider } from "../providers/hashProvider";
@@ -50,6 +52,7 @@ const outletRepository = new OutletRepository();
 const accountOutletRepository = new AccountOutletRepository();
 const tableGroupRepository = new TableGroupRepository();
 const tableRepository = new TableRepository();
+const gratuityRepository = new GratuityRepository();
 
 const bcryptJsHashProvider = new BcryptJsHashProvider();
 const jsonWebTokenJwtProvider = new JsonWebTokenJwtProvider();
@@ -89,6 +92,7 @@ export const authService = new AuthService(
 export const notificationService = new NotificationService(emailProvider);
 export const outletService = new OutletService(outletRepository, accountRepository, accountOutletRepository, tableGroupRepository, eventPublisherProvider);
 export const tableService = new TableService(tableRepository, tableGroupRepository, outletRepository, eventPublisherProvider);
+export const gratuityService = new GratuityService(gratuityRepository);
 
 
 // combined service (orchestration)
