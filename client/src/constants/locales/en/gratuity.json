@@ -1,0 +1,13 @@
+
+{
+    "GRATUITY409-1" : "Gratuity with this name already exist. Please use another name.",
+
+    "gratuityManagement" : "Gratuity Management",
+    "gratuitySearchPlaceholder" : "Search by Name/Written Name",
+    "newGratuity" : "New Gratuity",
+    "name" : "Name",
+    "writtenName" : "Written Name",
+    "amount" : "Amount",
+    "addNewGratuity" : "Add New Gratuity",
+    "addSuccess" : "Gratuity added successfully"
+}

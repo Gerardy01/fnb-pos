@@ -45,7 +45,7 @@ export class GratuityService implements IGratuityService {
 
         // check calculation type valid
         if (!Object.values(GratuityCalculationTypeEnum).includes(data.calculationType)) {
-            throw new Forbidden("Calculation type doesn't exist")
+            throw new Forbidden("Calculation type doesn't exist");
         }
 
         const newGratuity = await this.gratuityRepository.createGratuity({

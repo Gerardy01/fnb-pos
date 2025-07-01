@@ -10,6 +10,7 @@ declare module 'i18next' {
       role: typeof import('./locales/en.json');
       outlet: typeof import('./locales/en.json');
       table: typeof import('./locales/en.json');
+      gratuity: typeof import('./locales/en.json');
     };
   }
 }

@@ -5,6 +5,7 @@ import { RoleApi } from "./roleApi";
 import { PermissionApi } from "./permissionApi";
 import { OutletApi } from "./outletApi";
 import { TableApi } from "./tableApi";
+import { GratuityApi } from "./gratuityApi";
 
 
 
@@ -15,3 +16,4 @@ export const roleApi = new RoleApi();
 export const permissionApi = new PermissionApi();
 export const outletApi = new OutletApi();
 export const tableApi = new TableApi();
+export const gratuityApi = new GratuityApi();

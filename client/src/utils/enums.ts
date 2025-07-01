@@ -21,3 +21,8 @@ export enum PermissionEnum {
     GRATUITY_MANAGEMENT = 7,
     SALES_TYPE_MANAGEMENT = 8,
 }
+
+export enum GratuityCalculationTypeEnum {
+    PERCENT = 1,
+    FIXED = 2,
+}

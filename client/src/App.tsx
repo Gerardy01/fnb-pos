@@ -22,6 +22,7 @@ import Profile from "./pages/Profile";
 import RoleManagement from "./pages/RoleManagement";
 import TableGroupManagement from "./pages/TableGroupManagement";
 import TableManagement from "./pages/TableManagement";
+import GratuityManagement from "./pages/GratuityManagement";
 import NotFound from "./pages/NotFound";
 
 
@@ -73,8 +74,8 @@ export default function App() {
 							</Route>
 
 							<Route element={<PermissionProtectedRoutes requiredPermission={[PageAccessPermissionEnum.GRATUITY_MANAGEMENT]} />}>
-								<Route path="/gratuity" element={<Dashboard />} />
-								<Route path="/gratuity/:gratuityId" element={<Dashboard />} />
+								<Route path="/gratuity" element={<GratuityManagement />} />
+								<Route path="/gratuity/:gratuityId" element={<GratuityManagement />} />
 							</Route>
 						</Route>
 

@@ -13,3 +13,12 @@ export const catchFetchError = <T>(promise : Promise<T>) : Promise<[undefined, T
         return [err];
     });
 }
+
+export const formatAmountToReadable = (value: string): string => {
+  const num = Number(value);
+  if (isNaN(num)) return value;
+
+  return num % 1 === 0
+    ? num.toLocaleString("id-ID", { maximumFractionDigits: 0 })
+    : num.toLocaleString("id-ID", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
