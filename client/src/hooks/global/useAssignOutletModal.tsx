@@ -25,6 +25,9 @@ export default function useAssignOutletModal(
     const [filteredForTable, setFilteredForTable] = useState<OutletSelectionTableData[]>([]);
     const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
 
+    const [searchWord, setSearchWord] = useState<string>("");
+    const [statusFilterData, setStatusFilterData] = useState<number | undefined>(undefined);
+
     useEffect(() => {
         const keys = selectedOutlet.map(item => item.outletId);
         setSelectedRowKeys(keys);
@@ -35,7 +38,30 @@ export default function useAssignOutletModal(
 
     useEffect(() => {
         setFilteredForTable(forTableOutletSelection);
+        setSearchWord("");
+        setStatusFilterData(undefined);
     }, [forTableOutletSelection]);
+
+    useEffect(() => {
+        if (!searchWord && statusFilterData == undefined) return setFilteredForTable(forTableOutletSelection);
+        
+        let filterItems = forTableOutletSelection;
+
+        if (statusFilterData !== undefined) {
+            const stringValue : string = statusFilterData == 1 ? t("global:active") : t("global:inactive");
+            filterItems = filterItems.filter(data => data.status === stringValue);
+        }
+
+        if (searchWord) {
+            filterItems = filterItems.filter(data => {
+                const input = searchWord.toLocaleLowerCase();
+                return data.outletName.toLocaleLowerCase().includes(input)
+            });
+        }
+
+        setFilteredForTable(filterItems);
+
+    }, [searchWord, statusFilterData]);
 
     const columns: TableColumnsType<OutletSelectionTableData> = [
         {
@@ -130,11 +156,9 @@ export default function useAssignOutletModal(
     }
 
     const handleSearch = (value : string) : void => {
-        const filtered = forTableOutletSelection.filter(data => {
-            const input = value.toLocaleLowerCase();
-            return data.outletName.toLocaleLowerCase().includes(input)
-        });
-        setFilteredForTable(filtered);
+        
+        setSearchWord(value);
+
         const keys = tempSelectedOutlet.map(item => item.outletId);
         setSelectedRowKeys(keys);
     }
@@ -144,11 +168,7 @@ export default function useAssignOutletModal(
         const keys = tempSelectedOutlet.map(item => item.outletId);
         setSelectedRowKeys(keys);
 
-        if (value === undefined) return setFilteredForTable(forTableOutletSelection);
-
-        const stringValue : string = value == 1 ? t("global:active") : t("global:inactive");
-        const filtered = forTableOutletSelection.filter(data => data.status === stringValue);
-        setFilteredForTable(filtered);
+        setStatusFilterData(value);
     }
 
     return {
@@ -157,6 +177,8 @@ export default function useAssignOutletModal(
         tempSelectedOutlet,
         forTableOutletSelection : filteredForTable,
         statusOptions,
+        searchWord,
+        statusFilterData,
         handleSearch,
         handleChangeStatusFilter,
     }

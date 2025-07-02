@@ -33,6 +33,8 @@ export default function AssignOutletModal({
         tempSelectedOutlet,
         forTableOutletSelection,
         statusOptions,
+        searchWord,
+        statusFilterData,
         handleSearch,
         handleChangeStatusFilter,
     } = useAssignOutletModal(outletSelection, selectedOutlet);
@@ -53,6 +55,7 @@ export default function AssignOutletModal({
                 <Search
                     style={styles.searchInput}
                     allowClear
+                    value={searchWord}
                     placeholder={t("oultetSearchPlaceholder")}
                     onChange={(e) => handleSearch(e.target.value)}
                 />
@@ -60,6 +63,7 @@ export default function AssignOutletModal({
                     style={styles.selectionInput}
                     placeholder={t("outlet:statusFilter")}
                     allowClear
+                    value={statusFilterData}
                     options={statusOptions}
                     onChange={handleChangeStatusFilter}
                     filterOption={(input, option) =>
