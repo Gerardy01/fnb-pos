@@ -31,6 +31,8 @@ export default function TableManagement() {
         tables,
         addTableModal,
         editTableModal,
+        searchWord,
+        statusFilterData,
         handleChangeOutlet,
         handleChangeTableGroup,
         handleSearch,
@@ -70,6 +72,7 @@ export default function TableManagement() {
                             style={styles.searchInput}
                             size='large'
                             allowClear
+                            value={searchWord}
                             placeholder={t("table:tableSearchPlaceholder")}
                             onChange={(e) => handleSearch(e.target.value)}
                         />
@@ -79,6 +82,7 @@ export default function TableManagement() {
                                 size='large'
                                 placeholder={t("outlet:statusFilter")}
                                 allowClear
+                                value={statusFilterData}
                                 options={statusOptions}
                                 onChange={handleChangeStatusFilter}
                                 filterOption={(input, option) =>

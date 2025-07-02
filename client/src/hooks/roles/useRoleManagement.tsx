@@ -53,6 +53,8 @@ export function useRoleManagement() {
     const [getPageAccessPermissionLoad, setGetPageAccessPermissionLoad] = useState<boolean>(true);
     const [contentLoad, setContentLoad] = useState<boolean>(true);
 
+    const [searchWord, setSearchWord] = useState<string>("");
+
     const [permissions, setPermissions] = useState<PermissionData[]>([]);
     const [pageAccessPermissions, setPageAccessPermissions] = useState<PageAccessPermissionData[]>([]);
 
@@ -74,7 +76,24 @@ export function useRoleManagement() {
 
     useEffect(() => {
         setFilteredRoles(roles);
+        setSearchWord("");
     }, [roles]);
+
+    useEffect(() => {
+        if (!searchWord) return setFilteredRoles(roles);
+
+        let filterItems = roles;
+
+        if (searchWord) {
+            filterItems = filterItems.filter(item => {
+                const input = searchWord.toLocaleLowerCase();
+                return item.roleName.toLocaleLowerCase().includes(input);
+            });
+        }
+
+        setFilteredRoles(filterItems);
+
+    }, [searchWord]);
 
     const columns: TableColumnsType<RoleTableData> = [
         {
@@ -179,11 +198,7 @@ export function useRoleManagement() {
     }
 
     const handleSearch = (value : string) : void => {
-        const filtered = roles.filter(item => {
-            const input = value.toLocaleLowerCase();
-            return item.roleName.toLocaleLowerCase().includes(input);
-        });
-        setFilteredRoles(filtered);
+        setSearchWord(value);
     }
 
     const handleEdit = (roleId : number) => {
@@ -237,6 +252,7 @@ export function useRoleManagement() {
         permissions,
         pageAccessPermissions,
         roleIdFormParams,
+        searchWord,
         handleSearch,
         openAddRole,
         openEditRole,

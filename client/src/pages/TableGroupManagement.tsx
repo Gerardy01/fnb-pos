@@ -29,6 +29,8 @@ export default function TableGroupManagement() {
         getTableGroupLoad,
         addTableGroupModal,
         editTableGroupModal,
+        searchWord,
+        statusFilterData,
         handleChangeOutlet,
         addTableGroupModalOpen,
         editTableGroupModalOpen,
@@ -66,6 +68,7 @@ export default function TableGroupManagement() {
                             style={styles.searchInput}
                             size='large'
                             allowClear
+                            value={searchWord}
                             placeholder={t("table:tableGroupSearchPlaceholder")}
                             onChange={(e) => handleSearch(e.target.value)}
                         />
@@ -76,6 +79,7 @@ export default function TableGroupManagement() {
                                 placeholder={t("outlet:statusFilter")}
                                 allowClear
                                 options={statusOptions}
+                                value={statusFilterData}
                                 onChange={handleChangeStatusFilter}
                                 filterOption={(input, option) =>
                                     (option?.label as string).toLowerCase().includes(input.toLowerCase())

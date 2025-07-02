@@ -56,6 +56,9 @@ export default function useAccountManagement() {
     const [selectedOutlet, setSelectedOutlet] = useState<OutletSelectionData[]>([]);
     const [selectOutletErrorMsg, setSelectOutletErrorMsg] = useState<string>("");
 
+    const [roleFilterData, setRoleFilterData] = useState<number[]>([]);
+    const [searchWord, setSearchWord] = useState<string>("");
+
     const [addAccountForm] = Form.useForm();
     const [editAccountForm] = Form.useForm();
 
@@ -74,6 +77,8 @@ export default function useAccountManagement() {
 
     useEffect(() => {
         setFilteredAccounts(accounts);
+        setSearchWord("");
+        setRoleFilterData([]);
     }, [accounts]);
 
     useEffect(() => {
@@ -93,7 +98,29 @@ export default function useAccountManagement() {
         });
         navigate(`/account-management/${editAccountData.accountId}`, { replace: false });
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [editAccountData]); 
+    }, [editAccountData]);
+
+    useEffect(() => {
+        if (!searchWord && roleFilterData.length == 0) return setFilteredAccounts(accounts);
+
+        let filteredItems = accounts;
+
+        if (roleFilterData.length > 0) {
+            filteredItems = filteredItems.filter(data => roleFilterData.includes(data.roleId));
+        }
+
+        if (searchWord) {
+            filteredItems = filteredItems.filter(data => {
+                const input = searchWord.toLocaleLowerCase();
+                return data.name.toLocaleLowerCase().includes(input) ||
+                    data.username.toLocaleLowerCase().includes(input) ||
+                    data.email.toLocaleLowerCase().includes(input);
+            });
+        }
+
+        setFilteredAccounts(filteredItems);
+
+    }, [searchWord, roleFilterData])
 
     const columns: TableColumnsType<AccountTableData> = [
         {
@@ -273,20 +300,11 @@ export default function useAccountManagement() {
     }
 
     const handleChangeRoleFilter = (value: number[]) : void => {
-        if (value.length === 0) return setFilteredAccounts(accounts);
-
-        const filtered = accounts.filter(data => value.includes(data.roleId));
-        setFilteredAccounts(filtered);
+        setRoleFilterData(value);
     }
 
     const handleSearch = (value : string) : void => {
-        const filtered = accounts.filter(data => {
-            const input = value.toLocaleLowerCase();
-            return data.name.toLocaleLowerCase().includes(input) ||
-                data.username.toLocaleLowerCase().includes(input) ||
-                data.email.toLocaleLowerCase().includes(input);
-        });
-        setFilteredAccounts(filtered);
+        setSearchWord(value);
     }
 
     const openAddAccount = (open : boolean) => {
@@ -526,6 +544,8 @@ export default function useAccountManagement() {
         selectOutletErrorMsg,
         assignOutletModal,
         selectedOutlet,
+        searchWord,
+        roleFilterData,
         handleChangeRoleFilter,
         handleSearch,
         openAddAccount,

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 
-import { Button, Form, FormProps, Space, TableColumnsType, Typography } from "antd";
+import { Button, Form, FormProps, SelectProps, Space, TableColumnsType, Typography } from "antd";
 import { EditOutlined } from "@ant-design/icons";
 
 import { useTranslation } from "react-i18next";
@@ -25,6 +25,7 @@ export interface GratuityTableData {
     name: string;
     writtenName: string;
     amount: string;
+    calculationType : number;
 }
 
 const { Text } = Typography;
@@ -39,6 +40,9 @@ export function useGratuityManagement() {
     const [addGratuityModal, setAddGratuityModal] = useState<boolean>(false);
     const [editGratuityModal, setEditGratuityModal] = useState<boolean>(false);
 
+    const [searchWord, setSearchWord] = useState<string>("");
+    const [calculationType, setCalculationType] = useState<number | undefined>(undefined);
+
     const [contentLoad, setContentLoad] = useState<boolean>(true);
 
     const [gratuities, setGratuities] = useState<GratuityTableData[]>([]);
@@ -52,7 +56,41 @@ export function useGratuityManagement() {
 
     useEffect(() => {
         setFilteredGratuities(gratuities);
+        setSearchWord("");
+        setCalculationType(undefined);
     }, [gratuities]);
+
+    useEffect(() => {
+        if (!searchWord && !calculationType) return setFilteredGratuities(gratuities);
+
+        let filterItems = gratuities;
+
+        if (calculationType) {
+            filterItems = filterItems.filter(item => item.calculationType === calculationType);
+        }
+
+        if (searchWord) {
+            filterItems = filterItems.filter(data => {
+                const input = searchWord.toLocaleLowerCase();
+                return data.name.toLocaleLowerCase().includes(input) ||
+                    data.writtenName.toLocaleLowerCase().includes(input)
+            });
+        }
+
+        setFilteredGratuities(filterItems);
+
+    }, [searchWord, calculationType]);
+
+    const calculationOptions : SelectProps['options'] = [
+        {
+            label : `${t("global:percentage")} (%)`,
+            value : GratuityCalculationTypeEnum.PERCENT,
+        },
+        {
+            label : `${t("global:fixed")} (Rp)`,
+            value : GratuityCalculationTypeEnum.FIXED,
+        },
+    ];
 
     const columns: TableColumnsType<GratuityTableData> = [
         {
@@ -69,9 +107,12 @@ export function useGratuityManagement() {
             title: t("gratuity:amount"),
             dataIndex: 'amount',
             key: 'amount',
-            render: (amount : string) => {
+            render: (amount : string, record) => {
                 return (
-                    <Text strong>{amount}</Text>
+                    <Text strong>
+                        {record.calculationType === GratuityCalculationTypeEnum.PERCENT ?
+                            `${Number(amount)}%` : `Rp. ${formatAmountToReadable(amount)}`}
+                    </Text>
                 )
             }
         },
@@ -112,9 +153,8 @@ export function useGratuityManagement() {
                     key : item.gratuityId,
                     name : item.name,
                     writtenName : item.writtenName,
-                    amount : 
-                        item.calculationType == GratuityCalculationTypeEnum.PERCENT ?
-                        `${Number(item.amount)}%` : `Rp. ${formatAmountToReadable(item.amount)}`
+                    amount : item.amount,
+                    calculationType : item.calculationType,
                 });
             });
 
@@ -127,12 +167,11 @@ export function useGratuityManagement() {
     }
 
     const handleSearch = (value : string) : void => {
-        const filtered = gratuities.filter(data => {
-            const input = value.toLocaleLowerCase();
-            return data.name.toLocaleLowerCase().includes(input) ||
-                data.writtenName.toLocaleLowerCase().includes(input)
-        });
-        setFilteredGratuities(filtered);
+        setSearchWord(value);
+    }
+
+    const handleChangeCalculationTypeFilter = (value : number) : void => {
+        setCalculationType(value);
     }
 
     const handleSelectEdit = (gratuityId : number) : void => {
@@ -155,6 +194,7 @@ export function useGratuityManagement() {
     const onAddGratuitySuccess = (newGratuity : GratuityTableData) : void => {
         setGratuities(prev => [...prev, newGratuity]);
         addGratuityOpen(false);
+        
     }
 
     return {
@@ -163,8 +203,12 @@ export function useGratuityManagement() {
         gratuities : filteredGratuities,
         addGratuityModal,
         editGratuityModal,
+        calculationOptions,
+        searchWord,
+        calculationType,
         handleSearch,
         addGratuityOpen,
+        handleChangeCalculationTypeFilter,
         onAddGratuitySuccess
     }
 }
@@ -224,9 +268,11 @@ export function useAddGratuity(
                 key : data.gratuityId,
                 name : data.name,
                 writtenName : data.writtenName,
-                amount : data.calculationType == GratuityCalculationTypeEnum.PERCENT ?
-                        `${Number(data.amount)}%` : `Rp. ${formatAmountToReadable(data.amount)}`
+                amount : data.amount,
+                calculationType : data.calculationType,
             });
+
+            resetData();
 
         } finally {
             setLoading(false);

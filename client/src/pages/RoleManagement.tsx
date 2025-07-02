@@ -24,6 +24,7 @@ export default function RoleManagement() {
         permissions,
         pageAccessPermissions,
         roleIdFormParams,
+        searchWord,
         handleSearch,
         openAddRole,
         openEditRole,
@@ -51,6 +52,7 @@ export default function RoleManagement() {
                         style={styles.searchInput}
                         size='large'
                         allowClear
+                        value={searchWord}
                         placeholder={t("roleSearchPlaceholder")}
                         onChange={(e) => handleSearch(e.target.value)}
                     />

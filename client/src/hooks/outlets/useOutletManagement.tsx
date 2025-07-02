@@ -42,6 +42,9 @@ export function useOutletManagement()  {
     const [addOutletModal, setAddOutletModal] = useState<boolean>(false);
     const [editOutletModal, setEditOutletModal] = useState<boolean>(false);
 
+    const [searchWord, setSearchWord] = useState<string>("");
+    const [statusFilterData, setStatusFilterData] = useState<number | undefined>(undefined);
+
     const [contentLoad, setContentLoad] = useState<boolean>(true);
     const [outlets, setOutlets] = useState<OutletTableData[]>([]);
     const [filteredOutlets, setFilteredOutlets] = useState<OutletTableData[]>([]);
@@ -55,7 +58,34 @@ export function useOutletManagement()  {
 
     useEffect(() => {
         setFilteredOutlets(outlets);
+        setSearchWord("");
+        setStatusFilterData(undefined);
     }, [outlets])
+
+    useEffect(() => {
+        if (!searchWord && statusFilterData == undefined) return setFilteredOutlets(outlets);
+        
+        let filterItems = outlets;
+        
+        if (statusFilterData !== undefined) {
+            const stringValue : string = statusFilterData == 1 ? t("global:active") : t("global:inactive");
+            filterItems = filterItems.filter(data => data.status === stringValue);
+        }
+
+        if (searchWord) {
+            filterItems = filterItems.filter(data => {
+                const input = searchWord.toLocaleLowerCase();
+                return data.outletName.toLocaleLowerCase().includes(input) ||
+                    data.address.toLocaleLowerCase().includes(input) ||
+                    data.city.toLocaleLowerCase().includes(input) ||
+                    data.province.toLocaleLowerCase().includes(input) ||
+                    data.postalCode.toLocaleLowerCase().includes(input);
+            });
+        }
+
+        setFilteredOutlets(filterItems);
+
+    }, [searchWord, statusFilterData])
 
     const statusOptions : SelectProps['options'] = [
         {
@@ -161,23 +191,11 @@ export function useOutletManagement()  {
     }
 
     const handleChangeStatusFilter = (value : number) : void => {
-        if (value === undefined) return setFilteredOutlets(outlets);
-
-        const stringValue : string = value == 1 ? t("global:active") : t("global:inactive")
-        const filtered = outlets.filter(data => data.status === stringValue);
-        setFilteredOutlets(filtered);
+        setStatusFilterData(value);
     }
 
     const handleSearch = (value : string) : void => {
-        const filtered = outlets.filter(data => {
-            const input = value.toLocaleLowerCase();
-            return data.outletName.toLocaleLowerCase().includes(input) ||
-                data.address.toLocaleLowerCase().includes(input) ||
-                data.city.toLocaleLowerCase().includes(input) ||
-                data.province.toLocaleLowerCase().includes(input) ||
-                data.postalCode.toLocaleLowerCase().includes(input);
-        });
-        setFilteredOutlets(filtered);
+        setSearchWord(value);
     }
 
     const handleSelectEdit = (outletId : string) : void => {
@@ -235,6 +253,8 @@ export function useOutletManagement()  {
         addOutletModal,
         editOutletModal,
         outletIdFormParams,
+        searchWord,
+        statusFilterData,
         handleSearch,
         handleChangeStatusFilter,
         addOutletOpen,

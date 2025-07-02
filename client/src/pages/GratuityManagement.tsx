@@ -1,4 +1,4 @@
-import { Skeleton, Typography, Input, Button, Table } from 'antd';
+import { Skeleton, Typography, Input, Button, Table, Select } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 
 import { useTranslation } from "react-i18next";
@@ -21,8 +21,12 @@ export default function GratuityManagement() {
         gratuities,
         addGratuityModal,
         editGratuityModal,
+        calculationOptions,
+        searchWord,
+        calculationType,
         handleSearch,
         addGratuityOpen,
+        handleChangeCalculationTypeFilter,
         onAddGratuitySuccess,
     } = useGratuityManagement();
 
@@ -36,6 +40,7 @@ export default function GratuityManagement() {
                     </div>
 
                     <div style={styles.rightSide}>
+                        <Skeleton.Input active size="large" style={styles.selectionInput}/>
                         <Skeleton.Button active size="large" style={styles.skeletonbtn}/>
                     </div>
                 </div>    
@@ -45,10 +50,23 @@ export default function GratuityManagement() {
                         style={styles.searchInput}
                         size='large'
                         allowClear
+                        value={searchWord}
                         placeholder={t("gratuity:gratuitySearchPlaceholder")}
                         onChange={(e) => handleSearch(e.target.value)}
                     />
                     <div style={styles.rightSide}>
+                        <Select
+                            style={styles.selectionInput}
+                            size='large'
+                            placeholder={t("gratuity:calculationType")}
+                            allowClear
+                            value={calculationType}
+                            options={calculationOptions}
+                            onChange={handleChangeCalculationTypeFilter}
+                            filterOption={(input, option) =>
+                                (option?.label as string).toLowerCase().includes(input.toLowerCase())
+                            }
+                        />
                         <Button
                             type="primary"
                             size='large'

@@ -9,5 +9,6 @@
     "writtenName" : "Written Name",
     "amount" : "Amount",
     "addNewGratuity" : "Add New Gratuity",
-    "addSuccess" : "Gratuity added successfully"
+    "addSuccess" : "Gratuity added successfully",
+    "calculationType" : "Select Calculation Type"
 }

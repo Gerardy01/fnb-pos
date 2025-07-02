@@ -37,6 +37,9 @@ export function useTableGroupManagement() {
     const [contentLoad, setContentLoad] = useState<boolean>(true);
     const [getTableGroupLoad, setGetTableGroupLoad] = useState<boolean>(false);
 
+    const [searchWord, setSearchWord] = useState<string>("");
+    const [statusFilterData, setStatusFilterData] = useState<number | undefined>(undefined);
+
     const [outletSelection, setOutletSelection] = useState<SelectProps['options']>([]);
     const [selectedOutlet, setSelectedOutlet] = useState<string>("");
 
@@ -59,7 +62,30 @@ export function useTableGroupManagement() {
 
     useEffect(() => {
         setFilteredTableGroups(tableGroups);
+        setSearchWord("");
+        setStatusFilterData(undefined);
     }, [tableGroups]);
+
+    useEffect(() => {
+        if (!searchWord && statusFilterData == undefined) return setFilteredTableGroups(tableGroups);
+        
+        let filterItems = tableGroups;
+
+        if (statusFilterData !== undefined) {
+            const stringValue : string = statusFilterData == 1 ? t("global:active") : t("global:inactive");
+            filterItems = filterItems.filter(data => data.status === stringValue);
+        }
+
+        if (searchWord) {
+            filterItems = filterItems.filter(data => {
+                const input = searchWord.toLocaleLowerCase();
+                return data.groupName.toLocaleLowerCase().includes(input);
+            });
+        }
+
+        setFilteredTableGroups(filterItems);
+
+    }, [searchWord, statusFilterData])
 
     const statusOptions : SelectProps['options'] = [
         {
@@ -202,19 +228,11 @@ export function useTableGroupManagement() {
     }
 
     const handleChangeStatusFilter = (value : number) : void => {
-        if (value === undefined) return setFilteredTableGroups(tableGroups);
-
-        const stringValue : string = value == 1 ? t("global:active") : t("global:inactive")
-        const filtered = tableGroups.filter(data => data.status === stringValue);
-        setFilteredTableGroups(filtered);
+        setStatusFilterData(value);
     }
 
     const handleSearch = (value : string) : void => {
-        const filtered = tableGroups.filter(data => {
-            const input = value.toLocaleLowerCase();
-            return data.groupName.toLocaleLowerCase().includes(input);
-        });
-        setFilteredTableGroups(filtered);
+        setSearchWord(value);
     }
 
     const handleSelectEdit = (tableGroupId : number) : void => {
@@ -284,6 +302,8 @@ export function useTableGroupManagement() {
         getTableGroupLoad,
         addTableGroupModal,
         editTableGroupModal,
+        searchWord,
+        statusFilterData,
         handleChangeOutlet,
         addTableGroupModalOpen,
         editTableGroupModalOpen,

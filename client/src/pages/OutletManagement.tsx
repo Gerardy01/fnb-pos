@@ -26,6 +26,8 @@ export default function OutletManagement() {
         addOutletModal,
         editOutletModal,
         outletIdFormParams,
+        searchWord,
+        statusFilterData,
         handleSearch,
         handleChangeStatusFilter,
         addOutletOpen,
@@ -56,6 +58,7 @@ export default function OutletManagement() {
                         style={styles.searchInput}
                         size='large'
                         allowClear
+                        value={searchWord}
                         placeholder={t("outlet:outletSearchPlaceholder")}
                         onChange={(e) => handleSearch(e.target.value)}
                     />
@@ -65,6 +68,7 @@ export default function OutletManagement() {
                             size='large'
                             placeholder={t("outlet:statusFilter")}
                             allowClear
+                            value={statusFilterData}
                             options={statusOptions}
                             onChange={handleChangeStatusFilter}
                             filterOption={(input, option) =>

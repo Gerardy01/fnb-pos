@@ -39,6 +39,8 @@ export default function AccountManagement() {
         selectOutletErrorMsg,
         assignOutletModal,
         selectedOutlet,
+        searchWord,
+        roleFilterData,
         handleChangeRoleFilter,
         handleSearch,
         openAddAccount,
@@ -73,6 +75,7 @@ export default function AccountManagement() {
                         style={styles.searchInput}
                         size='large'
                         allowClear
+                        value={searchWord}
                         placeholder={t("accountSearchPlaceholder")}
                         onChange={(e) => handleSearch(e.target.value)}
                     />
@@ -83,6 +86,7 @@ export default function AccountManagement() {
                             placeholder={t("selectRoleFilter")}
                             mode="multiple"
                             allowClear
+                            value={roleFilterData}
                             options={roleOptions}
                             onChange={handleChangeRoleFilter}
                             filterOption={(input, option) =>
