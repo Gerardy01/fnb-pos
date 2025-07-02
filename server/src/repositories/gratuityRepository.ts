@@ -3,12 +3,22 @@ import { Gratuity } from "../models";
 
 
 export interface IGratuityRepository {
+    findGratuityById(gratuityId : number) : Promise<Gratuity | null>
     findGratuityByOrganization(organizationId : string) : Promise<Gratuity[]>
     findGratuityByOrganizationAndName(organizationId : string, name : string) : Promise<Gratuity | null>
     createGratuity(data : Partial<Gratuity>, transaction? : Transaction) : Promise<Gratuity>
 }
 
 export class GratuityRepository implements IGratuityRepository {
+    findGratuityById(gratuityId: number): Promise<Gratuity | null> {
+        return Gratuity.findOne({
+            where: {
+                gratuity_id : gratuityId,
+                archived : false,
+            }
+        });  
+    }
+    
     findGratuityByOrganization(organizationId: string): Promise<Gratuity[]> {
         return Gratuity.findAll({
             where: {

@@ -7,7 +7,7 @@ import { PermissionEnum } from "../../utility/enums";
 import { authenticate, validatePermission, validateRequest } from "../../utility/middleware";
 
 // Schema
-import { CreateGratuitySchema } from "../../schema/gratuitySchema";
+import { CreateGratuitySchema, EditGratuitySchema } from "../../schema/gratuitySchema";
 
 // controllers
 import GratuityController from "../../controllers/gratuityController";
@@ -19,11 +19,27 @@ gratuityRoutes.get("/",
     validatePermission(PermissionEnum.GRATUITY_MANAGEMENT, 'read'),
     GratuityController.getAllGratuity
 );
+gratuityRoutes.get("/:id",
+    authenticate,
+    validatePermission(PermissionEnum.GRATUITY_MANAGEMENT, 'read'),
+    GratuityController.getOneGratuity
+);
 gratuityRoutes.post("/",
     authenticate,
     validatePermission(PermissionEnum.GRATUITY_MANAGEMENT, 'write'),
     validateRequest(CreateGratuitySchema),
     GratuityController.createGratuity
+);
+gratuityRoutes.put("/",
+    authenticate,
+    validatePermission(PermissionEnum.GRATUITY_MANAGEMENT, 'write'),
+    validateRequest(EditGratuitySchema),
+    GratuityController.editGratuity
+);
+gratuityRoutes.delete("/:id",
+    authenticate,
+    validatePermission(PermissionEnum.GRATUITY_MANAGEMENT, 'write'),
+    GratuityController.deleteGratuity
 );
 
 export default gratuityRoutes;
