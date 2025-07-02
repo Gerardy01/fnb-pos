@@ -4,13 +4,22 @@ import { catchFetchError } from "../utils/utility";
 
 // types and interfaces
 import { FetchResponse, ErrorResponse } from "../models/globalInterface";
-import { CreateGratuityBodyData, GratuityDataReturn } from "../models/gratuityInterface";
+import { CreateGratuityBodyData, EditGratuityBodyData, GratuityDataReturn } from "../models/gratuityInterface";
 
 
 export class GratuityApi {
     async getAllGratuity(params? : string) : Promise<[undefined, GratuityDataReturn[]] | [ErrorResponse]> {
         const [error, res] = await catchFetchError(axiosPrivate.get<FetchResponse<GratuityDataReturn[]>>(
             `gratuity${params ? `?${params}` : ""}`
+        ));
+
+        if (error) return [error];
+        return [error, res.data.data];
+    }
+    
+    async getOneGratuity(gratuityId : number) : Promise<[undefined, GratuityDataReturn] | [ErrorResponse]> {
+        const [error, res] = await catchFetchError(axiosPrivate.get<FetchResponse<GratuityDataReturn>>(
+            `gratuity/${gratuityId}`
         ));
 
         if (error) return [error];
@@ -24,6 +33,28 @@ export class GratuityApi {
             {
                 headers : { 'Content-Type' : 'application/json' },
             }
+        ));
+
+        if (error) return [error];
+        return [error, res.data.data];
+    }
+
+    async editGratuity(data : EditGratuityBodyData) : Promise<[undefined, GratuityDataReturn] | [ErrorResponse]> {
+        const [error, res] = await catchFetchError(axiosPrivate.put<FetchResponse<GratuityDataReturn>>(
+            "gratuity/",
+            data,
+            {
+                headers : { 'Content-Type' : 'application/json' },
+            }
+        ));
+
+        if (error) return [error];
+        return [error, res.data.data];
+    }
+
+    async deleteGratuity(gratuityId : number, params? : string) : Promise<[undefined, boolean] | [ErrorResponse]> {
+        const [error, res] = await catchFetchError(axiosPrivate.delete<FetchResponse<boolean>>(
+            `gratuity/${gratuityId}${params ? `?${params}` : ""}`
         ));
 
         if (error) return [error];

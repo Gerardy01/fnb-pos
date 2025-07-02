@@ -15,3 +15,11 @@ export interface CreateGratuityBodyData {
     amount : string;
     calculationType : number;
 }
+
+export interface EditGratuityBodyData {
+    gratuityId : number;
+    name : string;
+    writtenName : string;
+    amount : string;
+    calculationType : number;
+}

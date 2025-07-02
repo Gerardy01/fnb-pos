@@ -6,13 +6,14 @@ import { EditOutlined } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import useStaticModal from "../useStaticModal";
 import useNotification from "../useNotification";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 import { gratuityApi } from "../../api";
 
 // utils
 import { GratuityCalculationTypeEnum } from "../../utils/enums";
 import { formatAmountToReadable } from "../../utils/utility";
+import { GratuityDataReturn } from "../../models/gratuityInterface";
 
 // types and interfaces
 export interface GratuityForm {
@@ -31,6 +32,8 @@ export interface GratuityTableData {
 const { Text } = Typography;
 
 export function useGratuityManagement() {
+
+    const { gratuityId : gratuityIdFromParams } = useParams();
 
     const { t } = useTranslation(["global", "gratuity"]);
     const navigate = useNavigate();
@@ -51,6 +54,7 @@ export function useGratuityManagement() {
     useEffect(() => {
         getGratuityData();
         
+        if (gratuityIdFromParams) editGratuityOpen(true);
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
@@ -194,9 +198,23 @@ export function useGratuityManagement() {
     const onAddGratuitySuccess = (newGratuity : GratuityTableData) : void => {
         setGratuities(prev => [...prev, newGratuity]);
         addGratuityOpen(false);
-        
     }
 
+    const onEditGratuitySuccess = (newValue : GratuityTableData) : void => {
+        setGratuities(prevGratuity => 
+            prevGratuity.map(item =>
+                item.key === newValue.key ? newValue : item
+            )
+        );
+        editGratuityOpen(false);
+    }
+
+    const onDeleteGratuitySuccess = (gratuityId : number) : void => {
+        const filtered = gratuities.filter(item => item.key !== gratuityId);
+        setGratuities(filtered);
+        editGratuityOpen(false);
+    }
+    
     return {
         contentLoad,
         columns,
@@ -208,8 +226,11 @@ export function useGratuityManagement() {
         calculationType,
         handleSearch,
         addGratuityOpen,
+        editGratuityOpen,
         handleChangeCalculationTypeFilter,
-        onAddGratuitySuccess
+        onAddGratuitySuccess,
+        onEditGratuitySuccess,
+        onDeleteGratuitySuccess,
     }
 }
 
@@ -291,5 +312,153 @@ export function useAddGratuity(
         resetData,
         handleAddGratuity,
         handleCalculationTypeChange,
+    }
+}
+
+export function useEditGratuity(
+    onEditGratuitySuccess : (newValue : GratuityTableData) => void,
+    onDeleteGratuitySuccess : (gratuityId : number) => void ,
+) {
+
+    const { gratuityId : gratuityIdFromParams } = useParams();
+
+    const { t } = useTranslation(["global", "gratuity"]);
+
+    const { serverErrorModal, errorModal, confirmationModal } = useStaticModal();
+    const { successnotification } = useNotification();
+
+    const [gratuityData, setGratuityData] = useState<GratuityDataReturn | null>(null);
+
+    const [contentLoad, setContentLoad] = useState<boolean>(true);
+    const [submitLoad, setSubmitLoad] = useState<boolean>(false);
+    const [loading, setLoading] = useState<boolean>(false);
+
+    const [calculationType, setCalculationType] = useState<string>(`${GratuityCalculationTypeEnum.PERCENT}`);
+
+    const [editGratuityForm] = Form.useForm();
+
+    useEffect(() => {
+        getGratuityData();
+        
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    const getGratuityData = async () : Promise<void> => {
+        if (!gratuityIdFromParams) return;
+
+        try {
+
+            const [err, data] = await gratuityApi.getOneGratuity(Number(gratuityIdFromParams));
+
+            if (err) {
+                if (err.status === 404) return;
+
+                serverErrorModal();
+                return;
+            }
+
+            setGratuityData(data);
+            setCalculationType(`${data.calculationType}`)
+
+        } finally {
+            setContentLoad(false);
+        }
+    }
+
+    const handleEditGratuity : FormProps<GratuityForm>['onFinish'] = async (values) : Promise<void> => {
+        if (!gratuityIdFromParams) return;
+
+        setSubmitLoad(true);
+
+        try {
+
+            const [err, data] = await gratuityApi.editGratuity({
+                gratuityId : Number(gratuityIdFromParams),
+                name : values.name,
+                writtenName : values.writtenName,
+                amount : values.amount.toString(),
+                calculationType : Number(calculationType),
+            });
+
+            if (err) {
+
+                if (err.status === 400) {
+                    const error = err.response.data.schemaErrors ? err.response.data.schemaErrors[0] : undefined;
+                    if (!error) return;
+                    errorModal(undefined, `${error.field} is ${error.message}`);
+                    return;
+                }
+
+                if (err.status === 409) {
+                    errorModal(t('global:failed'), t(`gratuity:${err.response.data.message}`));
+                    return;
+                }
+
+                serverErrorModal();
+                return;
+            }
+
+            successnotification(t("gratuity:editSuccess"));
+            onEditGratuitySuccess({
+                key : data.gratuityId,
+                name : data.name,
+                writtenName : data.writtenName,
+                amount : data.amount,
+                calculationType : data.calculationType,
+            });
+
+        } finally {
+            setSubmitLoad(false);
+        }
+    }
+
+    const clickDeleteBtn = async () : Promise<void> => {
+        confirmationModal({
+            title : t("gratuity:sureDeleteGratuity"),
+            content: t("gratuity:deleteGratuityDesc"),
+            okBtn: t("global:yes"),
+            cancelBtn: t("global:cancel"),
+            centered: true,
+            okBtnDanger: true,
+            onOkWithPromise : handleDeleteGratuity,
+        });
+    }
+
+    const handleDeleteGratuity = async () : Promise<void> => {
+        if (!gratuityIdFromParams) return;
+
+        setLoading(true);
+
+        try {
+
+            const [err] = await gratuityApi.deleteGratuity(Number(gratuityIdFromParams));
+
+            if (err) {
+                serverErrorModal();
+                return;
+            }
+
+            onDeleteGratuitySuccess(Number(gratuityIdFromParams));
+            successnotification(t("gratuity:deleteSuccess"));
+
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    const handleCalculationTypeChange = (value: string) => {
+        setCalculationType(value);
+    };
+
+    return {
+        contentLoad,
+        gratuityData,
+        editGratuityForm,
+        calculationType,
+        submitLoad,
+        loading,
+        handleCalculationTypeChange,
+        handleEditGratuity,
+        clickDeleteBtn,
     }
 }

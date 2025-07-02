@@ -9,6 +9,11 @@
     "writtenName" : "Written Name",
     "amount" : "Amount",
     "addNewGratuity" : "Add New Gratuity",
+    "editGratuity" : "Edit Gratuity",
     "addSuccess" : "Gratuity added successfully",
-    "calculationType" : "Select Calculation Type"
+    "editSuccess" : "Gratuity edited successfully",
+    "deleteSuccess" : "Gratuity deleted successfully",
+    "calculationType" : "Select Calculation Type",
+    "sureDeleteGratuity" : "Are you sure want to delete this gratuity?",
+    "deleteGratuityDesc" : "Please confirm that you want to permanently delete this gratuity. This operation cannot be undone."
 }

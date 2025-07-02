@@ -53,7 +53,7 @@ export default function EditOutletModal({ open, onClose, onEditOutletSuccess, on
             ) : !contentLoad && outletData ? (
                 <>
                     <Form
-                        name="addOutlet"
+                        name="editOutlet"
                         onFinish={handleEditOutlet}
                         autoComplete="off"  
                         layout='vertical'

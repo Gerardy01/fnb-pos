@@ -44,7 +44,7 @@ export default function AddGratuityModal({ open, onClose, onAddGratuitySuccess }
             style={styles.modal}
         >
             <Form
-                name="addOutlet"
+                name="addGratuity"
                 onFinish={handleAddGratuity}
                 autoComplete="off"  
                 layout='vertical'

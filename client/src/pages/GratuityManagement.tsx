@@ -6,6 +6,7 @@ import { useGratuityManagement, GratuityTableData } from '../hooks/gratuities/us
 
 // components
 import AddGratuityModal from '../components/gratuity/AddGratuityModal';
+import EditGratuityModal from '../components/gratuity/EditGratuityModal';
 
 
 const { Title } = Typography;
@@ -26,8 +27,11 @@ export default function GratuityManagement() {
         calculationType,
         handleSearch,
         addGratuityOpen,
+        editGratuityOpen,
         handleChangeCalculationTypeFilter,
         onAddGratuitySuccess,
+        onEditGratuitySuccess,
+        onDeleteGratuitySuccess,
     } = useGratuityManagement();
 
     return (
@@ -84,6 +88,14 @@ export default function GratuityManagement() {
                 onClose={() => addGratuityOpen(false)}
                 onAddGratuitySuccess={onAddGratuitySuccess}
             />
+            {editGratuityModal && (
+                <EditGratuityModal
+                    open={editGratuityModal}
+                    onClose={() => editGratuityOpen(false)}
+                    onEditGratuitySuccess={onEditGratuitySuccess}
+                    onDeleteGratuitySuccess={onDeleteGratuitySuccess}
+                />
+            )}
         </div>
     )
 
