@@ -51,6 +51,7 @@ export default function EditGratuityModal({
             }}
             footer={null}
             maskClosable={false}
+            width={400}
         >
             {contentLoad ? (
                 <div style={styles.notContentHolder}>
@@ -88,6 +89,7 @@ export default function EditGratuityModal({
                         rules={[
                             { required: true, message: t("global:fieldRequired") }
                         ]}
+                        tooltip={t("gratuity:writtenNameInfo")}
                     >
                         <Input
                             placeholder={t('gratuity:writtenName')}
@@ -110,6 +112,7 @@ export default function EditGratuityModal({
                                 min={0}
                                 max={calculationType == `${GratuityCalculationTypeEnum.PERCENT}` ? 100 : 9999999999999}
                                 placeholder={t('gratuity:amount')}
+                                prefix={calculationType == `${GratuityCalculationTypeEnum.PERCENT}` ? "%" : "Rp"}
                                 addonAfter={(
                                     <Select
                                         value={calculationType}
@@ -185,4 +188,13 @@ const styles : { [key: string]: React.CSSProperties } = {
     deactivateBtn : {
         marginLeft: '10px'
     },
+    amountForm : {
+        width: '100%'
+    },
+    numberInput : {
+        width: '100%'
+    },
+    numberInputSelection : {
+        width: '60px'
+    }
 }

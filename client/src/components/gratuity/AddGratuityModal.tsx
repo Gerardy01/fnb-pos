@@ -42,6 +42,7 @@ export default function AddGratuityModal({ open, onClose, onAddGratuitySuccess }
             footer={null}
             maskClosable={false}
             style={styles.modal}
+            width={400}
         >
             <Form
                 name="addGratuity"
@@ -72,6 +73,7 @@ export default function AddGratuityModal({ open, onClose, onAddGratuitySuccess }
                     rules={[
                         { required: true, message: t("global:fieldRequired") }
                     ]}
+                    tooltip={t("gratuity:writtenNameInfo")}
                 >
                     <Input
                         placeholder={t('gratuity:writtenName')}
@@ -93,6 +95,7 @@ export default function AddGratuityModal({ open, onClose, onAddGratuitySuccess }
                             min={0}
                             max={calculationType == `${GratuityCalculationTypeEnum.PERCENT}` ? 100 : 9999999999999}
                             placeholder={t('gratuity:amount')}
+                            prefix={calculationType == `${GratuityCalculationTypeEnum.PERCENT}` ? "%" : "Rp"}
                             addonAfter={(
                                 <Select
                                     value={calculationType}
@@ -144,7 +147,7 @@ const styles : { [key: string]: React.CSSProperties } = {
         alignItems: 'center',
     },
     amountForm : {
-        width: '60%'
+        width: '100%'
     },
     numberInput : {
         width: '100%'

@@ -15,5 +15,6 @@
     "deleteSuccess" : "Gratuity deleted successfully",
     "calculationType" : "Select Calculation Type",
     "sureDeleteGratuity" : "Are you sure want to delete this gratuity?",
-    "deleteGratuityDesc" : "Please confirm that you want to permanently delete this gratuity. This operation cannot be undone."
+    "deleteGratuityDesc" : "Please confirm that you want to permanently delete this gratuity. This operation cannot be undone.",
+    "writtenNameInfo" : "This name will be printed on receipts and reports."
 }

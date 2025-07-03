@@ -29,7 +29,7 @@ export default function AssignedOutletList({
                 <div style={styles.subTitle}>
                     <Text strong>{t("global:assignOutlets")}</Text>
                     {description && (
-                        <Text style={{ fontSize: '12px' }} type="secondary">{description}</Text>
+                        <Text style={styles.description} type="secondary">{description}</Text>
                     )}
                 </div>
                 <Button
@@ -83,6 +83,10 @@ const styles : { [key: string]: React.CSSProperties } = {
         maxHeight: 220,
         overflow: 'auto',
         border: '1px solid rgba(140, 140, 140, 0.35)',
-        borderRadius: '7px'
+        borderRadius: '7px',
+        backgroundColor: '#FAFAFA',
     },
+    description : {
+        fontSize: '12px'
+    }
 }
