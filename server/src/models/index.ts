@@ -15,6 +15,9 @@ import AccountOutlets from "./accountOutlet.model";
 import TableGroup from "./tableGroup.model";
 import Table from "./table.model";
 import Gratuity from "./gratuity.model";
+import SalesType from "./salesType.model";
+import SalesTypeGratuity from "./salesTypeGratuity.model";
+import SalesTypeOutlets from "./salesTypeOutlet.model";
 
 
 
@@ -75,6 +78,28 @@ Outlet.hasMany(TableGroup, { foreignKey: 'outlet_id', as: 'table_group' });
 Table.belongsTo(TableGroup, { foreignKey: "table_group_id", as: "table_group" });
 TableGroup.hasMany(Table, { foreignKey: "table_group_id", as: "table" });
 
+// SalesType Gratuity relation
+SalesType.hasMany(SalesTypeGratuity, { foreignKey: "sales_type_id", as: "sales_type_gratuity" });
+Gratuity.hasMany(SalesTypeGratuity, { foreignKey: "gratuity_id", as: "sales_type_gratuity" });
+Outlet.hasMany(SalesTypeGratuity, { foreignKey: "outlet_id", as: "sales_type_gratuity" });
+SalesTypeGratuity.belongsTo(SalesType, { foreignKey: "sales_type_id", as: "sales_type" });
+SalesTypeGratuity.belongsTo(Gratuity, { foreignKey: "gratuity_id", as: "gratuity" });
+SalesTypeGratuity.belongsTo(Outlet, { foreignKey: "outlet_id", as: "outlet" });
+
+// SalesType outlet relation
+Outlet.belongsToMany(SalesType, {
+    through: SalesTypeOutlets,
+    foreignKey: 'outlet_id',
+    otherKey: 'sales_type_id',
+    as: 'sales_types',
+});
+SalesType.belongsToMany(Outlet, {
+    through: SalesTypeOutlets,
+    foreignKey: 'sales_type_id',
+    otherKey: 'outlet_id',
+    as: 'outlets',
+});
+
 
 
 export {
@@ -95,4 +120,6 @@ export {
     TableGroup,
     Table,
     Gratuity,
+    SalesType,
+    SalesTypeGratuity,
 }

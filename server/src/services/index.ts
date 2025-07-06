@@ -9,6 +9,7 @@ import { NotificationService } from "./notificationService";
 import { OutletService } from "./outletService";
 import { TableService } from "./tableService";
 import { GratuityService } from "./gratuityService";
+import { SalesTypeService } from "./salesTypeService";
 
 // repository
 import { OrganizationRepository } from "../repositories/organizationRepository";
@@ -26,6 +27,9 @@ import { AccountOutletRepository } from "../repositories/accountOutletRepository
 import { TableGroupRepository } from "../repositories/tableGroupRepository";
 import { TableRepository } from "../repositories/tableRepository";
 import { GratuityRepository } from "../repositories/gratuityRepository";
+import { SalesTypeRepository } from "../repositories/salesTypeRepository";
+import { SalesTypeOutletRepository } from "../repositories/salesTypeOutletRepository";
+import { SalesTypeGratuityRepository } from "../repositories/salesTypeGratuityRepository";
 
 // providers
 import { BcryptJsHashProvider } from "../providers/hashProvider";
@@ -53,6 +57,9 @@ const accountOutletRepository = new AccountOutletRepository();
 const tableGroupRepository = new TableGroupRepository();
 const tableRepository = new TableRepository();
 const gratuityRepository = new GratuityRepository();
+const salesTypeRepository = new SalesTypeRepository();
+const salesTypeOutletRepository = new SalesTypeOutletRepository();
+const salesTypeGratuityRepository = new SalesTypeGratuityRepository();
 
 const bcryptJsHashProvider = new BcryptJsHashProvider();
 const jsonWebTokenJwtProvider = new JsonWebTokenJwtProvider();
@@ -93,6 +100,13 @@ export const notificationService = new NotificationService(emailProvider);
 export const outletService = new OutletService(outletRepository, accountRepository, accountOutletRepository, tableGroupRepository, eventPublisherProvider);
 export const tableService = new TableService(tableRepository, tableGroupRepository, outletRepository, eventPublisherProvider);
 export const gratuityService = new GratuityService(gratuityRepository);
+export const salesTypeService = new SalesTypeService(
+    salesTypeRepository,
+    outletRepository,
+    gratuityRepository,
+    salesTypeOutletRepository,
+    salesTypeGratuityRepository,
+);
 
 
 // combined service (orchestration)

@@ -203,8 +203,7 @@ export class AccountService implements IAccountService {
 
         // outlet validation
         const outletIds = this.removeDuplicateOutlets(data.outletIds);
-        let outlets = await this.outletRepository.findOutletByIds(outletIds);
-        outlets = outlets.filter(outlet => outlet.organization_id === organizationId);
+        const outlets = await this.outletRepository.findOutletByIds(outletIds, organizationId);
         const foundOutlets = outlets.map(outlet => outlet.outlet_id);
         if (foundOutlets.length !== outletIds.length) {
             const missingOutletIds = outletIds.filter(id => !foundOutlets.includes(id));
@@ -223,7 +222,7 @@ export class AccountService implements IAccountService {
             role_id: role.roleId,
         }, transaction);
         
-        // create outlet
+        // create account's outlet
         const accountOutletList : Partial<AccountOutlets>[] = [];
         outletIds.forEach(item => {
             accountOutletList.push({
@@ -530,8 +529,7 @@ export class AccountService implements IAccountService {
 
         // outlet validation
         const outletIds = this.removeDuplicateOutlets(data.outletIds);
-        let outlets = await this.outletRepository.findOutletByIds(outletIds);
-        outlets = outlets.filter(outlet => outlet.organization_id === organizationId);
+        const outlets = await this.outletRepository.findOutletByIds(outletIds, organizationId);
         const foundOutlets = outlets.map(outlet => outlet.outlet_id);
         if (foundOutlets.length !== outletIds.length) {
             const missingOutletIds = outletIds.filter(id => !foundOutlets.includes(id));

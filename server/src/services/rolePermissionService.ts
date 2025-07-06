@@ -282,7 +282,7 @@ export class RolePermissionService implements IRolePermissionService {
         const foundPermissionIds = permissions.map(permission => permission.permission_id);
         if (foundPermissionIds.length !== permissionIds.length) {
             const missingPermissionIds = permissionIds.filter(id => !foundPermissionIds.includes(id));
-            throw new DataNotFound(`Permission with id ${missingPermissionIds.join(', ')} does not exist`)
+            throw new DataNotFound(`Permission with id ${missingPermissionIds.join(', ')} does not exist`);
         }
 
         if (data.pageAccessPermissionIds.length > 0) {
