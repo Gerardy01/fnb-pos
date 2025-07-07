@@ -1,5 +1,5 @@
 import { Transaction } from "sequelize";
-import SalesTypeOutlets from "../models/salesTypeOutlet.model";
+import { SalesTypeOutlets } from "../models";
 
 
 export interface ISalesTypeOutletRepository {

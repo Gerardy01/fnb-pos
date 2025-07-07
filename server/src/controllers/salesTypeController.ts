@@ -35,6 +35,37 @@ class SalesTypeController {
         }
     }
 
+    static async getOneSalesType(req : Request, res : Response) {
+        try {
+
+            const salesTypeId : string = req.params.id;
+            const organizationId = req.user ? req.user.organizationId : "";
+            const salestypeData = await salesTypeService.getOneSalesType(Number(salesTypeId), organizationId)
+            
+            return res.status(200).json({
+                "status" : "success",
+                "data" : salestypeData,
+            });
+
+        } catch(e) {
+
+            if (e instanceof DataNotFound) {
+                return res.status(404).json({
+                    "status" : "failed",
+                    "message" : e.message,
+                    "userMessage" : e.message,
+                });
+            }
+            
+            return res.status(500).json({
+                "status" : "failed",
+                "message" : "server error",
+                "userMessage" : "Something wrong. Try again later.",
+                "errors" : e
+            });
+        }
+    }
+
     static async getAllSalesTypeComplete(req : Request, res : Response) {
         try {
 

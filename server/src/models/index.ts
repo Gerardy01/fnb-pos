@@ -122,4 +122,5 @@ export {
     Gratuity,
     SalesType,
     SalesTypeGratuity,
+    SalesTypeOutlets,
 }

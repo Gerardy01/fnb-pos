@@ -1,10 +1,10 @@
 import { Op, Transaction } from "sequelize";
 import { Gratuity, Outlet, SalesType, SalesTypeGratuity } from "../models";
-import SalesTypeOutlets from "../models/salesTypeOutlet.model";
 
 
 export interface ISalesTypeRepository {
     findSalesTypeByOrganization(organizationId : string, includeChild? : boolean) : Promise<SalesType[]>
+    findSalesTypeById(salesTypeId : number) : Promise<SalesType | null>
     findSalesTypeByName(name : string, organizationId : string) : Promise<SalesType | null>
     createSalesType(data : Partial<SalesType>, transaction? : Transaction) : Promise<SalesType>
 }
@@ -50,15 +50,21 @@ export class SalesTypeRepository implements ISalesTypeRepository {
                         {
                             model: Outlet,
                             as: 'outlet',
-                            where: {
-                                archived: false
-                            },
-                            required: true
+                            required: false
                         }
                     ],
                     required: false,
                 }
             ]
+        });
+    }
+
+    findSalesTypeById(salesTypeId: number): Promise<SalesType | null> {
+        return SalesType.findOne({
+            where: {
+                sales_type_id : salesTypeId,
+                archived : false,
+            }
         });
     }
 

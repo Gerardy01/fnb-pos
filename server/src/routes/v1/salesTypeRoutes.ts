@@ -19,6 +19,11 @@ salesTypeRoutes.get("/",
     validatePermission(PermissionEnum.SALES_TYPE_MANAGEMENT, 'read'),
     SalesTypeController.getAllSalesType
 );
+salesTypeRoutes.get("/:id",
+    authenticate,
+    validatePermission(PermissionEnum.SALES_TYPE_MANAGEMENT, 'read'),
+    SalesTypeController.getOneSalesType
+);
 salesTypeRoutes.get("/action/complete",
     authenticate,
     validatePermission(PermissionEnum.SALES_TYPE_MANAGEMENT, 'read'),

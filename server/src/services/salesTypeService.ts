@@ -15,6 +15,7 @@ import { SalesTypeGratuity } from "../models";
 import { ISalesTypeGratuityRepository } from "../repositories/salesTypeGratuityRepository";
 export interface ISalesTypeService {
     getAllSalesType(organizationId : string) : Promise<SalesTypeReturnData[]>
+    getOneSalesType(salesTypeId : number, organizationId : string) : Promise<SalesTypeCompleteReturnData>
     getAllSalesTypeComplete(organizationId : string) : Promise<SalesTypeCompleteReturnData[]>
     createSalesType(data : ICreateSalesTypeData, organizationId : string, transaction? : Transaction) : Promise<SalesTypeCompleteReturnData>
 }
@@ -44,6 +45,33 @@ export class SalesTypeService implements ISalesTypeService {
         return salesTypeList;
     }
 
+    async getOneSalesType(salesTypeId: number, organizationId: string): Promise<SalesTypeCompleteReturnData> {
+        
+        const salestype = await this.salesTypeRepository.findSalesTypeById(salesTypeId);
+        if (!salestype || salestype.organization_id !== organizationId) throw new DataNotFound("Data not found");
+
+        const outlets = await this.outletRepository.findOutletBySalesType(salesTypeId, organizationId);
+        const outletIds = outlets.map(item => item.outlet_id);
+
+        const gratuities = await this.salesTypeGratuityRepository.findSalesTypeGratuityBySalesType(salesTypeId);
+
+        const assignedGratuities : AssignedGratuities[] = [];
+        gratuities.forEach(item => {
+            if (item.outlet?.archived) return;
+            assignedGratuities.push({
+                gratuityId : item.gratuity_id,
+                outletId : item.outlet_id, 
+            });
+        });
+
+        return {
+            sales_type_id : salestype.sales_type_id,
+            name : salestype.name,
+            outletIds : outletIds,
+            assignedGratuities : assignedGratuities,
+        }
+    }
+
     async getAllSalesTypeComplete(organizationId: string): Promise<SalesTypeCompleteReturnData[]> {
 
         const salesTypes = await this.salesTypeRepository.findSalesTypeByOrganization(organizationId, true);
@@ -52,7 +80,7 @@ export class SalesTypeService implements ISalesTypeService {
         salesTypes.forEach(item => {
             const assignedGratuities : AssignedGratuities[] = [];
             item.sales_type_gratuity?.forEach(e => {
-                if (!e.outlet_id) return;
+                if (e.outlet?.archived) return;
                 assignedGratuities.push({
                     gratuityId : e.gratuity_id,
                     outletId : e.outlet_id,
