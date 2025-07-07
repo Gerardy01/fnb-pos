@@ -14,6 +14,11 @@ import SalesTypeController from "../../controllers/salesTypeController";
 
 const salesTypeRoutes = Router();
 
+salesTypeRoutes.get("/",
+    authenticate,
+    validatePermission(PermissionEnum.SALES_TYPE_MANAGEMENT, 'read'),
+    SalesTypeController.getAllSalesType
+);
 salesTypeRoutes.get("/action/complete",
     authenticate,
     validatePermission(PermissionEnum.SALES_TYPE_MANAGEMENT, 'read'),

@@ -13,6 +13,28 @@ import { Transaction } from 'sequelize';
 
 
 class SalesTypeController {
+    static async getAllSalesType(req : Request, res : Response) {
+        try {
+
+            const organizationId = req.user ? req.user.organizationId : "";
+            const salesTypes = await salesTypeService.getAllSalesType(organizationId);
+
+            return res.status(200).json({
+                "status" : "success",
+                "data" : salesTypes,
+            });
+
+        } catch(e) {
+
+            return res.status(500).json({
+                "status" : "failed",
+                "message" : "server error",
+                "userMessage" : "Something wrong. Try again later.",
+                "errors" : e
+            });
+        }
+    }
+
     static async getAllSalesTypeComplete(req : Request, res : Response) {
         try {
 
@@ -25,7 +47,7 @@ class SalesTypeController {
             });
 
         } catch(e) {
-            
+
             return res.status(500).json({
                 "status" : "failed",
                 "message" : "server error",
