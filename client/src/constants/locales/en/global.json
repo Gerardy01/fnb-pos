@@ -54,5 +54,6 @@
     "assignOutlets" : "Assign Outlets",
     "oultetSearchPlaceholder" : "Search by Name",
     "fixed" : "Fixed",
-    "percentage" : "Percentage"
+    "percentage" : "Percentage",
+    "optionalPrefix" : "(Optional)"
 }

@@ -11,6 +11,7 @@ declare module 'i18next' {
       outlet: typeof import('./locales/en.json');
       table: typeof import('./locales/en.json');
       gratuity: typeof import('./locales/en.json');
+      salesType : typeof import('./locales/en.json');
     };
   }
 }

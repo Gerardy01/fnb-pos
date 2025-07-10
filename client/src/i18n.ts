@@ -10,6 +10,7 @@ import enRole from "./constants/locales/en/role.json";
 import enOutlet from "./constants/locales/en/outlet.json";
 import enTable from "./constants/locales/en/table.json";
 import enGratuity from "./constants/locales/en/gratuity.json";
+import enSalesType from "./constants/locales/en/sales-type.json";
 
 import idGlobal from "./constants/locales/id/global.json";
 import idAuth from "./constants/locales/id/auth.json";
@@ -29,6 +30,7 @@ i18n
                 outlet : enOutlet,
                 table : enTable,
                 gratuity : enGratuity,
+                salesType : enSalesType,
             },
             id: {
                 auth : idAuth,
@@ -45,6 +47,7 @@ i18n
             "outlet",
             "table",
             "gratuity",
+            "sales-type",
         ],
         interpolation: {
             escapeValue: false

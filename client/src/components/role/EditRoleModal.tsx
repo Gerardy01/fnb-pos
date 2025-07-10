@@ -110,7 +110,10 @@ export default function EditRoleModal({
                     </Form.Item>
                     
                     <div style={styles.permissionSettingHolder}>
-                        <Text strong>{t("role:pageAccess")}</Text>
+                        <div style={styles.subTitle}>
+                            <Text strong>{t("role:pageAccess")}</Text>
+                            <Text style={styles.description} type="secondary">{t("role:selectPermissionDesc")}</Text>
+                        </div>
 
                         {pageAccessPermissionErrorMsg && (
                             <Alert
@@ -293,5 +296,13 @@ const styles : { [key: string]: React.CSSProperties } = {
     },
     notContentHolder : {
         height: '35rem'
+    },
+    subTitle: {
+        display: 'flex',
+        flexDirection: 'column',
+        maxWidth: '80%'
+    },
+    description : {
+        fontSize: '12px'
     }
 }

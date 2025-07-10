@@ -12,12 +12,12 @@ export interface ICreateSalesTypeData {
 }
 
 export type SalesTypeReturnData = {
-    sales_type_id : number;
+    salesTypeId : number;
     name : string;
 }
 
 export type SalesTypeCompleteReturnData = {
-    sales_type_id : number;
+    salesTypeId : number;
     name : string;
     outletIds : string[];
     assignedGratuities : AssignedGratuities[];

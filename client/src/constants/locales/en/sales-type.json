@@ -1,0 +1,23 @@
+
+
+
+{
+    "SALESTYPE409-1" : "Sales type with this name already exist. Please use another name.",
+
+    "salesTypeManagement" : "Sales Type Management",
+    "newSalesType" : "New Sales Type",
+    "salesTypeSearchPlaceholder" : "Search by Name",
+    "name" : "Name",
+    "assignedGratuities" : "Assigned Gratuities",
+    "assignGratuity" : "Assign Gratuity",
+    "selectGratuity" : "Select Gratuity",
+    "gratuities" : "Gratuities",
+    "accross" : "accross",
+    "outlets" : "outlets",
+    "addNewSalesType" : "Add New Sales Type",
+    "assignOutletDesc" : "Assign outlet to this sales type. The selected outlet will be able to access this sales type.",
+    "assignGratuityDesc" : "Assign gratuity to this sales type. The selected gratuity will be applied for order with this sales type",
+    "diffGratuityOutletLabel" : "Assign different gratuity for each selected outlet",
+    "appliedToAllOutlet" : "These gratuities will apply to all selected outlets.",
+    "outlet" : "Outlet"
+}

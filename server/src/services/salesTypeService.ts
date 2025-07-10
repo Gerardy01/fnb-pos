@@ -37,7 +37,7 @@ export class SalesTypeService implements ISalesTypeService {
         const salesTypeList : SalesTypeReturnData[] = [];
         salesTypes.forEach(item => {
             salesTypeList.push({
-                sales_type_id : item.sales_type_id,
+                salesTypeId : item.sales_type_id,
                 name : item.name,
             });
         });
@@ -65,7 +65,7 @@ export class SalesTypeService implements ISalesTypeService {
         });
 
         return {
-            sales_type_id : salestype.sales_type_id,
+            salesTypeId : salestype.sales_type_id,
             name : salestype.name,
             outletIds : outletIds,
             assignedGratuities : assignedGratuities,
@@ -88,7 +88,7 @@ export class SalesTypeService implements ISalesTypeService {
             });
 
             salesTypeList.push({
-                sales_type_id : item.sales_type_id,
+                salesTypeId : item.sales_type_id,
                 name : item.name,
                 outletIds : item.outlets ? item.outlets.map(e => e.outlet_id) : [],
                 assignedGratuities : assignedGratuities
@@ -168,7 +168,7 @@ export class SalesTypeService implements ISalesTypeService {
         await this.salesTypeGratuityRepository.bulkCreateSalesTypeGratuity(salesTypeGratuityList, transaction);
 
         return {
-            sales_type_id : createdSalesType.sales_type_id,
+            salesTypeId : createdSalesType.sales_type_id,
             name : createdSalesType.name,
             outletIds : outletIds,
             assignedGratuities : data.assignedGratuities,

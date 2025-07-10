@@ -92,8 +92,10 @@ export default function AddRoleModal({
                 </Form.Item>
 
                 <div style={styles.permissionSettingHolder}>
-                    <Text strong>{t("role:pageAccess")}</Text>
-
+                    <div style={styles.subTitle}>
+                        <Text strong>{t("role:pageAccess")}</Text>
+                        <Text style={styles.description} type="secondary">{t("role:selectPermissionDesc")}</Text>
+                    </div>
                     {pageAccessPermissionErrorMsg && (
                         <Alert
                             message={pageAccessPermissionErrorMsg}
@@ -256,5 +258,13 @@ const styles : { [key: string]: React.CSSProperties } = {
         marginTop: '1rem',
         marginBottom: '2rem',
         width: '45%',
+    },
+    subTitle: {
+        display: 'flex',
+        flexDirection: 'column',
+        maxWidth: '80%'
+    },
+    description : {
+        fontSize: '12px'
     }
 }

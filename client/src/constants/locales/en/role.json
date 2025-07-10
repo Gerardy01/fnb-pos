@@ -18,5 +18,6 @@
     "roleSearchPlaceholder" : "Find by Name",
     "sureDeleteRole" : "Are you sure want to delete this role?",
     "deleteRoleDesc" : "Please confirm that you want to permanently delete this role. This operation cannot be undone.",
-    "assignedAccount" : "Assigned Account"
+    "assignedAccount" : "Assigned Account",
+    "selectPermissionDesc" : "Select which page for user with this role are able to access."
 }
