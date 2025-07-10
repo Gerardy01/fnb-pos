@@ -65,6 +65,11 @@ export function useSalesTypeManagement() {
     }, []);
 
     useEffect(() => {
+        setFilteredSalesTypes(salesTypes);
+        setSearchWord("");
+    }, [salesTypes]);
+
+    useEffect(() => {
         if (getSalesTypeLoad || getGratuityLoad || getOutletLoad) return;
         setContentLoad(false);
     }, [getSalesTypeLoad, getGratuityLoad, getOutletLoad]);
@@ -236,6 +241,26 @@ export function useSalesTypeManagement() {
         }
     }
 
+    const onAddSalesTypeSuccess = (newSalesType : SalesTypeTableData) : void => {
+        setSalesTypes(prev => [...prev, newSalesType]);
+        addSalesTypeOpen(false);
+    }
+
+    const onEditSalesTypeSuccess = (newValue : SalesTypeTableData) : void => {
+        setSalesTypes(prevSalesType =>
+            prevSalesType.map(item =>
+                item.key === newValue.key ? newValue : item
+            )
+        );
+        editSalesTypeOpen(false);
+    }
+
+    const onDeleteSalesTypeSuccess = (salesTypeId : number) : void => {
+        const filtered = salesTypes.filter(item => item.key !== salesTypeId);
+        setSalesTypes(filtered);
+        editSalesTypeOpen(false);
+    }
+
     return {
         contentLoad,
         columns,
@@ -248,11 +273,15 @@ export function useSalesTypeManagement() {
         handleSearch,
         addSalesTypeOpen,
         editSalesTypeOpen,
+        onAddSalesTypeSuccess,
+        onEditSalesTypeSuccess,
+        onDeleteSalesTypeSuccess,
     }
 }
 
 export function useAddSalesType(
     gratuityOption : SelectProps['options'],
+    onAddSalesTypeSuccess : (newSalesType : SalesTypeTableData) => void,
 ) {
 
     const { t } = useTranslation(["global", "gratuity"]);
@@ -276,6 +305,7 @@ export function useAddSalesType(
         handleChangeGratuitySelection,
         changeDiffGratuityOutlet,
         getAssignedGratuities,
+        resetAssignedGratuities,
     } = useGratuitySelection(gratuityOption);
 
     const resetData = () : void => {
@@ -327,8 +357,15 @@ export function useAddSalesType(
             }
 
             successnotification(t("gratuity:addSuccess"));
+            onAddSalesTypeSuccess({
+                key : data.salesTypeId,
+                name: data.name,
+                outletIds : data.outletIds,
+                assignedGratuities : data.assignedGratuities,
+            });
 
             resetData();
+            resetAssignedGratuities();
 
         } finally {
             setLoading(false);
@@ -447,6 +484,11 @@ function useGratuitySelection(
         return assignedList;
     }
 
+    const resetAssignedGratuities = () : void => {
+        setSelectedGratuities([]);
+        setSelectedGratuitiesMultiple([]);
+    }
+
     return {
         selectedGratuities,
         diffGratuityOutlet,
@@ -454,5 +496,6 @@ function useGratuitySelection(
         handleChangeGratuitySelection,
         changeDiffGratuityOutlet,
         getAssignedGratuities,
+        resetAssignedGratuities,
     }
 }

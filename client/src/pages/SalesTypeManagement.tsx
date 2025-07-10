@@ -28,6 +28,9 @@ export default function SalesTypeManagement() {
         handleSearch,
         addSalesTypeOpen,
         editSalesTypeOpen,
+        onAddSalesTypeSuccess,
+        onEditSalesTypeSuccess,
+        onDeleteSalesTypeSuccess
     } = useSalesTypeManagement();
 
     return (
@@ -72,6 +75,7 @@ export default function SalesTypeManagement() {
                     outletSelection={outletSelection}
                     gratuityOption={gratuityOption}
                     onClose={() => addSalesTypeOpen(false)}
+                    onAddSalesTypeSuccess={onAddSalesTypeSuccess}
                 />
             )}
         </div>

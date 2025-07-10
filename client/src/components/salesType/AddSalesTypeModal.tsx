@@ -1,7 +1,7 @@
 import { Modal, Form, Input, Button, Typography, Select, SelectProps, Checkbox, Table } from "antd";
 
 import { useTranslation } from "react-i18next";
-import { useAddSalesType } from "../../hooks/salesType/useSalesTypeManagement";
+import { SalesTypeTableData, useAddSalesType } from "../../hooks/salesType/useSalesTypeManagement";
 
 // components
 import AssignOutletModal from "../global/AssignOutletModal";
@@ -14,6 +14,7 @@ interface Props {
     outletSelection : OutletSelectionData[];
     gratuityOption : SelectProps['options']
     onClose : () => void;
+    onAddSalesTypeSuccess : (newSalesType : SalesTypeTableData) => void;
 }
 
 const { Text } = Typography;
@@ -24,6 +25,7 @@ export default function AddSalesTypeModal({
     outletSelection,
     gratuityOption,
     onClose,
+    onAddSalesTypeSuccess,
 } : Props) {
 
     const { t } = useTranslation(["global", "salesType"]);
@@ -35,13 +37,14 @@ export default function AddSalesTypeModal({
         selectedGratuities,
         diffGratuityOutlet,
         gratuityAssignationCols,
+        loading,
         openAssignOutletModal,
         resetData,
         handleAssignSelectedOutlet,
         handleAddSalesType,
         handleChangeGratuitySelection,
         changeDiffGratuityOutlet,
-    } = useAddSalesType(gratuityOption);
+    } = useAddSalesType(gratuityOption, onAddSalesTypeSuccess);
 
     return (
         <Modal
@@ -137,7 +140,7 @@ export default function AddSalesTypeModal({
                         type="primary"
                         htmlType="submit"
                         size="large"
-                        // loading={addRoleLoad}
+                        loading={loading}
                     >
                         {t("global:submit")}
                     </Button>
