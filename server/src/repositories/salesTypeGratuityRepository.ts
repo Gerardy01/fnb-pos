@@ -5,6 +5,7 @@ import { Gratuity, Outlet, SalesTypeGratuity } from "../models";
 export interface ISalesTypeGratuityRepository {
     findSalesTypeGratuityBySalesType(salesTypeId : number) : Promise<SalesTypeGratuity[]>
     bulkCreateSalesTypeGratuity(data : Partial<SalesTypeGratuity>[], transaction? : Transaction) : Promise<SalesTypeGratuity[]>
+    destroySalesTypeGratuity(salesTypeId : number, transaction? : Transaction) : Promise<void>
 }
 
 
@@ -34,5 +35,14 @@ export class SalesTypeGratuityRepository implements ISalesTypeGratuityRepository
 
     bulkCreateSalesTypeGratuity(data: Partial<SalesTypeGratuity>[], transaction?: Transaction): Promise<SalesTypeGratuity[]> {
         return SalesTypeGratuity.bulkCreate(data, { transaction });
+    }
+
+    async destroySalesTypeGratuity(salesTypeId: number, transaction?: Transaction): Promise<void> {
+        SalesTypeGratuity.destroy({
+            where: {
+                sales_type_id : salesTypeId,
+            },
+            transaction
+        })
     }
 }

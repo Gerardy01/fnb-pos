@@ -11,3 +11,10 @@ export const CreateSalesTypeSchema = z.object({
     outletIds : z.array(z.string()),
     assignedGratuities: z.array(AssignedGratuitySchema),
 });
+
+export const EditSalesTypeSchema = z.object({
+    salesTypeId : z.number(),
+    name : z.string().min(1).max(100),
+    outletIds : z.array(z.string()),
+    assignedGratuities: z.array(AssignedGratuitySchema),
+});

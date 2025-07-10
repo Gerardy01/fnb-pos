@@ -11,6 +11,13 @@ export interface ICreateSalesTypeData {
     assignedGratuities : AssignedGratuities[];
 }
 
+export interface IEditSalesTypeData {
+    salesTypeId : number;
+    name : string;
+    outletIds : string[];
+    assignedGratuities : AssignedGratuities[];
+}
+
 export type SalesTypeReturnData = {
     salesTypeId : number;
     name : string;

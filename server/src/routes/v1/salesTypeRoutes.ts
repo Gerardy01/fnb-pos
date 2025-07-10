@@ -7,7 +7,7 @@ import { PermissionEnum } from "../../utility/enums";
 import { authenticate, validatePermission, validateRequest } from "../../utility/middleware";
 
 // schema
-import { CreateSalesTypeSchema } from "../../schema/salesTypeSchema";
+import { CreateSalesTypeSchema, EditSalesTypeSchema } from "../../schema/salesTypeSchema";
 
 // controllers
 import SalesTypeController from "../../controllers/salesTypeController";
@@ -34,6 +34,12 @@ salesTypeRoutes.post("/",
     validatePermission(PermissionEnum.SALES_TYPE_MANAGEMENT, 'write'),
     validateRequest(CreateSalesTypeSchema),
     SalesTypeController.createSalesType
+);
+salesTypeRoutes.put("/",
+    authenticate,
+    validatePermission(PermissionEnum.SALES_TYPE_MANAGEMENT, 'write'),
+    validateRequest(EditSalesTypeSchema),
+    SalesTypeController.editSalesType
 );
 
 export default salesTypeRoutes;

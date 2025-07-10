@@ -100,9 +100,55 @@ class SalesTypeController {
 
             return res.status(201).json({
                 "status" : "success",
-                "message" : "Gratuity created",
+                "message" : "Sales type created",
                 "userMessage" : "",
                 "data" : newSalesType,
+            });
+
+        } catch(e) {
+
+            transaction.rollback();
+
+            if (e instanceof DataNotFound) {
+                return res.status(404).json({
+                    "status" : "failed",
+                    "message" : e.message,
+                    "userMessage" : e.message,
+                });
+            }
+
+            if (e instanceof ExistData) {
+                return res.status(409).json({
+                    "status" : "failed",
+                    "message" : e.message,
+                    "userMessage" : e.message,
+                });
+            }
+
+            return res.status(500).json({
+                "status" : "failed",
+                "message" : "server error",
+                "userMessage" : "Something wrong. Try again later.",
+                "errors" : e
+            });
+        }
+    }
+
+    static async editSalesType(req : Request, res : Response) {
+        const transaction : Transaction = await sequelize.transaction();
+
+        try {
+
+            const organizationId = req.user ? req.user.organizationId : "";
+            const editedSalesType = await salesTypeService.editSalesType(req.body, organizationId, transaction);
+
+            transaction.commit();
+
+            return res.status(200).json({
+                "status" : "success",
+                "message" : "Sales type edited",
+                "userMessage" : "",
+                "data" : editedSalesType,
             });
 
         } catch(e) {
