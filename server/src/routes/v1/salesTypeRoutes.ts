@@ -41,5 +41,10 @@ salesTypeRoutes.put("/",
     validateRequest(EditSalesTypeSchema),
     SalesTypeController.editSalesType
 );
+salesTypeRoutes.delete("/:id",
+    authenticate,
+    validatePermission(PermissionEnum.SALES_TYPE_MANAGEMENT, 'write'),
+    SalesTypeController.deleteSalesType
+);
 
 export default salesTypeRoutes;

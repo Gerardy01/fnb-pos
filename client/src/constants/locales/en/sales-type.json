@@ -6,6 +6,7 @@
 
     "salesTypeManagement" : "Sales Type Management",
     "newSalesType" : "New Sales Type",
+    "editSalesType" : "Edit Sales Type",
     "salesTypeSearchPlaceholder" : "Search by Name",
     "name" : "Name",
     "assignedGratuities" : "Assigned Gratuities",
@@ -15,9 +16,12 @@
     "accross" : "accross",
     "outlets" : "outlets",
     "addNewSalesType" : "Add New Sales Type",
-    "assignOutletDesc" : "Assign outlet to this sales type. The selected outlet will be able to access this sales type.",
+    "assignOutletDesc" : "Assign sales type to outlets. The selected outlet will be able to access this sales type.",
     "assignGratuityDesc" : "Assign gratuity to this sales type. The selected gratuity will be applied for order with this sales type",
     "diffGratuityOutletLabel" : "Assign different gratuity for each selected outlet",
     "appliedToAllOutlet" : "These gratuities will apply to all selected outlets.",
-    "outlet" : "Outlet"
+    "outlet" : "Outlet",
+    "addSuccess" : "Sales type added successfully",
+    "editSuccess" : "Sales type edited successfully",
+    "deleteSuccess" : "Sales type deleted successfully"
 }

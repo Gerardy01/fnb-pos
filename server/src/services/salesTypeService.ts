@@ -19,6 +19,7 @@ export interface ISalesTypeService {
     getAllSalesTypeComplete(organizationId : string) : Promise<SalesTypeCompleteReturnData[]>
     createSalesType(data : ICreateSalesTypeData, organizationId : string, transaction? : Transaction) : Promise<SalesTypeCompleteReturnData>
     editSalesType(data : IEditSalesTypeData, organizationId : string, transaction? : Transaction) : Promise<SalesTypeCompleteReturnData>
+    deleteSalesType(salesTypeId : number, organizationId : string) : Promise<boolean>
 }
 
 
@@ -259,5 +260,16 @@ export class SalesTypeService implements ISalesTypeService {
             outletIds : outletIds,
             assignedGratuities : data.assignedGratuities,
         }
+    }
+
+    async deleteSalesType(salesTypeId: number, organizationId: string): Promise<boolean> {
+        
+        const targetSalesType = await this.salesTypeRepository.findSalesTypeById(salesTypeId);
+        if (!targetSalesType || targetSalesType.organization_id !== organizationId) throw new DataNotFound("Data not found");
+
+        targetSalesType.archived = true;
+        targetSalesType.save();
+
+        return true;
     }
 }

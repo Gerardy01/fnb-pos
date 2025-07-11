@@ -26,6 +26,15 @@ export class SalesTypeApi {
         return [error, res.data.data];
     }
 
+    async getOneSalesType(salesTypeId : number) : Promise<[undefined, SalesTypeCompleteDataReturn] | [ErrorResponse]> {
+        const [error, res] = await catchFetchError(axiosPrivate.get<FetchResponse<SalesTypeCompleteDataReturn>>(
+            `sales-type/${salesTypeId}`
+        ));
+
+        if (error) return [error];
+        return [error, res.data.data];
+    }
+
     async createSalesType(data : CreateSalesTypeBodyData) : Promise<[undefined, SalesTypeCompleteDataReturn] | [ErrorResponse]> {
         const [error, res] = await catchFetchError(axiosPrivate.post<FetchResponse<SalesTypeCompleteDataReturn>>(
             "sales-type/",
@@ -46,6 +55,15 @@ export class SalesTypeApi {
             {
                 headers : { 'Content-Type' : 'application/json' },
             }
+        ));
+
+        if (error) return [error];
+        return [error, res.data.data];
+    }
+
+    async deleteSalesType(salesTypeId : number) : Promise<[undefined, boolean] | [ErrorResponse]> {
+        const [error, res] = await catchFetchError(axiosPrivate.delete<FetchResponse<boolean>>(
+            `sales-type/${salesTypeId}`
         ));
 
         if (error) return [error];

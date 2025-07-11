@@ -179,6 +179,39 @@ class SalesTypeController {
             });
         }
     }
+
+    static async deleteSalesType(req : Request, res : Response) {
+        try {
+
+            const salesTypeId : string = req.params.id;
+            const organizationId = req.user ? req.user.organizationId : "";
+            const deleted = await salesTypeService.deleteSalesType(Number(salesTypeId), organizationId);
+
+            return res.status(200).json({
+                "status" : "success",
+                "message" : "sales type deleted",
+                "userMessage" : "",
+                "data" : deleted,
+            });
+
+        } catch(e) {
+
+            if (e instanceof DataNotFound) {
+                return res.status(404).json({
+                    "status" : "failed",
+                    "message" : e.message,
+                    "userMessage" : e.message,
+                });
+            }
+
+            return res.status(500).json({
+                "status" : "failed",
+                "message" : "server error",
+                "userMessage" : "Something wrong. Try again later.",
+                "errors" : e
+            });
+        }
+    }
 }
 
 export default SalesTypeController;

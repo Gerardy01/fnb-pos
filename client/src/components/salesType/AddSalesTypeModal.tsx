@@ -12,7 +12,7 @@ import { OutletSelectionData } from "../../models/globalInterface";
 interface Props {
     open : boolean;
     outletSelection : OutletSelectionData[];
-    gratuityOption : SelectProps['options']
+    gratuityOption : SelectProps['options'];
     onClose : () => void;
     onAddSalesTypeSuccess : (newSalesType : SalesTypeTableData) => void;
 }
@@ -127,7 +127,7 @@ export default function AddSalesTypeModal({
 
                     <Checkbox
                         style={styles.checkbox}
-                        value={diffGratuityOutlet}
+                        checked={diffGratuityOutlet}
                         onChange={(e) => changeDiffGratuityOutlet(e.target.checked)}
                         disabled={selectedOutlet.length <= 1}
                     >{t("salesType:diffGratuityOutletLabel")}</Checkbox>

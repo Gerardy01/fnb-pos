@@ -11,7 +11,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { gratuityApi, outletApi, salesTypeApi } from "../../api";
 
 // types and interfaces
-import { AssignedGratuities } from "../../models/salesTypeInterface";
+import { AssignedGratuities, SalesTypeCompleteDataReturn } from "../../models/salesTypeInterface";
 import { OutletSelectionData } from "../../models/globalInterface";
 export interface SalesTypeForm {
     name : string;
@@ -284,7 +284,7 @@ export function useAddSalesType(
     onAddSalesTypeSuccess : (newSalesType : SalesTypeTableData) => void,
 ) {
 
-    const { t } = useTranslation(["global", "gratuity"]);
+    const { t } = useTranslation(["global", "salesType"]);
 
     const { serverErrorModal, errorModal } = useStaticModal();
     const { successnotification } = useNotification();
@@ -311,6 +311,8 @@ export function useAddSalesType(
     const resetData = () : void => {
         addSalesTypeForm.resetFields();
         setSelectedOutlet([]);
+        resetAssignedGratuities();
+        changeDiffGratuityOutlet(false);
     }
 
     const openAssignOutletModal = (open : boolean) : void => {
@@ -356,7 +358,7 @@ export function useAddSalesType(
                 return;
             }
 
-            successnotification(t("gratuity:addSuccess"));
+            successnotification(t("salesType:addSuccess"));
             onAddSalesTypeSuccess({
                 key : data.salesTypeId,
                 name: data.name,
@@ -365,7 +367,6 @@ export function useAddSalesType(
             });
 
             resetData();
-            resetAssignedGratuities();
 
         } finally {
             setLoading(false);
@@ -390,11 +391,244 @@ export function useAddSalesType(
     }
 }
 
+export function useEditSalesType(
+    outletSelection : OutletSelectionData[],
+    gratuityOption : SelectProps['options'],
+    onEditSalesTypeSuccess : (newValue : SalesTypeTableData) => void,
+    onDeleteSalesTypeSuccess : (salesTypeId : number) => void,
+) {
+
+    const { salesTypeId : salesTypeIdFromParams } = useParams();
+
+    const { t } = useTranslation(["global", "salesType"]);
+
+    const { serverErrorModal, errorModal, confirmationModal } = useStaticModal();
+    const { successnotification } = useNotification();
+
+    const {
+        selectedGratuities,
+        diffGratuityOutlet,
+        gratuityAssignationCols,
+        handleChangeGratuitySelection,
+        changeDiffGratuityOutlet,
+        getAssignedGratuities,
+        resetAssignedGratuities,
+        handleSetGratuitySelectionMultiple,
+    } = useGratuitySelection(gratuityOption);
+
+    const [salesTypeData, setSalesTypeData] = useState<SalesTypeCompleteDataReturn | null>(null);
+
+    const [loading, setLoading] = useState<boolean>(false);
+    const [submitLoad, setSubmitLoad] = useState<boolean>(false);
+    const [contentLoad, setContentLoad] = useState<boolean>(true);
+
+    const [assignOutletModal, setAssignOutletModal] = useState<boolean>(false);
+
+    const [selectOutletErrorMsg, setSelectOutletErrorMsg] = useState<string>("");
+    const [selectedOutlet, setSelectedOutlet] = useState<OutletSelectionData[]>([]);
+
+    const [editSalesTypeForm] = Form.useForm();
+
+    useEffect(() => {
+        getSalesTypeData();
+        
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    useEffect(() => {
+        if (!salesTypeData) return;
+
+        mapAssignedGratuities();
+
+        const filterSelected = outletSelection.filter(item => salesTypeData.outletIds.includes(item.outletId));
+        setSelectedOutlet(filterSelected);
+
+    }, [salesTypeData])
+
+    const getSalesTypeData = async () : Promise<void> => {
+        if (!salesTypeIdFromParams) return;
+
+        try {
+
+            const [err, data] = await salesTypeApi.getOneSalesType(Number(salesTypeIdFromParams));
+
+            if (err) {
+                if (err.status === 404) return;
+
+                serverErrorModal();
+                return;
+            }
+
+            setSalesTypeData(data);
+
+        } finally {
+            setContentLoad(false);
+        }
+    }
+
+    const resetData = () : void => {
+        editSalesTypeForm.resetFields();
+        setSelectedOutlet([]);
+        changeDiffGratuityOutlet(false);
+    }
+
+    const openAssignOutletModal = (open : boolean) : void => {
+        setAssignOutletModal(open);
+    }
+
+    const handleAssignSelectedOutlet = (tempSelectedOutlet : OutletSelectionData[]) : void => {
+        setSelectedOutlet(tempSelectedOutlet);
+        openAssignOutletModal(false);
+        setSelectOutletErrorMsg("");
+        resetAssignedGratuities();
+    }
+
+    const mapAssignedGratuities = () : void => {
+        if (!salesTypeData) return;
+        if (salesTypeData.assignedGratuities.length === 0) return;
+
+        if (!salesTypeData.assignedGratuities[0].outletId) {
+            handleChangeGratuitySelection(
+                salesTypeData.assignedGratuities.map(item => item.gratuityId)
+            )
+            return;
+        }
+
+        changeDiffGratuityOutlet(true);
+        let assignedList : MultipleGratuities[] = [];
+        salesTypeData.assignedGratuities.forEach(item => {
+            if (!item.outletId) return;
+            
+            const prevData = assignedList.find(e => e.outletId === item.outletId);
+            if (!prevData) {
+                assignedList.push({
+                    outletId : item.outletId,
+                    gratuityIds : [item.gratuityId],
+                });
+                return;
+            }
+
+            const filtered = assignedList.filter(e => e.outletId !== item.outletId);
+            assignedList = [...filtered, {
+                outletId : item.outletId,
+                gratuityIds : [...prevData.gratuityIds, item.gratuityId]
+            }]
+        });
+        handleSetGratuitySelectionMultiple(assignedList);
+    }
+
+    const handleEditSalesType : FormProps<SalesTypeForm>['onFinish'] = async (values) : Promise<void> => {
+        if (!salesTypeIdFromParams) return;
+
+        if (selectedOutlet.length === 0) {
+            setSelectOutletErrorMsg(t("account:noOutletErrMsg"));
+            return;
+        }
+
+        setSubmitLoad(true);
+
+        try {
+
+            const [err, data] = await salesTypeApi.editSalesType({
+                salesTypeId : Number(salesTypeIdFromParams),
+                name : values.name,
+                outletIds : selectedOutlet.map(item => item.outletId),
+                assignedGratuities : getAssignedGratuities(),
+            });
+
+            if (err) {
+                if (err.status === 400) {
+                    const error = err.response.data.schemaErrors ? err.response.data.schemaErrors[0] : undefined;
+                    if (!error) return;
+                    errorModal(undefined, `${error.field} is ${error.message}`);
+                    return;
+                }
+
+                if (err.status === 409) {
+                    errorModal(t('global:failed'), t(`salesType:${err.response.data.message}`));
+                    return;
+                }
+
+                serverErrorModal();
+                return;
+            }
+
+            successnotification(t("salesType:editSuccess"));
+            onEditSalesTypeSuccess({
+                key : data.salesTypeId,
+                name: data.name,
+                outletIds : data.outletIds,
+                assignedGratuities : data.assignedGratuities,
+            });
+
+            resetData();
+
+        } finally {
+            setSubmitLoad(false);
+        }
+    }
+
+    const clickDeleteBtn = async () : Promise<void> => {
+        confirmationModal({
+            title : t("salesType:sureDeleteGratuity"),
+            content: t("salesType:deleteGratuityDesc"),
+            okBtn: t("global:yes"),
+            cancelBtn: t("global:cancel"),
+            centered: true,
+            okBtnDanger: true,
+            onOkWithPromise : handleDeleteSalesType,
+        });
+    }
+
+    const handleDeleteSalesType = async () : Promise<void> => {
+        if (!salesTypeIdFromParams) return;
+
+        setLoading(true);
+
+        try {
+            
+            const [err] = await salesTypeApi.deleteSalesType(Number(salesTypeIdFromParams));
+
+            if (err) {
+                serverErrorModal();
+                return;
+            }
+
+            onDeleteSalesTypeSuccess(Number(salesTypeIdFromParams));
+            successnotification(t("salesType:deleteSuccess"));
+
+        } catch(e) {
+            setLoading(false);
+        }
+    }
+
+    return {
+        loading,
+        submitLoad,
+        contentLoad,
+        salesTypeData,
+        editSalesTypeForm,
+        assignOutletModal,
+        selectedOutlet,
+        selectOutletErrorMsg,
+        diffGratuityOutlet,
+        selectedGratuities,
+        gratuityAssignationCols,
+        resetData,
+        openAssignOutletModal,
+        handleAssignSelectedOutlet,
+        handleChangeGratuitySelection,
+        changeDiffGratuityOutlet,
+        handleEditSalesType,
+        clickDeleteBtn,
+    }
+}
+
 function useGratuitySelection(
     gratuityOption : SelectProps['options'],
 ) {
 
-    const { t } = useTranslation(["global", "gratuity"]);
+    const { t } = useTranslation(["global", "salesType"]);
 
     const [diffGratuityOutlet, setDiffGratuityOutlet] = useState<boolean>(false);
     
@@ -445,6 +679,9 @@ function useGratuitySelection(
                                     gratuityIds : value,
                                 }]);
                             }}
+                            filterOption={(input, option) =>
+                                (option?.label as string).toLowerCase().includes(input.toLowerCase())
+                            }
                         />
                     </Space>
                 )
@@ -454,6 +691,10 @@ function useGratuitySelection(
 
     const handleChangeGratuitySelection = (value: number[]) : void => {
         setSelectedGratuities(value);
+    }
+
+    const handleSetGratuitySelectionMultiple = (value : MultipleGratuities[]) : void => {
+        setSelectedGratuitiesMultiple(value);
     }
 
     const changeDiffGratuityOutlet = (value : boolean) : void => {
@@ -497,5 +738,6 @@ function useGratuitySelection(
         changeDiffGratuityOutlet,
         getAssignedGratuities,
         resetAssignedGratuities,
+        handleSetGratuitySelectionMultiple,
     }
 }

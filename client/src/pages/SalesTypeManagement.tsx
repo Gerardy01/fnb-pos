@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 
 // components
 import AddSalesTypeModal from '../components/salesType/AddSalesTypeModal';
+import EditSalesTypeModal from '../components/salesType/EditSalesTypeModal';
 
 const { Title } = Typography;
 const { Search } = Input;
@@ -70,14 +71,27 @@ export default function SalesTypeManagement() {
             )}
             <Table<SalesTypeTableData> columns={columns} dataSource={salesTypes} size='middle' loading={contentLoad} />
             {outletSelection && gratuityOption && (
-                <AddSalesTypeModal
-                    open={addSalesTypeModal}
-                    outletSelection={outletSelection}
-                    gratuityOption={gratuityOption}
-                    onClose={() => addSalesTypeOpen(false)}
-                    onAddSalesTypeSuccess={onAddSalesTypeSuccess}
-                />
+                <>
+                    <AddSalesTypeModal
+                        open={addSalesTypeModal}
+                        outletSelection={outletSelection}
+                        gratuityOption={gratuityOption}
+                        onClose={() => addSalesTypeOpen(false)}
+                        onAddSalesTypeSuccess={onAddSalesTypeSuccess}
+                    />
+                    {editSalesTypeModal && (
+                        <EditSalesTypeModal
+                            open={editSalesTypeModal}
+                            outletSelection={outletSelection}
+                            gratuityOption={gratuityOption}
+                            onClose={() => editSalesTypeOpen(false)}
+                            onEditSalesTypeSuccess={onEditSalesTypeSuccess}
+                            onDeleteSalesTypeSuccess={onDeleteSalesTypeSuccess}
+                        />
+                    )}
+                </>
             )}
+            
         </div>
     )
 }
