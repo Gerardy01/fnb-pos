@@ -18,6 +18,8 @@ import Gratuity from "./gratuity.model";
 import SalesType from "./salesType.model";
 import SalesTypeGratuity from "./salesTypeGratuity.model";
 import SalesTypeOutlets from "./salesTypeOutlet.model";
+import Tax from "./tax.model";
+import TaxOutlets from "./taxOutlet.model";
 
 
 
@@ -100,6 +102,19 @@ SalesType.belongsToMany(Outlet, {
     as: 'outlets',
 });
 
+// Tax Outlet relation
+Outlet.belongsToMany(Tax, {
+    through: TaxOutlets,
+    foreignKey: 'outlet_id',
+    otherKey: 'tax_id',
+    as: 'taxes',
+});
+Tax.belongsToMany(Outlet, {
+    through: TaxOutlets,
+    foreignKey: 'tax_id',
+    otherKey: 'outlet_id',
+    as: 'outlets',
+});
 
 
 export {
@@ -123,4 +138,6 @@ export {
     SalesType,
     SalesTypeGratuity,
     SalesTypeOutlets,
+    Tax,
+    TaxOutlets,
 }

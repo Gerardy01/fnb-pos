@@ -36,6 +36,14 @@ module.exports = {
         permission_name: 'Sales Type Management',
         description: '',
       },
+      {
+        permission_name: 'Tax Management',
+        description: '',
+      },
+      {
+        permission_name: 'Category Management',
+        description: '',
+      },
     ], {});
   },
 

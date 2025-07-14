@@ -36,6 +36,14 @@ module.exports = {
         permission_name: 'Sales Type Page',
         description: ''
       },
+      {
+        permission_name: 'Tax Page',
+        description: ''
+      },
+      {
+        permission_name: 'Category Page',
+        description: ''
+      },
     ]);
   },
 

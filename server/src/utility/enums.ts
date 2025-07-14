@@ -19,6 +19,8 @@ export enum PermissionEnum {
     TABLE_MANAGEMENT = 6,
     GRATUITY_MANAGEMENT = 7,
     SALES_TYPE_MANAGEMENT = 8,
+    TAX_MANAGEMENT = 9,
+    CATEGORY_MANAGEMENT = 10,
 }
 
 export enum EditAccountProcessEnum {
