@@ -122,6 +122,16 @@ export function useSalesTypeManagement() {
             }
         },
         {
+            title: t("salesType:assignedOutlets"),
+            dataIndex: 'assignedOutlets',
+            key: 'assignedOutlets',
+            render: (_item, record) => {
+                return (
+                    <Text strong>{record.outletIds.length} {t("salesType:outlets")}</Text>
+                )
+            }
+        },
+        {
             title: t("global:action"),
             key: 'action',
             align: 'center',
@@ -326,10 +336,6 @@ export function useAddSalesType(
     }
 
     const handleAddSalesType : FormProps<SalesTypeForm>['onFinish'] = async (values) : Promise<void> => {
-        if (selectedOutlet.length === 0) {
-            setSelectOutletErrorMsg(t("account:noOutletErrMsg"));
-            return;
-        }
 
         setLoading(true);
 
@@ -520,11 +526,6 @@ export function useEditSalesType(
     const handleEditSalesType : FormProps<SalesTypeForm>['onFinish'] = async (values) : Promise<void> => {
         if (!salesTypeIdFromParams) return;
 
-        if (selectedOutlet.length === 0) {
-            setSelectOutletErrorMsg(t("account:noOutletErrMsg"));
-            return;
-        }
-
         setSubmitLoad(true);
 
         try {
@@ -570,8 +571,8 @@ export function useEditSalesType(
 
     const clickDeleteBtn = async () : Promise<void> => {
         confirmationModal({
-            title : t("salesType:sureDeleteGratuity"),
-            content: t("salesType:deleteGratuityDesc"),
+            title : t("salesType:sureDeleteSalesType"),
+            content: t("salesType:deleteSalesTypeDesc"),
             okBtn: t("global:yes"),
             cancelBtn: t("global:cancel"),
             centered: true,

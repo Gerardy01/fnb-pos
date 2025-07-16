@@ -87,6 +87,7 @@ export default function AddSalesTypeModal({
                         openAssignOutletModal={openAssignOutletModal}
                         selectOutletErrorMsg={selectOutletErrorMsg}
                         description={t("salesType:assignOutletDesc")}
+                        isOptional
                     />
                 </div>
 

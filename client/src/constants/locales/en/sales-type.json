@@ -10,6 +10,7 @@
     "salesTypeSearchPlaceholder" : "Search by Name",
     "name" : "Name",
     "assignedGratuities" : "Assigned Gratuities",
+    "assignedOutlets" : "Assigned Outlets",
     "assignGratuity" : "Assign Gratuity",
     "selectGratuity" : "Select Gratuity",
     "gratuities" : "Gratuities",
@@ -23,5 +24,7 @@
     "outlet" : "Outlet",
     "addSuccess" : "Sales type added successfully",
     "editSuccess" : "Sales type edited successfully",
-    "deleteSuccess" : "Sales type deleted successfully"
+    "deleteSuccess" : "Sales type deleted successfully",
+    "sureDeleteSalesType" : "Are you sure want to delete this sales type?",
+    "deleteSalesTypeDesc" : "Please confirm that you want to permanently delete this sales type. This operation cannot be undone."
 }

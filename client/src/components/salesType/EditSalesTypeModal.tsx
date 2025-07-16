@@ -103,6 +103,7 @@ export default function EditSalesTypeModal({
                                 openAssignOutletModal={openAssignOutletModal}
                                 selectOutletErrorMsg={selectOutletErrorMsg}
                                 description={t("salesType:assignOutletDesc")}
+                                isOptional
                             />
                         </div>
 

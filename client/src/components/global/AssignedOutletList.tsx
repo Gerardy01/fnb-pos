@@ -10,6 +10,7 @@ interface Props {
     selectedOutlet : OutletSelectionData[];
     openAssignOutletModal : (open : boolean) => void;
     description? : string;
+    isOptional? : boolean;
 }
 
 const { Text } = Typography
@@ -19,6 +20,7 @@ export default function AssignedOutletList({
     openAssignOutletModal,
     selectOutletErrorMsg = "",
     description = "",
+    isOptional = false,
 } : Props) {
 
     const { t } = useTranslation(["outlet", "global"]);
@@ -27,7 +29,7 @@ export default function AssignedOutletList({
         <>
             <div style={styles.subTitleHolder} >
                 <div style={styles.subTitle}>
-                    <Text strong>{t("global:assignOutlets")}</Text>
+                    <Text strong>{t("global:assignOutlets")} {isOptional ? t("global:optionalPrefix") : ""}</Text>
                     {description && (
                         <Text style={styles.description} type="secondary">{description}</Text>
                     )}
