@@ -1,5 +1,5 @@
 import { Op, Transaction } from "sequelize";
-import { Account, Outlet, SalesType } from "../models";
+import { Account, Outlet, SalesType, Tax } from "../models";
 
 // types and interfaces
 export interface IOutletRepository {
@@ -7,8 +7,9 @@ export interface IOutletRepository {
     findOutletByIds(outletIds : string[], organizationId : string) : Promise<Outlet[]>;
     findOutletByOrganization(organizationId : string) : Promise<Outlet[]>;
     findOutletByNameAndOrganization(outletName : string, organizationId : string) : Promise<Outlet | null>;
-    findOutletByAccountId(accountId: string, organizationId: string): Promise<Outlet[]>
-    findOutletBySalesType(salesTypeId : number, organizationId : string): Promise<Outlet[]>
+    findOutletByAccountId(accountId: string, organizationId: string) : Promise<Outlet[]>
+    findOutletBySalesType(salesTypeId : number, organizationId : string) : Promise<Outlet[]>
+    findOutletByTax(taxId : number, organizationId : string) : Promise<Outlet[]>
     createOutlet(data : Partial<Outlet>, transaction? : Transaction) : Promise<Outlet>;
 }
 
@@ -88,6 +89,27 @@ export class OutletRepository implements IOutletRepository {
                     attributes: [],
                     where: {
                         sales_type_id: salesTypeId,
+                        archived : false
+                    },
+                    required: true,
+                }
+            ],
+        });
+    }
+
+    async findOutletByTax(taxId: number, organizationId: string): Promise<Outlet[]> {
+        return Outlet.findAll({
+            where: {
+                organization_id: organizationId,
+                archived: false,
+            },
+            include: [
+                {
+                    model: Tax,
+                    as: "taxes",
+                    attributes: [],
+                    where: {
+                        tax_id: taxId,
                         archived : false
                     },
                     required: true,

@@ -605,6 +605,13 @@ function usePermissionSetHandling() {
                 { permissionId: PermissionEnum.OUTLET_MANAGEMENT, read: true },
             ]
         },
+        {
+            pageAccessId: PageAccessPermissionEnum.TAX_MANAGEMENT,
+            requiredPermissions: [
+                { permissionId: PermissionEnum.TAX_MANAGEMENT, read: true, write: true },
+                { permissionId: PermissionEnum.OUTLET_MANAGEMENT, read: true },
+            ]
+        },
     ];
 
     const checkPageAccessRequirements = (pageAccessId: number, currentPermissions: RolePermission[]): boolean => {

@@ -12,6 +12,7 @@ import tableGroupRoutes from './tableGroupRoutes';
 import tableRoutes from './tableRoutes';
 import gratuityRoutes from './gratuityRoutes';
 import salesTypeRoutes from './salesTypeRoutes';
+import taxRoutes from './taxRoutes';
 
 
 const v1Api = Router();
@@ -26,6 +27,6 @@ v1Api.use("/table-group", tableGroupRoutes);
 v1Api.use("/table", tableRoutes);
 v1Api.use("/gratuity", gratuityRoutes);
 v1Api.use("/sales-type", salesTypeRoutes);
-
+v1Api.use("/tax", taxRoutes);
 
 export default v1Api;

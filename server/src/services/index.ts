@@ -10,6 +10,7 @@ import { OutletService } from "./outletService";
 import { TableService } from "./tableService";
 import { GratuityService } from "./gratuityService";
 import { SalesTypeService } from "./salesTypeService";
+import { TaxService } from "./taxService";
 
 // repository
 import { OrganizationRepository } from "../repositories/organizationRepository";
@@ -30,6 +31,8 @@ import { GratuityRepository } from "../repositories/gratuityRepository";
 import { SalesTypeRepository } from "../repositories/salesTypeRepository";
 import { SalesTypeOutletRepository } from "../repositories/salesTypeOutletRepository";
 import { SalesTypeGratuityRepository } from "../repositories/salesTypeGratuityRepository";
+import { TaxRepository } from "../repositories/taxRepository";
+import { TaxOutletRepository } from "../repositories/taxOutletRepository";
 
 // providers
 import { BcryptJsHashProvider } from "../providers/hashProvider";
@@ -60,6 +63,8 @@ const gratuityRepository = new GratuityRepository();
 const salesTypeRepository = new SalesTypeRepository();
 const salesTypeOutletRepository = new SalesTypeOutletRepository();
 const salesTypeGratuityRepository = new SalesTypeGratuityRepository();
+const taxRepository = new TaxRepository();
+const taxOutletRepository = new TaxOutletRepository();
 
 const bcryptJsHashProvider = new BcryptJsHashProvider();
 const jsonWebTokenJwtProvider = new JsonWebTokenJwtProvider();
@@ -107,6 +112,7 @@ export const salesTypeService = new SalesTypeService(
     salesTypeOutletRepository,
     salesTypeGratuityRepository,
 );
+export const taxService = new TaxService(taxRepository, taxOutletRepository, outletRepository);
 
 
 // combined service (orchestration)

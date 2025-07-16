@@ -3,6 +3,7 @@ import sequelize from "../config/database";
 
 // models
 import Organization from "./organization.model";
+import Outlet from "./outlet.model";
 
 
 class Tax extends Model {
@@ -16,6 +17,7 @@ class Tax extends Model {
     public readonly updated_at! : Date;
 
     public organization? : Organization;
+    public outlets? : Outlet[];
 }
 
 Tax.init({
