@@ -149,6 +149,12 @@ export default function useCommonLayout() {
                     permissions: [PageAccessPermissionEnum.TABLE_MANAGEMENT],
                     onClick: () => handleClick("/gratuity"),
                 },
+                {
+                    key: '/tax',
+                    label: t('taxes'),
+                    permissions: [PageAccessPermissionEnum.TAX_MANAGEMENT],
+                    onClick: () => handleClick("/tax"),
+                },
             ],
         },
         {

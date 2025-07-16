@@ -82,8 +82,7 @@ export function useSalesTypeManagement() {
         if (searchWord) {
             filterItems = filterItems.filter(data => {
                 const input = searchWord.toLocaleLowerCase();
-                return data.name.toLocaleLowerCase().includes(input) ||
-                    data.name.toLocaleLowerCase().includes(input)
+                return data.name.toLocaleLowerCase().includes(input)
             });
         }
 

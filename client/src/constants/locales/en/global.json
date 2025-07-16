@@ -55,5 +55,6 @@
     "oultetSearchPlaceholder" : "Search by Name",
     "fixed" : "Fixed",
     "percentage" : "Percentage",
-    "optionalPrefix" : "(Optional)"
+    "optionalPrefix" : "(Optional)",
+    "taxes" : "Taxes"
 }

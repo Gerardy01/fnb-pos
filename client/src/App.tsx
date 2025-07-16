@@ -24,6 +24,7 @@ import TableGroupManagement from "./pages/TableGroupManagement";
 import TableManagement from "./pages/TableManagement";
 import GratuityManagement from "./pages/GratuityManagement";
 import SalesTypeManagement from "./pages/SalesTypeManagement";
+import TaxManagement from "./pages/TaxManagement";
 import NotFound from "./pages/NotFound";
 
 
@@ -77,6 +78,11 @@ export default function App() {
 							<Route element={<PermissionProtectedRoutes requiredPermission={[PageAccessPermissionEnum.GRATUITY_MANAGEMENT]} />}>
 								<Route path="/gratuity" element={<GratuityManagement />} />
 								<Route path="/gratuity/:gratuityId" element={<GratuityManagement />} />
+							</Route>
+
+							<Route element={<PermissionProtectedRoutes requiredPermission={[PageAccessPermissionEnum.TAX_MANAGEMENT]} />}>
+								<Route path="/tax" element={<TaxManagement />} />
+								<Route path="/tax/:taxId" element={<TaxManagement />} />
 							</Route>
 						</Route>
 

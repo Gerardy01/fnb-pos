@@ -1,0 +1,21 @@
+
+
+{
+    "TAX409-1" : "Tax with this name already exist. Please use another name.",
+
+    "taxManagement" : "Tax Management",
+    "taxSearchPlaceholder" : "Search by Name/Written Name",
+    "name" : "Name",
+    "writtenName" : "Written Name",
+    "amount" : "Amount",
+    "assignedOutlets" : "Assigned Outlets",
+    "outlets" : "Outlets",
+    "newTax" : "New Tax",
+    "addNewTax" : "Add New Tax",
+    "assignOutletDesc" : "Assign tax to outlets. The selected outlet will charged with this tax.",
+    "addSuccess" : "Tax added successfully",
+    "editSuccess" : "Tax edited successfully",
+    "deleteSuccess" : "Tax deleted successfully",
+    "sureDeleteSalesType" : "Are you sure want to delete this tax?",
+    "deleteSalesTypeDesc" : "Please confirm that you want to permanently delete this tax. This operation cannot be undone."
+}
