@@ -18,6 +18,9 @@ interface TaxForm {
     writtenName : string;
     amount : string;
 }
+export interface TaxTableData extends TaxCompleteDataReturn {
+    key : number;
+}
 
 const { Text } = Typography;
 
@@ -36,8 +39,8 @@ export function useTaxManagement() {
     const [getTaxLoad, setGetTaxLoad] = useState<boolean>(true);
     const [getOutletLoad, setGetOutletLoad] = useState<boolean>(true);
 
-    const [taxes, setTaxes] = useState<TaxCompleteDataReturn[]>([]);
-    const [filteredTaxes, setFilteredTaxes] = useState<TaxCompleteDataReturn[]>([]);
+    const [taxes, setTaxes] = useState<TaxTableData[]>([]);
+    const [filteredTaxes, setFilteredTaxes] = useState<TaxTableData[]>([]);
 
     const [outletSelection, setOutletSelection] = useState<OutletSelectionData[]>([]);
 
@@ -79,7 +82,7 @@ export function useTaxManagement() {
 
     }, [searchWord]);
 
-    const columns: TableColumnsType<TaxCompleteDataReturn> = [
+    const columns: TableColumnsType<TaxTableData> = [
         {
             title: t("tax:name"),
             dataIndex: 'name',
@@ -143,10 +146,17 @@ export function useTaxManagement() {
                 return;
             }
 
-            setTaxes(data);
-            setFilteredTaxes(data);
+            const taxDataList : TaxTableData[] = [];
+            data.forEach(item => {
+                taxDataList.push({
+                    key : item.taxId,
+                    ...item
+                });
+            });
 
-
+            setTaxes(taxDataList);
+            setFilteredTaxes(taxDataList);
+            
         } finally {
             setGetTaxLoad(false);
         }
@@ -199,14 +209,14 @@ export function useTaxManagement() {
     }
 
     const onAddTaxSuccess = (newTax : TaxCompleteDataReturn) : void => {
-        setTaxes(prev => [...prev, newTax]);
+        setTaxes(prev => [...prev, {...newTax, key : newTax.taxId}]);
         addTaxOpen(false);
     }
 
     const onEditTaxSuccess = (newValue : TaxCompleteDataReturn) : void => {
         setTaxes(prevTax =>
             prevTax.map(item =>
-                item.taxId === newValue.taxId ? newValue : item
+                item.taxId === newValue.taxId ? {...newValue, key : newValue.taxId} : item
             )
         );
         editTaxOpen(false);
@@ -265,8 +275,6 @@ export function useAddTax(
     }
 
     const handleAddSalesType : FormProps<TaxForm>['onFinish'] = async (values) : Promise<void> => {
-        console.log(values);
-        console.log(selectedOutlet);
 
         setLoading(true);
 
@@ -316,5 +324,169 @@ export function useAddTax(
         handleAssignSelectedOutlet,
         handleAddSalesType,
     }
+}
 
+export function useEditTax(
+    outletSelection : OutletSelectionData[],
+    onEditTaxSuccess : (newValue : TaxCompleteDataReturn) => void,
+    onDeleteTaxSuccess : (taxId : number) => void,
+) {
+
+    const { taxId : taxIdFromParams } = useParams();
+
+    const { t } = useTranslation(["global", "tax"]);
+
+    const { serverErrorModal, errorModal, confirmationModal } = useStaticModal();
+    const { successnotification } = useNotification();
+
+    const [taxData, setTaxData] = useState<TaxCompleteDataReturn | null>(null);
+
+    const [loading, setLoading] = useState<boolean>(false);
+    const [submitLoad, setSubmitLoad] = useState<boolean>(false);
+    const [contentLoad, setContentLoad] = useState<boolean>(true);
+
+    const [assignOutletModal, setAssignOutletModal] = useState<boolean>(false);
+    const [selectedOutlet, setSelectedOutlet] = useState<OutletSelectionData[]>([]);
+
+    const [editTaxForm] = Form.useForm();
+
+    useEffect(() => {
+        getTaxData();
+
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    useEffect(() => {
+        if (!taxData) return;
+
+        const filterSelected = outletSelection.filter(item => taxData.outletIds.includes(item.outletId));
+        setSelectedOutlet(filterSelected);
+    }, [taxData]);
+
+    const getTaxData = async () : Promise<void> => {
+        if (!taxIdFromParams) return;
+
+        try {
+
+            const [err, data] =  await taxApi.getOneTax(Number(taxIdFromParams));
+
+            if (err) {
+                if (err.status === 404) return;
+
+                serverErrorModal();
+                return;
+            }
+
+            setTaxData(data);
+
+        } finally {
+            setContentLoad(false);
+        }
+    }
+
+    const resetData = () : void => {
+        editTaxForm.resetFields();
+        setSelectedOutlet([]);
+    }
+
+    const openAssignOutletModal = (open : boolean) : void => {
+        setAssignOutletModal(open);
+    }
+
+    const handleAssignSelectedOutlet = (tempSelectedOutlet : OutletSelectionData[]) : void => {
+        setSelectedOutlet(tempSelectedOutlet);
+        openAssignOutletModal(false);
+    }
+
+    const handleEditTax: FormProps<TaxForm>['onFinish'] = async (values) : Promise<void> => {
+        if (!taxIdFromParams) return;
+
+        setSubmitLoad(true);
+
+        try {
+
+            const [err, data] = await taxApi.editTax({
+                taxId : Number(taxIdFromParams),
+                name : values.name,
+                writtenName : values.writtenName,
+                amount : values.amount,
+                outletIds : selectedOutlet.map(item => item.outletId),
+            });
+
+            if (err) {
+                if (err.status === 400) {
+                    const error = err.response.data.schemaErrors ? err.response.data.schemaErrors[0] : undefined;
+                    if (!error) return;
+                    errorModal(undefined, `${error.field} is ${error.message}`);
+                    return;
+                }
+
+                if (err.status === 409) {
+                    errorModal(t('global:failed'), t(`salesType:${err.response.data.message}`));
+                    return;
+                }
+
+                serverErrorModal();
+                return;
+            }
+
+            successnotification(t("tax:editSuccess"));
+            onEditTaxSuccess(data);
+
+            resetData();
+
+        } finally {
+            setSubmitLoad(false);
+        }
+
+    }
+
+    const clickDeleteBtn = async () : Promise<void> => {
+        confirmationModal({
+            title : t("tax:sureDeleteTax"),
+            content: t("tax:deleteTaxDesc"),
+            okBtn: t("global:yes"),
+            cancelBtn: t("global:cancel"),
+            centered: true,
+            okBtnDanger: true,
+            onOkWithPromise : handleDeleteTax,
+        });
+    }
+
+    const handleDeleteTax = async () : Promise<void> => {
+        if (!taxIdFromParams) return;
+
+        setLoading(true);
+
+        try {
+
+            const [err] = await taxApi.deleteTax(Number(taxIdFromParams));
+
+            if (err) {
+                serverErrorModal();
+                return;
+            }
+
+            onDeleteTaxSuccess(Number(taxIdFromParams));
+            successnotification(t("tax:deleteSuccess"));
+
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    return {
+        taxData,
+        loading,
+        submitLoad,
+        contentLoad,
+        assignOutletModal,
+        editTaxForm,
+        selectedOutlet,
+        resetData,
+        openAssignOutletModal,
+        handleAssignSelectedOutlet,
+        handleEditTax,
+        clickDeleteBtn,
+    }
 }

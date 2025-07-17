@@ -195,7 +195,7 @@ const styles : { [key: string]: React.CSSProperties } = {
         justifyContent: 'space-between'
     },
     twoFormItem: {
-        width: '48%'
+        width: '48.7%'
     },
     numberInput : {
         width: '100%'

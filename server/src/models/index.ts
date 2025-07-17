@@ -20,6 +20,7 @@ import SalesTypeGratuity from "./salesTypeGratuity.model";
 import SalesTypeOutlets from "./salesTypeOutlet.model";
 import Tax from "./tax.model";
 import TaxOutlets from "./taxOutlet.model";
+import Category from "./category.model";
 
 
 
@@ -140,4 +141,5 @@ export {
     SalesTypeOutlets,
     Tax,
     TaxOutlets,
+    Category,
 }

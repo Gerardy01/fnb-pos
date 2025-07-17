@@ -3,10 +3,11 @@ import { useNavigate, useLocation } from 'react-router-dom';
 
 import {
     BarChartOutlined,
+    BookOutlined,
     // ApartmentOutlined,
     DesktopOutlined,
-    GroupOutlined,
     HomeOutlined,
+    LayoutOutlined,
     ToolOutlined,
     UserSwitchOutlined,
 } from '@ant-design/icons';
@@ -129,12 +130,29 @@ export default function useCommonLayout() {
             onClick: () => handleClick("/pos"),
         },
         {
+            key: 'catalog',
+            label: t('catalougue'),
+            icon: <BookOutlined />,
+            permissions: [
+                PageAccessPermissionEnum.CATEGORY_MANAGEMENT,
+            ],
+            children: [
+                {
+                    key: '/category',
+                    label: t('category'),
+                    permissions: [PageAccessPermissionEnum.CATEGORY_MANAGEMENT],
+                    onClick: () => handleClick("/category"),
+                }
+            ]
+        },
+        {
             key: 'sales',
             label: t('sales'),
             icon: <BarChartOutlined />,
             permissions: [
                 PageAccessPermissionEnum.GRATUITY_MANAGEMENT,
                 PageAccessPermissionEnum.SALES_TYPE_MANAGEMENT,
+                PageAccessPermissionEnum.TAX_MANAGEMENT,
             ],
             children: [
                 {
@@ -146,7 +164,7 @@ export default function useCommonLayout() {
                 {
                     key: '/gratuity',
                     label: t('gratuity'),
-                    permissions: [PageAccessPermissionEnum.TABLE_MANAGEMENT],
+                    permissions: [PageAccessPermissionEnum.GRATUITY_MANAGEMENT],
                     onClick: () => handleClick("/gratuity"),
                 },
                 {
@@ -160,7 +178,7 @@ export default function useCommonLayout() {
         {
             key: 'tableManagement',
             label: t('tableManagement'),
-            icon: <GroupOutlined />,
+            icon: <LayoutOutlined />,
             permissions: [
                 PageAccessPermissionEnum.TABLE_MANAGEMENT,
             ],

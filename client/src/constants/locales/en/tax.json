@@ -16,6 +16,6 @@
     "addSuccess" : "Tax added successfully",
     "editSuccess" : "Tax edited successfully",
     "deleteSuccess" : "Tax deleted successfully",
-    "sureDeleteSalesType" : "Are you sure want to delete this tax?",
-    "deleteSalesTypeDesc" : "Please confirm that you want to permanently delete this tax. This operation cannot be undone."
+    "sureDeleteTax" : "Are you sure want to delete this tax?",
+    "deleteTaxDesc" : "Please confirm that you want to permanently delete this tax. This operation cannot be undone."
 }

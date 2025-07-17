@@ -84,6 +84,11 @@ export default function App() {
 								<Route path="/tax" element={<TaxManagement />} />
 								<Route path="/tax/:taxId" element={<TaxManagement />} />
 							</Route>
+
+							<Route element={<PermissionProtectedRoutes requiredPermission={[PageAccessPermissionEnum.CATEGORY_MANAGEMENT]} />}>
+								<Route path="/category" element={<Dashboard />} />
+								<Route path="/category/:category" element={<Dashboard />} />
+							</Route>
 						</Route>
 
 						<Route element={<PermissionProtectedRoutes pageLoad requiredPermission={[PageAccessPermissionEnum.POS]} />}>

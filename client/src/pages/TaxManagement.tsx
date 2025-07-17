@@ -1,14 +1,14 @@
-import { Skeleton, Typography, Input, Button, Table, Select } from 'antd';
+import { Skeleton, Typography, Input, Button, Table } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 
 import { useTranslation } from "react-i18next";
-import { useTaxManagement } from '../hooks/taxes/useTaxManagement';
+import { TaxTableData, useTaxManagement } from '../hooks/taxes/useTaxManagement';
 
 // components
 import AddTaxModal from '../components/tax/AddTaxModal';
 
 // types and interfaces
-import { TaxCompleteDataReturn } from '../models/taxInterface';
+import EditTaxModal from '../components/tax/EditTaxModal';
 
 const { Title } = Typography;
 const { Search } = Input;
@@ -70,13 +70,22 @@ export default function TaxManagement() {
                     </div>
                 </div>
             )}
-            <Table<TaxCompleteDataReturn> columns={columns} dataSource={taxes} size='middle' loading={contentLoad} />
+            <Table<TaxTableData> columns={columns} dataSource={taxes} size='middle' loading={contentLoad} />
             <AddTaxModal
                 open={addTaxModal}
                 outletSelection={outletSelection}
                 onClose={() => addTaxOpen(false)}
                 onAddTaxSuccess={onAddTaxSuccess}
             />
+            {editTaxModal && (
+                <EditTaxModal
+                    open={editTaxModal}
+                    outletSelection={outletSelection}
+                    onClose={() => editTaxOpen(false)}
+                    onEditTaxSuccess={onEditTaxSuccess}
+                    onDeleteTaxSuccess={onDeleteTaxSuccess}
+                />
+            )}
         </div>
     )
 }

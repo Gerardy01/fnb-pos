@@ -56,5 +56,7 @@
     "fixed" : "Fixed",
     "percentage" : "Percentage",
     "optionalPrefix" : "(Optional)",
-    "taxes" : "Taxes"
+    "taxes" : "Taxes",
+    "catalougue" : "Catalougue",
+    "category" : "Category"
 }
