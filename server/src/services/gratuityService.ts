@@ -1,8 +1,7 @@
 
 
 // utils
-import { DataNotFound, ExistData, Forbidden } from "../utility/exceptions";
-import { GratuityCalculationTypeEnum } from "../utility/enums";
+import { DataNotFound, ExistData } from "../utility/exceptions";
 
 // types and interfaces
 import { GratuityReturnData, ICreateGratuityData, IEditGratuityData } from "../interfaces/IGratuity";

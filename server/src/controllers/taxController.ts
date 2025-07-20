@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import sequelize from '../config/database';
 
 // utils
-import { DataNotFound, ExistData, Forbidden } from '../utility/exceptions';
+import { DataNotFound, ExistData } from '../utility/exceptions';
 
 // services
 import { taxService } from '../services';
