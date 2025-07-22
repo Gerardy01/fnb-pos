@@ -29,6 +29,7 @@ export class CategoryService implements ICategoryService {
             categoryList.push({
                 categoryId : item.category_id,
                 name : item.name,
+                itemCount : 0,
             });
         });
 

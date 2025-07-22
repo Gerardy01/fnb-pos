@@ -25,6 +25,7 @@ import TableManagement from "./pages/TableManagement";
 import GratuityManagement from "./pages/GratuityManagement";
 import SalesTypeManagement from "./pages/SalesTypeManagement";
 import TaxManagement from "./pages/TaxManagement";
+import CategoryManagement from "./pages/CategoryManagement";
 import NotFound from "./pages/NotFound";
 
 
@@ -86,8 +87,8 @@ export default function App() {
 							</Route>
 
 							<Route element={<PermissionProtectedRoutes requiredPermission={[PageAccessPermissionEnum.CATEGORY_MANAGEMENT]} />}>
-								<Route path="/category" element={<Dashboard />} />
-								<Route path="/category/:category" element={<Dashboard />} />
+								<Route path="/category" element={<CategoryManagement />} />
+								<Route path="/category/:categoryId" element={<CategoryManagement />} />
 							</Route>
 						</Route>
 

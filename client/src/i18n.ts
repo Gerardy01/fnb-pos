@@ -12,6 +12,7 @@ import enTable from "./constants/locales/en/table.json";
 import enGratuity from "./constants/locales/en/gratuity.json";
 import enSalesType from "./constants/locales/en/sales-type.json";
 import enTax from "./constants/locales/en/tax.json";
+import enCategory from "./constants/locales/en/category.json";
 
 import idGlobal from "./constants/locales/id/global.json";
 import idAuth from "./constants/locales/id/auth.json";
@@ -33,6 +34,7 @@ i18n
                 gratuity : enGratuity,
                 salesType : enSalesType,
                 tax : enTax,
+                category : enCategory,
             },
             id: {
                 auth : idAuth,
@@ -51,6 +53,7 @@ i18n
             "gratuity",
             "sales-type",
             "tax",
+            "category",
         ],
         interpolation: {
             escapeValue: false

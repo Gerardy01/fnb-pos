@@ -2,40 +2,39 @@ import { Skeleton, Typography, Input, Button, Table } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 
 import { useTranslation } from "react-i18next";
-import { TaxTableData, useTaxManagement } from '../hooks/taxes/useTaxManagement';
+import { CategoryTableData, useCategoryManagement } from '../hooks/categories/useCategoryManagement';
 
 // components
-import AddTaxModal from '../components/tax/AddTaxModal';
-import EditTaxModal from '../components/tax/EditTaxModal';
+import AddCategoryModal from '../components/category/AddCategoryModal';
+import EditCategoryModal from '../components/category/EditCategoryModal';
+
 
 const { Title } = Typography;
 const { Search } = Input;
 
 
+export default function CategoryManagement() {
 
-export default function TaxManagement() {
-
-    const { t } = useTranslation(['global', 'tax']);
+    const { t } = useTranslation(['global', 'category']);
 
     const {
         contentLoad,
         searchWord,
-        taxes,
+        categories,
         columns,
-        outletSelection,
-        addTaxModal,
-        editTaxModal,
+        addCategoryModal,
+        editCategoryModal,
         handleSearch,
-        addTaxOpen,
-        editTaxOpen,
-        onAddTaxSuccess,
-        onEditTaxSuccess,
-        onDeleteTaxSuccess,
-    } = useTaxManagement();
+        addCategoryOpen,
+        editCategoryOpen,
+        onAddCategorySuccess,
+        onEditCategorySuccess,
+        onDeleteCategorySuccess,
+    } = useCategoryManagement();
 
     return (
         <div>
-            <Title level={3}>{t("tax:taxManagement")}</Title>
+            <Title level={3}>{t("category:categoryManagement")}</Title>
             {contentLoad ? (
                 <div style={styles.controlSection}>
                     <div style={styles.skeletonInput}>
@@ -43,7 +42,7 @@ export default function TaxManagement() {
                     </div>
 
                     <div style={styles.rightSide}>
-                        <Skeleton.Input active size="large" style={styles.selectionInput}/>
+                        <Skeleton.Button active size="large" style={styles.skeletonbtn}/>
                     </div>
                 </div>
             ) : (
@@ -53,7 +52,7 @@ export default function TaxManagement() {
                         size='large'
                         allowClear
                         value={searchWord}
-                        placeholder={t("tax:taxSearchPlaceholder")}
+                        placeholder={t("category:categorySearchPlaceholder")}
                         onChange={(e) => handleSearch(e.target.value)}
                     />
                     <div style={styles.rightSide}>
@@ -61,27 +60,25 @@ export default function TaxManagement() {
                             type="primary"
                             size='large'
                             icon={<PlusOutlined />}
-                            onClick={() => addTaxOpen(true)}
+                            onClick={() => addCategoryOpen(true)}
                         >
-                            {t("tax:newTax")}
+                            {t("category:newCategory")}
                         </Button>
                     </div>
                 </div>
             )}
-            <Table<TaxTableData> columns={columns} dataSource={taxes} size='middle' loading={contentLoad} />
-            <AddTaxModal
-                open={addTaxModal}
-                outletSelection={outletSelection}
-                onClose={() => addTaxOpen(false)}
-                onAddTaxSuccess={onAddTaxSuccess}
+            <Table<CategoryTableData> columns={columns} dataSource={categories} size='middle' loading={contentLoad} />
+            <AddCategoryModal
+                open={addCategoryModal}
+                onClose={() => addCategoryOpen(false)}
+                onAddCategorySuccess={onAddCategorySuccess}
             />
-            {editTaxModal && (
-                <EditTaxModal
-                    open={editTaxModal}
-                    outletSelection={outletSelection}
-                    onClose={() => editTaxOpen(false)}
-                    onEditTaxSuccess={onEditTaxSuccess}
-                    onDeleteTaxSuccess={onDeleteTaxSuccess}
+            {editCategoryModal && (
+                <EditCategoryModal
+                    open={editCategoryModal}
+                    onClose={() => editCategoryOpen(false)}
+                    onEditCategorySuccess={onEditCategorySuccess}
+                    onDeleteCategorySuccess={onDeleteCategorySuccess}
                 />
             )}
         </div>

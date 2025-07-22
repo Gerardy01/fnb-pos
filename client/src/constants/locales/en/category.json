@@ -1,0 +1,19 @@
+
+
+
+{
+    "CATEGORY409-1" : "Category with this name already exist. Please use another name.",
+
+    "categoryManagement" : "Category Management",
+    "newCategory" : "New Category",
+    "editCategory" : "Edit Category",
+    "categorySearchPlaceholder" : "Search by Name",
+    "name" : "Name",
+    "menuCount" : "Menu Count",
+    "addNewCategory" : "Add New Category",
+    "addSuccess" : "Category added successfully",
+    "editSuccess" : "Category edited successfully",
+    "deleteSuccess" : "Category deleted successfully",
+    "sureDeleteCategory" : "Are you sure want to delete this category?",
+    "deleteCategoryDesc" : "Please confirm that you want to permanently delete this category. This operation cannot be undone."
+}

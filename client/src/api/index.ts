@@ -8,6 +8,7 @@ import { TableApi } from "./tableApi";
 import { GratuityApi } from "./gratuityApi";
 import { SalesTypeApi } from "./salesTypeApi";
 import { TaxApi } from "./taxApi";
+import { CategoryApi } from "./categoryApi";
 
 
 
@@ -21,3 +22,4 @@ export const tableApi = new TableApi();
 export const gratuityApi = new GratuityApi();
 export const salesTypeApi = new SalesTypeApi();
 export const taxApi = new TaxApi();
+export const categoryApi = new CategoryApi();
