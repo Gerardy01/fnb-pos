@@ -21,6 +21,8 @@ import SalesTypeOutlets from "./salesTypeOutlet.model";
 import Tax from "./tax.model";
 import TaxOutlets from "./taxOutlet.model";
 import Category from "./category.model";
+import Modifier from "./modifier.model";
+import ModifierOption from "./modifierOption.model";
 
 
 
@@ -117,6 +119,10 @@ Tax.belongsToMany(Outlet, {
     as: 'outlets',
 });
 
+// Modifier ModifierOption relation
+Modifier.hasMany(ModifierOption, { foreignKey: "modifier_id", as: "modifier_options" });
+ModifierOption.belongsTo(Modifier, { foreignKey: "modifier_id", as: "modifier" });
+
 
 export {
     Account,
@@ -142,4 +148,6 @@ export {
     Tax,
     TaxOutlets,
     Category,
+    Modifier,
+    ModifierOption,
 }
