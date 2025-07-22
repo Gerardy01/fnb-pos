@@ -44,6 +44,10 @@ module.exports = {
         permission_name: 'Category Management',
         description: '',
       },
+      {
+        permission_name: 'Modifier Management',
+        description: '',
+      },
     ], {});
   },
 

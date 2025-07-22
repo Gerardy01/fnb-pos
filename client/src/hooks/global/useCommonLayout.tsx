@@ -135,6 +135,7 @@ export default function useCommonLayout() {
             icon: <BookOutlined />,
             permissions: [
                 PageAccessPermissionEnum.CATEGORY_MANAGEMENT,
+                PageAccessPermissionEnum.MODIFIER_MANAGEMENT,
             ],
             children: [
                 {
@@ -142,7 +143,13 @@ export default function useCommonLayout() {
                     label: t('category'),
                     permissions: [PageAccessPermissionEnum.CATEGORY_MANAGEMENT],
                     onClick: () => handleClick("/category"),
-                }
+                },
+                {
+                    key: '/modifier',
+                    label: t('modifier'),
+                    permissions: [PageAccessPermissionEnum.MODIFIER_MANAGEMENT],
+                    onClick: () => handleClick("/modifier"),
+                },
             ]
         },
         {

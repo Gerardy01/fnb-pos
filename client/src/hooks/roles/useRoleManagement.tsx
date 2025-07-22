@@ -618,6 +618,18 @@ function usePermissionSetHandling() {
                 { permissionId: PermissionEnum.OUTLET_MANAGEMENT, read: true },
             ]
         },
+        {
+            pageAccessId: PageAccessPermissionEnum.CATEGORY_MANAGEMENT,
+            requiredPermissions: [
+                { permissionId: PermissionEnum.CATEGORY_MANAGEMENT, read: true, write: true },
+            ]
+        },
+        {
+            pageAccessId: PageAccessPermissionEnum.MODIFIER_MANAGEMENT,
+            requiredPermissions: [
+                { permissionId: PermissionEnum.MODIFIER_MANAGEMENT, read: true, write: true },
+            ]
+        },
     ];
 
     const checkPageAccessRequirements = (pageAccessId: number, currentPermissions: RolePermission[]): boolean => {

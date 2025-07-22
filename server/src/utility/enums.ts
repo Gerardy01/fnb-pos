@@ -21,6 +21,7 @@ export enum PermissionEnum {
     SALES_TYPE_MANAGEMENT = 8,
     TAX_MANAGEMENT = 9,
     CATEGORY_MANAGEMENT = 10,
+    MODIFIER_MANAGEMENT = 11,
 }
 
 export enum EditAccountProcessEnum {

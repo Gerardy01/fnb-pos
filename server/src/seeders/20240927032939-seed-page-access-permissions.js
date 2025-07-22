@@ -44,6 +44,10 @@ module.exports = {
         permission_name: 'Category Page',
         description: ''
       },
+      {
+        permission_name: 'Modifier Page',
+        description: ''
+      },
     ]);
   },
 

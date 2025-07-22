@@ -58,5 +58,6 @@
     "optionalPrefix" : "(Optional)",
     "taxes" : "Taxes",
     "catalougue" : "Catalougue",
-    "category" : "Category"
+    "category" : "Category",
+    "modifier" : "Modifier"
 }

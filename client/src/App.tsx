@@ -90,6 +90,11 @@ export default function App() {
 								<Route path="/category" element={<CategoryManagement />} />
 								<Route path="/category/:categoryId" element={<CategoryManagement />} />
 							</Route>
+
+							<Route element={<PermissionProtectedRoutes requiredPermission={[PageAccessPermissionEnum.MODIFIER_MANAGEMENT]} />}>
+								<Route path="/modifier" element={<Dashboard />} />
+								<Route path="/modifier/:modifierId" element={<Dashboard />} />
+							</Route>
 						</Route>
 
 						<Route element={<PermissionProtectedRoutes pageLoad requiredPermission={[PageAccessPermissionEnum.POS]} />}>
