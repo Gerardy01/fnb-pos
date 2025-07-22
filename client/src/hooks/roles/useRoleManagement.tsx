@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { TableColumnsType, Space, Button, Form, FormProps } from "antd";
+import { TableColumnsType, Space, Button, Form, FormProps, Typography } from "antd";
 
 import { EditOutlined } from "@ant-design/icons";
 
@@ -34,6 +34,7 @@ export interface RoleTableData {
     assignedAccount : number;
 }
 
+const { Text } = Typography;
 
 
 export function useRoleManagement() {
@@ -110,6 +111,11 @@ export function useRoleManagement() {
             dataIndex: 'assignedAccount',
             align: 'center',
             sorter: (a, b) => a.assignedAccount - b.assignedAccount,
+            render: (item) => {
+                return (
+                    <Text strong>{item} {t("role:Accounts")}</Text>
+                )
+            }
         },
         {
             title: t("global:action"),

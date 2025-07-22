@@ -109,6 +109,8 @@ export function useTaxManagement() {
             title: t("tax:assignedOutlets"),
             dataIndex: 'assignedOutlets',
             key: 'assignedOutlets',
+            align: 'center',
+            sorter: (a, b) => a.outletIds.length - b.outletIds.length,
             render: (_item, record) => {
                 return (
                     <Text strong>{record.outletIds.length} {t("tax:outlets")}</Text>
@@ -422,7 +424,7 @@ export function useEditTax(
                 }
 
                 if (err.status === 409) {
-                    errorModal(t('global:failed'), t(`salesType:${err.response.data.message}`));
+                    errorModal(t('global:failed'), t(`tax:${err.response.data.message}`));
                     return;
                 }
 

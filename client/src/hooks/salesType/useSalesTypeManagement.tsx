@@ -124,6 +124,8 @@ export function useSalesTypeManagement() {
             title: t("salesType:assignedOutlets"),
             dataIndex: 'assignedOutlets',
             key: 'assignedOutlets',
+            align: 'center',
+            sorter: (a, b) => a.outletIds.length - b.outletIds.length,
             render: (_item, record) => {
                 return (
                     <Text strong>{record.outletIds.length} {t("salesType:outlets")}</Text>
