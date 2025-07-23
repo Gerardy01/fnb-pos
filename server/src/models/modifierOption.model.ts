@@ -8,6 +8,7 @@ import Modifier from "./modifier.model";
 class ModifierOption extends Model {
     public id! : number;
     public modifier_id! : number;
+    public option_name! : string;
     public price! : string;
 
     public modifier? : Modifier;
@@ -29,6 +30,10 @@ ModifierOption.init({
             key: 'modifier_id',
         },
         onDelete: 'CASCADE'
+    },
+    option_name: {
+        type: DataTypes.STRING(100),
+        allowNull: false,
     },
     price: {
         type: DataTypes.DECIMAL(15, 2),

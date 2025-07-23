@@ -20,6 +20,10 @@ module.exports = {
         },
         onDelete: 'CASCADE',
       },
+      option_name: {
+        type: Sequelize.STRING(100),
+        allowNull: false,
+      },
       price: {
         type: Sequelize.DECIMAL(15, 2),
         allowNull: false,

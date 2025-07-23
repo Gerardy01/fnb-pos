@@ -3,6 +3,7 @@ import sequelize from "../config/database";
 
 // models
 import Organization from "./organization.model";
+import ModifierOption from "./modifierOption.model";
 
 
 class Modifier extends Model {
@@ -17,6 +18,7 @@ class Modifier extends Model {
     public readonly updated_at! : Date;
 
     public organization? : Organization;
+    public modifier_options? : ModifierOption[];
 }
 
 Modifier.init({

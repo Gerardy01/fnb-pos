@@ -14,6 +14,7 @@ import gratuityRoutes from './gratuityRoutes';
 import salesTypeRoutes from './salesTypeRoutes';
 import taxRoutes from './taxRoutes';
 import categoryRoutes from './categoryRoutes';
+import modifierRoutes from './modifierRoutes';
 
 
 const v1Api = Router();
@@ -30,5 +31,6 @@ v1Api.use("/gratuity", gratuityRoutes);
 v1Api.use("/sales-type", salesTypeRoutes);
 v1Api.use("/tax", taxRoutes);
 v1Api.use("/category", categoryRoutes);
+v1Api.use("/modifier", modifierRoutes);
 
 export default v1Api;

@@ -12,6 +12,7 @@ import { GratuityService } from "./gratuityService";
 import { SalesTypeService } from "./salesTypeService";
 import { TaxService } from "./taxService";
 import { CategoryService } from "./categoryService";
+import { ModifierService } from "./modifierService";
 
 // repository
 import { OrganizationRepository } from "../repositories/organizationRepository";
@@ -35,6 +36,8 @@ import { SalesTypeGratuityRepository } from "../repositories/salesTypeGratuityRe
 import { TaxRepository } from "../repositories/taxRepository";
 import { TaxOutletRepository } from "../repositories/taxOutletRepository";
 import { CategoryRepository } from "../repositories/categoryRepository";
+import { ModifierRepository } from "../repositories/modifierRepository";
+import { ModifierOptionRepository } from "../repositories/modifierOptionRepository";
 
 // providers
 import { BcryptJsHashProvider } from "../providers/hashProvider";
@@ -68,6 +71,8 @@ const salesTypeGratuityRepository = new SalesTypeGratuityRepository();
 const taxRepository = new TaxRepository();
 const taxOutletRepository = new TaxOutletRepository();
 const categoryRepository = new CategoryRepository();
+const modifierRepository = new ModifierRepository();
+const modifierOptionRepository = new ModifierOptionRepository();
 
 const bcryptJsHashProvider = new BcryptJsHashProvider();
 const jsonWebTokenJwtProvider = new JsonWebTokenJwtProvider();
@@ -117,6 +122,7 @@ export const salesTypeService = new SalesTypeService(
 );
 export const taxService = new TaxService(taxRepository, taxOutletRepository, outletRepository);
 export const categoryService = new CategoryService(categoryRepository);
+export const modifierService = new ModifierService(modifierRepository, modifierOptionRepository);
 
 
 // combined service (orchestration)
