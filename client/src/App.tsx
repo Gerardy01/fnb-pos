@@ -26,6 +26,7 @@ import GratuityManagement from "./pages/GratuityManagement";
 import SalesTypeManagement from "./pages/SalesTypeManagement";
 import TaxManagement from "./pages/TaxManagement";
 import CategoryManagement from "./pages/CategoryManagement";
+import ModifierManagement from "./pages/ModifierManagement";
 import NotFound from "./pages/NotFound";
 
 
@@ -92,8 +93,8 @@ export default function App() {
 							</Route>
 
 							<Route element={<PermissionProtectedRoutes requiredPermission={[PageAccessPermissionEnum.MODIFIER_MANAGEMENT]} />}>
-								<Route path="/modifier" element={<Dashboard />} />
-								<Route path="/modifier/:modifierId" element={<Dashboard />} />
+								<Route path="/modifier" element={<ModifierManagement />} />
+								<Route path="/modifier/:modifierId" element={<ModifierManagement />} />
 							</Route>
 						</Route>
 

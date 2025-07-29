@@ -14,6 +14,7 @@ declare module 'i18next' {
       salesType : typeof import('./locales/en.json');
       tax : typeof import('./locales/en.json');
       category : typeof import('./locales/en.json');
+      modifier : typeof import('./locales/en.json');
     };
   }
 }

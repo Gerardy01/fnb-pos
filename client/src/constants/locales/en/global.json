@@ -59,5 +59,6 @@
     "taxes" : "Taxes",
     "catalougue" : "Catalougue",
     "category" : "Category",
-    "modifier" : "Modifier"
+    "modifier" : "Modifier",
+    "remove" : "Remove"
 }

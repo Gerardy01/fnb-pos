@@ -89,9 +89,18 @@ export class ModifierService implements IModifierService {
             throw new NotValid("MODIFIER403-1");
         }
 
+        // check min == 0 if required false
+        if (!data.required && data.min !== 0) {
+            throw new NotValid("MODIFIER403-3");
+        }
+
         // check max not more than options
         if (data.max > data.modifierOptions.length) {
             throw new NotValid("MODIFIER403-2");
+        }
+
+        if (data.max < data.min) {
+            throw new NotValid("max must be more than min");
         }
 
         // create modifier
@@ -146,9 +155,18 @@ export class ModifierService implements IModifierService {
             throw new NotValid("MODIFIER403-1");
         }
 
+        // check min == 0 if required false
+        if (!data.required && data.min !== 0) {
+            throw new NotValid("MODIFIER403-3");
+        } 
+
         // check max not more than options
         if (data.max > data.modifierOptions.length) {
             throw new NotValid("MODIFIER403-2");
+        }
+
+        if (data.max < data.min) {
+            throw new NotValid("max must be more than min");
         }
 
         // remove current modifierOption

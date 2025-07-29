@@ -1,0 +1,32 @@
+
+
+
+{
+    "MODIFIER409-1" : "Modifier with this name already exist. Please use another name.",
+    "MODIFIER403-1" : "The option is required. Minimum Choices must be set at least one",
+    "MODIFIER403-2" : "Maximum Choices is more than Modifier Options selection",
+    "MODIFIER403-3" : "The option is not required. Minimum choices must be 0",
+
+    "modifierManagement" : "Modifier Management",
+    "modifierSearchPlaceholder" : "Search by Name",
+    "name": "Name",
+    "options" : "Options",
+    "newModifier" : "New Modifier",
+    "addNewModifier" : "Add New Modifier",
+    "modifierOptions" : "Modifier Options",
+    "optionName" : "Option Name",
+    "price" : "Price",
+    "newOption" : "New Option",
+    "modifierOptionDesc" : "Add option selection for this modifier",
+    "requiredDesc" : "Customers must select an option from this modifier",
+    "required" : "Required ?",
+    "checkboxLabel" : "Limit Choices",
+    "modifierOptionErrMsg" : "Please make sure all option name and price is filled",
+    "minimumChoices" : "Minimum Choices",
+    "maximumChoices" : "Maximum Choices",
+    "addSuccess" : "Modifier added successfully",
+    "editSuccess" : "Modifier edited successfully",
+    "deleteSuccess" : "Modifier deleted successfully",
+    "sureDeleteTax" : "Are you sure want to delete this modifier?",
+    "deleteTaxDesc" : "Please confirm that you want to permanently delete this modifier. This operation cannot be undone."
+}
