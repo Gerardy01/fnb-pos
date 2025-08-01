@@ -2,7 +2,7 @@ import { Alert, Button, Checkbox, Form, Input, InputNumber, Modal, Space, Switch
 import { PlusOutlined } from "@ant-design/icons";
 
 import { useTranslation } from "react-i18next";
-import { ModifierTableData, useAddModifier } from "../../hooks/modifiers/useModifiermanagement";
+import { ModifierTableData, useAddModifier } from "../../hooks/modifiers/useModifierManagement";
 
 // types and interfaces
 interface Props {

@@ -2,10 +2,11 @@ import { Skeleton, Typography, Input, Button, Table } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 
 import { useTranslation } from "react-i18next";
-import { ModifierTableData, useModifierManagement } from '../hooks/modifiers/useModifiermanagement';
+import { ModifierTableData, useModifierManagement } from '../hooks/modifiers/useModifierManagement'; 
 
 // components
 import AddModifierModal from '../components/modifier/AddModifierModal';
+import EditModifierModal from '../components/modifier/EditModifierModal';
 
 const { Title } = Typography;
 const { Search } = Input;
@@ -72,6 +73,14 @@ export default function ModifierManagement() {
                 onClose={() => addModifierOpen(false)}
                 onAddModifierSuccess={onAddModifierSuccess}
             />
+            {editModifierModal && (
+                <EditModifierModal
+                    open={editModifierModal}
+                    onClose={() => editModifierOpen(false)}
+                    onEditModifierSuccess={onEditModifierSuccess}
+                    onDeleteModifierSuccess={onDeleteModifierSuccess}
+                />
+            )}
         </div>
     )
 }

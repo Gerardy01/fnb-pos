@@ -53,7 +53,7 @@ export class ModifierApi {
         return [error, res.data.data];
     }
 
-    async deleteTax(modifierId : number) : Promise<[undefined, boolean] | [ErrorResponse]> {
+    async deleteModifier(modifierId : number) : Promise<[undefined, boolean] | [ErrorResponse]> {
         const [error, res] = await catchFetchError(axiosPrivate.delete<FetchResponse<boolean>>(
             `modifier/${modifierId}`
         ));

@@ -324,6 +324,203 @@ export function useAddModifier(
     }
 }
 
+export function useEditModifier(
+    onEditModifierSuccess : (newValue : ModifierTableData) => void,
+    onDeleteModifierSuccess : (modifierId : number) => void,
+) {
+
+    const { modifierId : modifierIdFromParams } = useParams();
+
+    const { t } = useTranslation(["global", "modifier"]);
+
+    const { serverErrorModal, errorModal, confirmationModal } = useStaticModal();
+    const { successnotification } = useNotification();
+
+    const [modifierData, setModifierData] = useState<ModifierDataReturn | null>(null);
+
+    const [loading, setLoading] = useState<boolean>(false);
+    const [submitLoad, setSubmitLoad] = useState<boolean>(false);
+    const [contentLoad, setContentLoad] = useState<boolean>(true);
+
+    const [modifierOptionErrMsg, setModifierOptionErrMsg] = useState<string>("");
+
+    const [limitChoices, setLimitChoices] = useState<boolean>(false);
+
+    const [editModifierForm] = Form.useForm();
+
+    const {
+        required,
+        handleChangeRequired,
+    } = handleRequired(editModifierForm);
+
+    const {
+        optionColumns,
+        optionData,
+        resetOptions,
+        handleAddOption,
+        validateOptions,
+        handleBulkSetOptions,
+    } = handleOptions(editModifierForm, limitChoices);
+
+    useEffect(() => {
+        getModifierData();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    const getModifierData = async () : Promise<void> => {
+        if (!modifierIdFromParams) return;
+
+        try {
+
+            const [err, data] = await modifierApi.getOneModifier(Number(modifierIdFromParams));
+
+            if (err) {
+                if (err.status === 404) return;
+
+                serverErrorModal();
+                return;
+            }
+
+            setModifierData(data);
+            handleChangeRequired(data.required);
+            handleBulkSetOptions(data.modifierOptions);
+
+            if (data.min > 1 || data.max < data.modifierOptions.length) {
+                setLimitChoices(true);
+            }
+
+        } finally {
+            setContentLoad(false);
+        }
+    }
+
+    const resetData = () : void => {
+        editModifierForm.resetFields();
+        handleChangeRequired(false);
+        resetOptions();
+        changeLimitChoices(false, true);
+    }
+
+    const handleEditModifier : FormProps<ModifierForm>['onFinish'] = async (values) : Promise<void> => {
+        if (!modifierIdFromParams) return;
+
+        if (!validateOptions()) {
+            setModifierOptionErrMsg(t("modifier:modifierOptionErrMsg"))
+            return;
+        } else {
+            setModifierOptionErrMsg("");
+        }
+
+        setSubmitLoad(true);
+
+        try {
+
+            const [err, data] = await modifierApi.editModifier({
+                modifierId : Number(modifierIdFromParams),
+                name : values.name,
+                modifierOptions : optionData,
+                required : required,
+                min : values.min,
+                max : values.max,
+            });
+
+            if (err) {
+                if (err.status === 400) {
+                    const error = err.response.data.schemaErrors ? err.response.data.schemaErrors[0] : undefined;
+                    if (!error) return;
+                    errorModal(undefined, `${error.field} is ${error.message}`);
+                    return;
+                }
+
+                if (err.status === 409) {
+                    errorModal(t('global:failed'), t(`modifier:${err.response.data.message}`));
+                    return;
+                }
+
+                if (err.status === 403) {
+                    errorModal(t('global:failed'), t(`modifier:${err.response.data.message}`));
+                    return;
+                }
+
+                serverErrorModal();
+                return;
+            }
+
+            successnotification(t("modifier:editSuccess"));
+            onEditModifierSuccess({
+                key : data.modifierId,
+                name : data.name,
+                modifierOptions : data.modifierOptions,
+            });
+
+        } finally {
+            setSubmitLoad(false);
+        }
+    }
+
+    const clickDeleteBtn = async () : Promise<void> => {
+        confirmationModal({
+            title : t("modifier:sureDeleteModifier"),
+            content: t("modifier:deleteModifierDesc"),
+            okBtn: t("global:yes"),
+            cancelBtn: t("global:cancel"),
+            centered: true,
+            okBtnDanger: true,
+            onOkWithPromise : handleDeleteModifier,
+        });
+    }
+
+    const handleDeleteModifier = async () : Promise<void> => {
+        if (!modifierIdFromParams) return;
+
+        setLoading(true);
+
+        try {
+
+            const [err] = await modifierApi.deleteModifier(Number(modifierIdFromParams));
+
+            if (err) {
+                serverErrorModal();
+                return;
+            }
+
+            onDeleteModifierSuccess(Number(modifierIdFromParams));
+            successnotification(t("modifier:deleteSuccess"));
+
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    const changeLimitChoices = (value : boolean, dataReset? : boolean) : void => {
+        setLimitChoices(value);
+
+        if (!value) {
+            editModifierForm.setFieldValue('min', required ? 1 : 0);
+            editModifierForm.setFieldValue('max', dataReset ? 1 : optionData.length);
+        }
+    }
+
+    return {
+        modifierData,
+        loading,
+        submitLoad,
+        contentLoad,
+        editModifierForm,
+        required,
+        optionColumns,
+        optionData,
+        limitChoices,
+        modifierOptionErrMsg,
+        resetData,
+        handleEditModifier,
+        clickDeleteBtn,
+        handleChangeRequired,
+        handleAddOption,
+        changeLimitChoices,
+    }
+}
+
 function handleRequired(form: FormInstance) {
 
     const [required, setRequired] = useState<boolean>(false);
@@ -421,6 +618,22 @@ function handleOptions(form: FormInstance, limitChoices : boolean) {
         ]);
     }
 
+    const handleBulkSetOptions = (optionData : IModifierOption[]) => {
+        const modifierOptionList : ModifierOptionTable[] = [];
+        let key = 0;
+
+        optionData.forEach(item => {
+            modifierOptionList.push({
+                key : key,
+                optionName : item.optionName,
+                price : item.price,
+            });
+            key++;
+        });
+
+        setOptions(modifierOptionList);
+    }
+
     const handleRemoveOption = (key : number) : void => {
         if (options.length <= 1) return;
 
@@ -494,5 +707,6 @@ function handleOptions(form: FormInstance, limitChoices : boolean) {
         resetOptions,
         handleAddOption,
         validateOptions,
+        handleBulkSetOptions,
     }
 }
