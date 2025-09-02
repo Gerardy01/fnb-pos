@@ -34,7 +34,7 @@ export default function ModifierManagement() {
 
     return (
         <div>
-            <Title level={3}>{t("tax:taxManagement")}</Title>
+            <Title level={3}>{t("modifier:modifierManagement")}</Title>
             {contentLoad ? (
                 <div style={styles.controlSection}>
                     <div style={styles.skeletonInput}>
