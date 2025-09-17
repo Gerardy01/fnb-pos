@@ -136,8 +136,15 @@ export default function useCommonLayout() {
             permissions: [
                 PageAccessPermissionEnum.CATEGORY_MANAGEMENT,
                 PageAccessPermissionEnum.MODIFIER_MANAGEMENT,
+                PageAccessPermissionEnum.MENU_MANAGEMENT,
             ],
             children: [
+                {
+                    key: '/menu',
+                    label: t('menu'),
+                    permissions: [PageAccessPermissionEnum.MENU_MANAGEMENT],
+                    onClick: () => handleClick("/menu"),
+                },
                 {
                     key: '/category',
                     label: t('category'),

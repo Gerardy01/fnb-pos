@@ -96,6 +96,11 @@ export default function App() {
 								<Route path="/modifier" element={<ModifierManagement />} />
 								<Route path="/modifier/:modifierId" element={<ModifierManagement />} />
 							</Route>
+
+							<Route element={<PermissionProtectedRoutes requiredPermission={[PageAccessPermissionEnum.MENU_MANAGEMENT]} />}>
+								<Route path="/menu" element={<Dashboard />} />
+								<Route path="/menu/:menuId" element={<Dashboard />} />
+							</Route>
 						</Route>
 
 						<Route element={<PermissionProtectedRoutes pageLoad requiredPermission={[PageAccessPermissionEnum.POS]} />}>

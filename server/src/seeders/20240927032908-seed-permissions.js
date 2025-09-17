@@ -48,6 +48,10 @@ module.exports = {
         permission_name: 'Modifier Management',
         description: '',
       },
+      {
+        permission_name: 'Menu Management',
+        description: '',
+      },
     ], {});
   },
 

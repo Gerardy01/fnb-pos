@@ -12,6 +12,7 @@ export enum PageAccessPermissionEnum {
     TAX_MANAGEMENT = 9,
     CATEGORY_MANAGEMENT = 10,
     MODIFIER_MANAGEMENT = 11,
+    MENU_MANAGEMENT = 12,
 }
 
 export enum PermissionEnum {
@@ -26,6 +27,7 @@ export enum PermissionEnum {
     TAX_MANAGEMENT = 9,
     CATEGORY_MANAGEMENT = 10,
     MODIFIER_MANAGEMENT = 11,
+    MENU_MANAGEMENT = 12,
 }
 
 export enum GratuityCalculationTypeEnum {

@@ -48,6 +48,10 @@ module.exports = {
         permission_name: 'Modifier Page',
         description: ''
       },
+      {
+        permission_name: 'Menu Page',
+        description: ''
+      },
     ]);
   },
 
